@@ -223,28 +223,31 @@ Son 9 historias, 3 por integrante:
 Los 9 microservicios se dividen en **2 de infraestructura** y **7 de negocio**. La `web-app` es un cliente y no se cuenta entre los microservicios.
 
 ```mermaid
-flowchart LR
+flowchart TB
     U[Navegador] --> W[web-app :8090]
     W --> G[api-gateway :8080]
-    G --> US[ms-usuarios :8081]
-    G --> CA[ms-catalogo :8082]
-    G --> IN[ms-ingesta :8083]
-    G --> ES[ms-estadisticas :8084]
-    G --> CU[ms-cuotas :8085]
-    G --> PR[ms-predicciones :8086]
-    G --> AP[ms-apuestas :8087]
-    IN -- partidos --> CA
-    IN -- estadísticas --> ES
-    IN -- cuotas --> CU
-    PR --> CA
-    PR --> ES
-    AP --> CA
-    AP --> PR
-    AP --> CU
-    AP --> ES
-    FD[(football-data.co.uk)] -.CSV.-> IN
-    D[discovery-server :8761]
-    G & US & CA & IN & ES & CU & PR & AP -. se registran .-> D
+    FD[(football-data.co.uk)] -. CSV .-> IN
+    subgraph NEG [Microservicios de negocio]
+        US[ms-usuarios :8081]
+        IN[ms-ingesta :8083]
+        CA[ms-catalogo :8082]
+        ES[ms-estadisticas :8084]
+        CU[ms-cuotas :8085]
+        PR[ms-predicciones :8086]
+        AP[ms-apuestas :8087]
+        IN --> CA
+        IN --> ES
+        IN --> CU
+        PR --> CA
+        PR --> ES
+        AP --> CA
+        AP --> PR
+        AP --> CU
+        AP --> ES
+    end
+    G --> NEG
+    NEG -. se registran .-> D[discovery-server :8761]
+    G -. se registra .-> D
 ```
 
 | # | Microservicio | Tipo | Responsabilidad | Base de datos | Dueño |
@@ -278,15 +281,15 @@ sequenceDiagram
     participant C as ms-catalogo
     participant P as ms-predicciones
     participant Q as ms-cuotas
-    W->>G: GET /api/apuestas/apuesta-del-dia (JWT)
-    G->>A: GET /apuesta-del-dia (X-Usuario-Id)
-    A->>C: GET /partidos?fecha=hoy&estado=PROGRAMADO
+    W->>G: GET /api/apuestas/<br/>apuesta-del-dia (JWT)
+    G->>A: GET /apuesta-del-dia<br/>(X-Usuario-Id)
+    A->>C: GET /partidos?fecha=hoy<br/>&estado=PROGRAMADO
     loop cada partido
         A->>P: GET /partidos/{id}
         A->>Q: GET /partidos/{id}/cuotas
     end
-    A->>A: valor esperado = p × cuota − 1, filtrar umbrales, elegir el máximo
-    A-->>G: pick o "Hoy no hay apuesta del día"
+    A->>A: EV = p × cuota − 1<br/>filtrar umbrales y elegir el máximo
+    A-->>G: pick o "Hoy no hay<br/>apuesta del día"
     G-->>W: 200 OK
 ```
 

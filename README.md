@@ -8,7 +8,8 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 
 | Documento | Para qué |
 |---|---|
-| [docs/Documentacion.md](docs/Documentacion.md) | Documento del proyecto (perfil, análisis, arquitectura, BD, plan de la semana y pruebas), con la estructura del proyecto MTC |
+| [docs/DocumentacionProyectoApuestas.docx](docs/DocumentacionProyectoApuestas.docx) | **Documento para entregar** (Word, formato del proyecto MTC). Los textos resaltados en amarillo se completan a mano. |
+| [docs/Documentacion.md](docs/Documentacion.md) | Mismo contenido en Markdown (fuente para regenerar el Word) y documento del proyecto (perfil, análisis, arquitectura, BD, plan de la semana y pruebas), con la estructura del proyecto MTC |
 | [docs/guia-inicio.md](docs/guia-inicio.md) | Cómo crear cada servicio con Spring Initializr y cómo levantar todo |
 | `servicios/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, tareas y pistas |
 
