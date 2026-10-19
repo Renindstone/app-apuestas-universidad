@@ -1,0 +1,22 @@
+# Infraestructura mínima para desarrollar desde el día 1: PostgreSQL con una base de datos por servicio.
+# El docker-compose completo (los 9 servicios + web-app) lo arma el Integrante 3 el domingo 25
+# siguiendo la sección 5.6 de docs/Documentacion.md.
+services:
+  postgres:
+    image: postgres:16
+    container_name: apuestas-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-apuestas}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-apuestas_dev}
+    ports:
+      - "5441:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-apuestas}"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:
