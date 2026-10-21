@@ -1,0 +1,75 @@
+digraph G {
+graph [rankdir=TB, fontname="Liberation Sans", fontsize=12, nodesep=0.3, ranksep=0.28, pad=0.15, newrank=true, splines=spline];
+node [fontname="Liberation Sans", fontsize=11, penwidth=1.3, margin="0.12,0.06"];
+edge [fontname="Liberation Sans", fontsize=10, color="#404040", arrowsize=0.7, penwidth=1.2];
+subgraph cluster_eje { label=<<B>Ejecución (por cada archivo)</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+ini [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<@Scheduled (05:00, 08:00,<BR/>16:00) o POST /ejecutar<BR/>(solo ADMIN)>];
+t [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Tipo?>];
+h [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Un CSV por liga<BR/>(E0, SP1, D1)<BR/>y temporada>];
+p [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<fixtures.csv<BR/>(filtra E0,<BR/>SP1 y D1)>];
+b_in [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>B</B>>];
+e1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Registra la ejecución:<BR/>EN_CURSO>];
+fd [shape=cylinder, style=filled, fillcolor="#F2F2F2", color="#7F7F7F", fontsize=10, label=<football-data<BR/>.co.uk>];
+e2 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Descarga el CSV<BR/>(una sola vez)>];
+e3 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Descarga<BR/>correcta?>];
+e4 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Registra ERROR<BR/>con el mensaje>];
+d1 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>D</B>>];
+g_in [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>G</B>>];
+e5 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Registra OK, filas<BR/>procesadas y fin>];
+e6 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Quedan<BR/>archivos?>];
+b1 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>B</B>>];
+fin [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<Fin>];
+ini -> t;
+t -> h [label=<HISTORICO>];
+t -> p [label=<PROXIMOS>];
+h -> e1;
+p -> e1;
+b_in -> e1;
+{rank=same; e1; b_in;}
+fd -> e2 [style="dashed"];
+{rank=same; fd; e2;}
+e1 -> e2;
+e2 -> e3;
+e3 -> e4 [label=<No>];
+e3 -> d1 [label=<Sí>];
+g_in -> e5;
+{rank=same; e4; d1;}
+d1 -> g_in [style="invis"];
+e5 -> e6;
+e4 -> e6;
+e6 -> b1 [label=<Sí>];
+e6 -> fin [label=<No>];
+}
+subgraph cluster_fil { label=<<B>Procesamiento (por cada fila)</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+d_in [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>D</B>>];
+c_in [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>C</B>>];
+f1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Lee la fila por nombre<BR/>de columna (sin BOM);<BR/>hora de Londres → UTC>];
+f2 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-catalogo</B><BR/><FONT POINT-SIZE="9" FACE="Liberation Mono">POST /interno/partidos</FONT><BR/>Upsert del partido;<BR/>recibe los IDs</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+f3 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Respondió<BR/>bien?>];
+f4 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Anota el error en<BR/>el log y sigue con<BR/>la fila siguiente>];
+f5 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Tiene goles y<BR/>estadísticas?>];
+f6 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-estadisticas</B><BR/><FONT POINT-SIZE="9" FACE="Liberation Mono">POST /interno/estadisticas</FONT><BR/>Guarda las<BR/>estadísticas</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+f7 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Tiene<BR/>cuotas?>];
+f8 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-cuotas</B><BR/><FONT POINT-SIZE="9" FACE="Liberation Mono">POST /interno/cuotas</FONT><BR/>Guarda las cuotas</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+f9 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Quedan<BR/>filas?>];
+c1 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>C</B>>];
+g1 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>G</B>>];
+d_in -> f1;
+c_in -> f1;
+{rank=same; d_in; c_in;}
+f1 -> f2;
+f2 -> f3;
+f3 -> f4 [label=<No>];
+f4 -> f9;
+f3 -> f5 [label=<Sí>];
+f5 -> f6 [label=<Sí>];
+f5 -> f7 [label=<No>];
+f6 -> f7;
+f7 -> f8 [label=<Sí>];
+f7 -> f9 [label=<No>];
+f8 -> f9;
+f9 -> c1 [label=<Sí>];
+f9 -> g1 [label=<No>];
+}
+{rank=same; ini; d_in;}
+}

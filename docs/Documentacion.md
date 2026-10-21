@@ -58,6 +58,28 @@ Construir una plataforma web que reúna esos datos, estime la probabilidad de ca
 - El dato de árbitro solo existe para la Premier League. En LaLiga y Bundesliga el factor árbitro no se aplica.
 - Es un proyecto académico. Un modelo de Poisson simple **no le gana a las casas de apuestas** de forma sostenida, y así debe presentarse.
 
+### 1.6. Modelo de negocio
+
+El proyecto es académico y no busca ingresos durante el curso. Aun así, conviene plantear cómo funcionaría si se llevara al mercado. Para eso se usa el lienzo de modelo de negocio (*Business Model Canvas*) de Osterwalder y Pigneur, que resume en nueve bloques a quién se le ofrece valor, cómo se le llega y de dónde salen los ingresos y los costos. Los precios y los planes son supuestos por validar, no resultados. En el Word, el lienzo tiene su forma clásica: la propuesta de valor va al centro.
+
+| Bloque | Contenido |
+|---|---|
+| Segmentos de clientes | Apostadores recreativos mayores de 18 años en el Perú que usan bet365 o Betano · Aficionados que quieren aprender estadística aplicada al fútbol · Creadores de contenido que necesitan datos y probabilidades |
+| Propuesta de valor | Resultados, estadísticas, árbitro y cuotas en un solo lugar · Probabilidad y cuota justa de cada mercado, explicadas · Detecta cuotas con valor esperado positivo y propone una apuesta del día con umbrales públicos · Registro de apuestas y ROI real · No promete ganancias: «No apostar también es una decisión» |
+| Canales | Web responsive (PC y celular) · Redes sociales: análisis de cada jornada · Comunidades de fútbol |
+| Relación con clientes | Autoservicio con cuenta propia · Historial público de la apuesta del día, con aciertos y fallos · Contenido educativo · Mensajes de juego responsable |
+| Fuentes de ingresos (modelo freemium, por validar) | Plan gratuito: partidos, mercados 1X2 y goles, y registro de apuestas · Plan Premium mensual: todos los mercados, apuesta del día, historial completo y alertas · Publicidad de marcas que no sean de apuestas · Acceso a la API de datos para creadores de contenido |
+| Recursos clave | Datos públicos de 3 ligas · Modelo de Poisson y código propio · Infraestructura con Docker · Equipo de 3 desarrolladores |
+| Actividades clave | Ingesta diaria y control de los datos · Validar el modelo contra Pinnacle · Operar los 9 microservicios · Contenido educativo |
+| Socios clave | football-data.co.uk (datos gratuitos) · Proveedor de nube o VPS · Pasarela de pagos local (p. ej., Culqi o Mercado Pago) · Creadores de contenido y comunidades de fútbol |
+| Estructura de costos | Servidor para los 11 contenedores (durante el curso, S/ 0: corre en local) · Dominio web (el certificado TLS puede ser gratuito) · Horas de desarrollo y mantenimiento · Publicidad en redes y comisión de la pasarela de pagos · A futuro, datos de pago (alineaciones, xG) |
+
+**Decisiones del modelo:**
+- **Sin comisiones de afiliados.** Los programas de afiliados de las casas de apuestas suelen pagar una parte de lo que pierden los usuarios referidos, o un monto por cada nuevo depositante. Cobrar así crearía un conflicto de interés, porque la plataforma ganaría más cuando el usuario pierde. Por eso se descarta.
+- **Se vende información y disciplina, no ganancias.** El modelo de Poisson no le gana a las casas de forma sostenida (sección 1.5). El plan Premium no puede anunciarse como una forma de ganar dinero: ofrece ahorro de tiempo, comprensión de las cuotas y control de la banca.
+- **Marco legal y juego responsable.** En el Perú, las apuestas deportivas a distancia están reguladas por la Ley N.° 31557, modificada por la Ley N.° 31806, y por su reglamento (D.S. N.° 005-2023-MINCETUR), vigente desde febrero de 2024. La plataforma no recibe apuestas, solo las analiza. Aun así, debe dirigirse solo a mayores de edad, mostrar mensajes de juego responsable y comprobar que las casas que menciona tengan autorización vigente del MINCETUR.
+- **Validación antes de invertir.** Un piloto gratuito durante una temporada mediría cuántos usuarios vuelven cada semana y cuántos pagarían por el plan Premium. Si no se alcanza un mínimo, el proyecto se queda como herramienta educativa.
+
 ---
 
 ## 2. Metodología
@@ -343,6 +365,84 @@ flowchart TB
 | web-app | build propio | 8090 | 8090 |
 
 Los puertos de PostgreSQL (5441) y de la web (8090) se eligieron para no chocar con el proyecto MTC (5440 y 8082) ni con la rama `main` (5433).
+
+### 5.7. Diagramas de flujo de los microservicios
+
+Los diagramas de esta sección muestran, paso a paso, qué hace cada microservicio y en qué momento llama a otro. Complementan la arquitectura lógica (5.2) y la secuencia de la apuesta del día (5.3). Siguen los contratos de `servicios/<servicio>/README.md`: si un contrato cambia, también hay que actualizar su diagrama. Las fuentes Graphviz están en [`docs/diagramas/flujo/`](diagramas/flujo/). Para regenerar una imagen: `dot -Tpng -Gdpi=220 archivo.dot -o archivo.png`.
+
+**Simbología** (con los colores de la arquitectura lógica):
+
+| Símbolo | Significado |
+|---|---|
+| Rectángulo redondeado oscuro | Inicio: una petición HTTP, una tarea programada (`@Scheduled`) o el arranque del servicio |
+| Rectángulo redondeado gris o rojo | Fin o respuesta: gris si es correcta, rojo si es un error, con su código HTTP |
+| Rectángulo | Proceso del propio servicio. Azul: microservicio de negocio. Verde: infraestructura. Amarillo: `web-app` |
+| Rectángulo con barras laterales | Proceso predefinido: llamada REST (Feign) a otro microservicio, cuyo nombre va en negrita |
+| Rombo | Decisión, con salidas Sí/No o varias opciones |
+| Cilindro | Base de datos del servicio o fuente externa |
+| Círculo con letra | Conector: el flujo sigue en el otro círculo con la misma letra |
+| Hoja con esquina doblada | Nota aclaratoria |
+| Flecha continua / discontinua | Orden de los pasos / lectura o escritura de datos |
+
+Cuando un servicio tiene varios endpoints, cada recuadro punteado agrupa un flujo independiente.
+
+#### 5.7.1. Flujo general del sistema
+
+Lo que hace el sistema sin intervención del usuario: el arranque con Docker Compose y las tres tareas programadas del día, en hora de Lima.
+
+![Diagrama de flujo general: arranque y tareas programadas](diagramas/flujo/g1_tareas.png)
+
+El recorrido del usuario desde que abre la web hasta que cierra la sesión:
+
+![Diagrama de flujo general: uso del sistema por el apostador](diagramas/flujo/g2_usuario.png)
+
+#### 5.7.2. Flujo de cada microservicio
+
+Hay un diagrama por servicio, en el orden de la tabla de la sección 5.2. Cuando un servicio tiene varios endpoints, se muestran sus flujos principales. Se omiten los GET de solo lectura más simples.
+
+**discovery-server** (Integrante 3). Eureka solo espera eventos: registros, latidos y búsquedas por nombre. Si un servicio deja de enviar latidos, sale del registro y el gateway deja de mandarle peticiones. Los 30 y 90 segundos son los valores por defecto de Eureka.
+
+![Diagrama de flujo de discovery-server](diagramas/flujo/s1_discovery.png)
+
+**api-gateway** (Integrante 3). Es el filtro `JwtAuthFilter` con sus reglas en el orden en que deben evaluarse. Lo primero es borrar las cabeceras `X-Usuario-*` que mande el cliente, para que nadie pueda hacerse pasar por otro usuario.
+
+![Diagrama de flujo de api-gateway](diagramas/flujo/s2_gateway.png)
+
+**ms-usuarios** (Integrante 3). Registro, inicio de sesión, banca y creación del usuario admin al arrancar. El rol siempre lo asigna el servidor, y el login responde el mismo error si falla el usuario o la clave.
+
+![Diagrama de flujo de ms-usuarios](diagramas/flujo/s3_usuarios.png)
+
+**ms-catalogo** (Integrante 1). El upsert interno es idempotente: enviar dos veces la misma fila no duplica el partido. La consulta convierte el día de Lima en un rango UTC antes de filtrar.
+
+![Diagrama de flujo de ms-catalogo](diagramas/flujo/s4_catalogo.png)
+
+**ms-ingesta** (Integrante 1). Cada ejecución recorre los archivos y, dentro de cada uno, las filas. Una fila con error se anota en el log y no detiene la ejecución. Los errores de `ms-estadisticas` y `ms-cuotas` se tratan igual.
+
+![Diagrama de flujo de ms-ingesta](diagramas/flujo/s5_ingesta.png)
+
+**ms-estadisticas** (Integrante 1). Cada partido se guarda como dos filas, una por equipo. Así los promedios a favor y en contra salen con un `AVG`, sin joins (sección 6.4).
+
+![Diagrama de flujo de ms-estadisticas](diagramas/flujo/s6_estadisticas.png)
+
+**ms-cuotas** (Integrante 2). La cuota manual de Betano se valida contra `ms-catalogo` antes de guardarse. Las probabilidades sin margen usan el método multiplicativo.
+
+![Diagrama de flujo de ms-cuotas](diagramas/flujo/s7_cuotas.png)
+
+**ms-predicciones** (Integrante 2). No tiene base de datos: en cada petición pide los datos y calcula. Si el partido no tiene árbitro (LaLiga y Bundesliga), el factor árbitro vale 1.
+
+![Diagrama de flujo de ms-predicciones](diagramas/flujo/s8_predicciones.png)
+
+**ms-apuestas** (Integrante 2). Es el servicio con más flujos, así que se divide en tres diagramas. El primero es la apuesta del día: si `ms-cuotas` no responde, devuelve 503, porque sin cuotas no hay valor esperado que calcular.
+
+![Diagrama de flujo de ms-apuestas: apuesta del día](diagramas/flujo/s9a_apuestas_dia.png)
+
+La liquidación recorre los picks y las apuestas pendientes. Los mercados de tarjetas y córners necesitan además las estadísticas finales del partido. Si todavía no están, la apuesta sigue pendiente hasta el día siguiente.
+
+![Diagrama de flujo de ms-apuestas: liquidación](diagramas/flujo/s9b_apuestas_liq.png)
+
+Los endpoints que usa el apostador desde la web: evaluar una cuota, registrar una apuesta y ver su rendimiento. El rendimiento solo cuenta las apuestas del usuario del token.
+
+![Diagrama de flujo de ms-apuestas: evaluar, registrar y rendimiento](diagramas/flujo/s9c_apuestas_otros.png)
 
 ---
 

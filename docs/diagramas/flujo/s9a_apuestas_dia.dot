@@ -1,0 +1,45 @@
+digraph G {
+graph [rankdir=TB, fontname="Liberation Sans", fontsize=12, nodesep=0.25, ranksep=0.28, pad=0.15, newrank=true, splines=spline];
+node [fontname="Liberation Sans", fontsize=11, penwidth=1.3, margin="0.12,0.06"];
+edge [fontname="Liberation Sans", fontsize=10, color="#404040", arrowsize=0.7, penwidth=1.2];
+d0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<09:00 (@Scheduled) o<BR/>GET /apuesta-del-dia>];
+d1 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Ya hay pick<BR/>del día y no se<BR/>pide recalcular?>];
+d1f [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 con el pick<BR/>guardado>];
+d2 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-catalogo</B><BR/>Partidos PROGRAMADO<BR/>de la fecha (Lima)</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+e_in [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>E</B>>];
+d3 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-predicciones</B><BR/>Probabilidades<BR/>del partido</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+d4 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-cuotas</B><BR/>Cuotas de bet365<BR/>y betano</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+d5 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿ms-cuotas<BR/>respondió?>];
+d5e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<503>];
+d6 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<EV de cada cuota;<BR/>guarda las que cumplen<BR/>los umbrales (1)>];
+d7 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Quedan<BR/>partidos?>];
+e1 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>E</B>>];
+h1 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>H</B>>];
+d0 -> d1;
+d1 -> d1f [label=<Sí>];
+d1 -> d2 [label=<No>];
+d2 -> d3;
+e_in -> d3;
+{rank=same; d3; e_in;}
+d3 -> d4;
+d4 -> d5;
+d5 -> d5e [label=<No>];
+d5 -> d6 [label=<Sí>];
+d6 -> d7;
+d7 -> e1 [label=<Sí>];
+d7 -> h1 [label=<No>];
+h_in [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>H</B>>];
+d8 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Hay<BR/>candidatas?>];
+d8f [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200: «Hoy no hay<BR/>apuesta del día»>];
+d9 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Guarda las candidatas<BR/>como pick; la de mayor<BR/>EV es la apuesta del día>];
+ddb [shape=cylinder, style=filled, fillcolor="#F2F2F2", color="#7F7F7F", fontsize=10, label=<apuestas_db>];
+d10 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 con el pick>];
+n1 [shape=note, style=filled, fillcolor="#FAFAFA", color="#9E9E9E", fontsize=9, margin="0.08,0.04", label=<(1) Cuota entre 1.50 y 2.60,<BR/>p ≥ 0.42, EV ≥ 0.03 y al<BR/>menos 5 partidos de<BR/>muestra por equipo>];
+h_in -> d8;
+d8 -> d8f [label=<No>];
+d8 -> d9 [label=<Sí>];
+d9 -> ddb [style="dashed"];
+d9 -> d10;
+d10 -> n1 [style="invis"];
+{rank=same; d0; h_in;}
+}

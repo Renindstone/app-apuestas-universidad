@@ -1,0 +1,43 @@
+digraph G {
+graph [rankdir=TB, fontname="Liberation Sans", fontsize=12, nodesep=0.3, ranksep=0.28, pad=0.15, newrank=true, splines=spline];
+node [fontname="Liberation Sans", fontsize=11, penwidth=1.3, margin="0.12,0.06"];
+edge [fontname="Liberation Sans", fontsize=10, color="#404040", arrowsize=0.7, penwidth=1.2];
+subgraph cluster_dat { label=<<B>Datos de entrada</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+ini [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<GET /partidos/{id}>];
+c1 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-catalogo</B><BR/><FONT POINT-SIZE="9" FACE="Liberation Mono">GET /partidos/{id}</FONT><BR/>Liga, equipos y árbitro</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+c2 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-estadisticas</B><BR/>Promedios de la liga,<BR/>del local (LOCAL) y del<BR/>visitante (VISITANTE),<BR/>últimos 10 partidos</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+q1 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Respondieron<BR/>los dos<BR/>servicios?>];
+q1e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<503 SERVICIO_<BR/>NO_DISPONIBLE>];
+q2 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿El partido<BR/>tiene<BR/>árbitro?>];
+c3 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-estadisticas</B><BR/><FONT POINT-SIZE="9" FACE="Liberation Mono">GET /arbitros/{id}/perfil</FONT><BR/>Perfil del árbitro</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+p1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<factorArbitro<BR/>suavizado (+10<BR/>partidos de la liga)>];
+p2 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<factorArbitro = 1>];
+h1 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>H</B>>];
+ini -> c1;
+c1 -> c2;
+c2 -> q1;
+q1 -> q1e [label=<No>];
+q1 -> q2 [label=<Sí>];
+q2 -> c3 [label=<Sí>];
+c3 -> p1;
+q2 -> p2 [label=<No>];
+p1 -> h1;
+p2 -> h1;
+}
+subgraph cluster_cal { label=<<B>Cálculo del modelo</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+h_in [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>H</B>>];
+p3 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<λ de cada estadística =<BR/>media de la liga × ataque<BR/>× defensa (con suavizado)>];
+p4 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Goles: matriz de Poisson<BR/>0..10 → 1X2, más/menos<BR/>y ambos marcan>];
+p5 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Córners: Poisson<BR/>con λL + λV>];
+p6 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Tarjetas: Poisson con<BR/>(λL + λV) × factorArbitro>];
+p7 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Cuota justa = 1 / p;<BR/>arma la explicación>];
+fin [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 con todos<BR/>los mercados>];
+h_in -> p3;
+p3 -> p4;
+p4 -> p5;
+p5 -> p6;
+p6 -> p7;
+p7 -> fin;
+}
+{rank=same; ini; h_in;}
+}

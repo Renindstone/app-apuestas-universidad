@@ -1,0 +1,64 @@
+digraph G {
+graph [rankdir=TB, fontname="Liberation Sans", fontsize=12, nodesep=0.25, ranksep=0.32, pad=0.15, newrank=true, splines=spline];
+node [fontname="Liberation Sans", fontsize=11, penwidth=1.3, margin="0.12,0.06"];
+edge [fontname="Liberation Sans", fontsize=10, color="#404040", arrowsize=0.7, penwidth=1.2];
+subgraph cluster_reg { label=<<B>Registro</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+r0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<POST /auth/registro>];
+r1 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Campos válidos<BR/>y claves<BR/>iguales?>];
+r1e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<400>];
+r3 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Usuario o correo<BR/>(en minúsculas)<BR/>ya existen?>];
+r3e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<409 USUARIO_<BR/>DUPLICADO>];
+r4 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Cifra la clave con<BR/>BCrypt; rol = APOSTADOR<BR/>(nunca del JSON)>];
+rdb [shape=cylinder, style=filled, fillcolor="#F2F2F2", color="#7F7F7F", fontsize=10, label=<usuarios_db>];
+r5 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<201 Creado>];
+r0 -> r1;
+r1 -> r1e [label=<No>];
+r1 -> r3 [label=<Sí>];
+r3 -> r3e [label=<Sí>];
+r3 -> r4 [label=<No>];
+r4 -> rdb [style="dashed"];
+r4 -> r5;
+}
+subgraph cluster_log { label=<<B>Inicio de sesión</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+l0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<POST /auth/login>];
+l1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Busca el usuario<BR/>por su nombre>];
+l2 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Existe y la<BR/>clave coincide<BR/>(BCrypt)?>];
+l2e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<401<BR/>CREDENCIALES_<BR/>INVALIDAS>];
+l3 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Firma el JWT HS256:<BR/>sub, usuario y rol;<BR/>vence en 8 h>];
+l4 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 con el token>];
+l0 -> l1;
+l1 -> l2;
+l2 -> l2e [label=<No>];
+l2 -> l3 [label=<Sí>];
+l3 -> l4;
+}
+subgraph cluster_ban { label=<<B>Banca</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+b0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<PUT /me/banca>];
+b2 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿banca ≥ 0?>];
+b2e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<400>];
+b3 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Actualiza la banca<BR/>del usuario de<BR/>X-Usuario-Id>];
+b4 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 con el perfil>];
+b0 -> b2;
+b2 -> b2e [label=<No>];
+b2 -> b3 [label=<Sí>];
+b3 -> b4;
+}
+subgraph cluster_arr { label=<<B>Usuario admin inicial</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+k0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<Arranque>];
+k1 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Existe el<BR/>usuario admin?>];
+k2 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Crea admin con rol<BR/>ADMIN (clave de<BR/>ADMIN_PASSWORD)>];
+k3 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<Listo>];
+k0 -> k1;
+k1 -> k2 [label=<No>];
+k2 -> k3;
+k1 -> k3 [label=<Sí>];
+}
+{rank=same; r0; l0;}
+{rank=same; b0; k0;}
+r5 -> b0 [style="invis"];
+l4 -> k0 [style="invis"];
+{rank=same; r1; r1e;}
+{rank=same; r3; r3e;}
+{rank=same; l2; l2e;}
+{rank=same; b2; b2e;}
+}

@@ -1,0 +1,53 @@
+digraph G {
+graph [rankdir=TB, fontname="Liberation Sans", fontsize=12, nodesep=0.22, ranksep=0.28, pad=0.15, newrank=true, splines=spline];
+node [fontname="Liberation Sans", fontsize=11, penwidth=1.3, margin="0.12,0.06"];
+edge [fontname="Liberation Sans", fontsize=10, color="#404040", arrowsize=0.7, penwidth=1.2];
+ini [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<Inicio: el usuario<BR/>abre la web-app>];
+ses [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Sesión con<BR/>JWT vigente?>];
+log [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-usuarios</B><BR/>Registro (si no tiene<BR/>cuenta) y login:<BR/>valida la clave y<BR/>firma el JWT (8 h)</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+cred [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Credenciales<BR/>válidas?>];
+a_in [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>A</B>>];
+menu [shape=box, style=filled, fillcolor="#FFF2CC", color="#BF9000", label=<<B>web-app</B><BR/>Elige una opción>];
+ini -> ses;
+ses -> log [label=<No>];
+{rank=same; ini; ses; log;}
+log -> cred;
+cred -> log [label=<No: muestra<BR/>el error>];
+cred -> menu [label=<Sí: guarda el<BR/>JWT en la sesión>];
+ses -> menu [label=<Sí>];
+menu -> a_in [dir="back"];
+{rank=same; menu; a_in;}
+gw [shape=box, style=filled, fillcolor="#E2EFDA", color="#548235", label=<<B>api-gateway</B><BR/>Bloquea /interno/**,<BR/>valida el JWT y el rol>];
+aut [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Autorizado?>];
+a1 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>A</B>>];
+op [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Qué opción<BR/>eligió?>];
+menu -> gw;
+gw -> aut;
+aut -> a1 [label=<No: 401 vuelve al login;<BR/>403 acceso denegado>];
+aut -> op [label=<Sí>];
+o1 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-catalogo</B><BR/>Partidos por<BR/>fecha y liga</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+o2 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-predicciones</B><BR/>Probabilidades<BR/>(Poisson)</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+o2b [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-cuotas</B><BR/>Cuotas, margen<BR/>y cuota Betano</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+o3 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-apuestas</B><BR/>Apuesta del día,<BR/>evaluar cuota,<BR/>mis apuestas</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+o4 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-usuarios</B><BR/>Perfil<BR/>y banca</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+o5 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-ingesta</B><BR/>Ejecutar ingesta<BR/>(solo ADMIN)</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+op -> o1 [label=<Partidos>];
+op -> o2 [label=<Análisis>];
+o2 -> o2b;
+op -> o3 [label=<Apuestas>];
+op -> o4 [label=<Perfil>];
+op -> o5 [label=<Ingesta>];
+{rank=same; o1; o2; o3; o4; o5;}
+most [shape=box, style=filled, fillcolor="#FFF2CC", color="#BF9000", label=<<B>web-app</B><BR/>Muestra el resultado en hora de Lima<BR/>(o un aviso si un servicio no responde)>];
+o1 -> most;
+o2b -> most;
+o3 -> most;
+o4 -> most;
+o5 -> most;
+otra [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Otra<BR/>consulta?>];
+a2 [shape=circle, width=0.32, fixedsize=true, style=filled, fillcolor="#FFFFFF", color="#404040", fontsize=11, label=<<B>A</B>>];
+fin [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<Fin: cierra<BR/>la sesión>];
+most -> otra;
+otra -> a2 [label=<Sí>];
+otra -> fin [label=<No>];
+}

@@ -1,0 +1,46 @@
+digraph G {
+graph [rankdir=TB, fontname="Liberation Sans", fontsize=12, nodesep=0.25, ranksep=0.32, pad=0.15, newrank=true, splines=spline];
+node [fontname="Liberation Sans", fontsize=11, penwidth=1.3, margin="0.12,0.06"];
+edge [fontname="Liberation Sans", fontsize=10, color="#404040", arrowsize=0.7, penwidth=1.2];
+subgraph cluster_man { label=<<B>Cuota manual (Betano)</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+m0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<POST /cuotas/manual<BR/>(con token)>];
+m1 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Mercado y<BR/>selección válidos<BR/>y cuota &gt; 1.01?>];
+m1e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<400>];
+m2 [shape=plain, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#4F81BD" BGCOLOR="#EAF2FB"><TR><TD WIDTH="7"></TD><TD><B>ms-catalogo</B><BR/><FONT POINT-SIZE="9" FACE="Liberation Mono">GET /partidos/{id}</FONT><BR/>Consulta el partido</TD><TD WIDTH="7"></TD></TR></TABLE>>];
+m3 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Existe?>];
+m3e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<404>];
+m4 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Guarda con tipo MANUAL<BR/>y CuoIdUsuario =<BR/>X-Usuario-Id>];
+mdb [shape=cylinder, style=filled, fillcolor="#F2F2F2", color="#7F7F7F", fontsize=10, label=<cuotas_db>];
+m5 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<201 Creada>];
+m0 -> m1;
+m1 -> m1e [label=<No>];
+m1 -> m2 [label=<Sí>];
+m2 -> m3;
+m3 -> m3e [label=<No>];
+m3 -> m4 [label=<Sí>];
+m4 -> mdb [style="dashed"];
+m4 -> m5;
+}
+subgraph cluster_mar { label=<<B>Probabilidades sin margen</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+q0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<GET /partidos/{id}/<BR/>probabilidades-mercado>];
+q1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Toma la última cuota<BR/>de cada selección<BR/>del mercado>];
+q2 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Están todas<BR/>las selecciones?>];
+q2e [shape=box, style="rounded,filled", fillcolor="#FBE4E4", color="#C0504D", margin="0.16,0.06", label=<409 MERCADO_<BR/>INCOMPLETO>];
+q3 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<q = 1 / cuota<BR/>margen = Σq − 1<BR/>p = q / Σq>];
+q4 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 margen y<BR/>probabilidades>];
+q0 -> q1;
+q1 -> q2;
+q2 -> q2e [label=<No>];
+q2 -> q3 [label=<Sí>];
+q3 -> q4;
+}
+subgraph cluster_int { label=<<B>Carga interna</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+i0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<POST /interno/cuotas<BR/>(desde ms-ingesta)>];
+i1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Por cada cuota: upsert<BR/>por partido, casa,<BR/>mercado, selección,<BR/>línea y tipo>];
+i2 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 { guardadas }>];
+i0 -> i1;
+i1 -> i2;
+}
+{rank=same; m0; q0;}
+q4 -> i0 [style="invis"];
+}

@@ -1,0 +1,51 @@
+digraph G {
+graph [rankdir=TB, fontname="Liberation Sans", fontsize=12, nodesep=0.25, ranksep=0.32, pad=0.15, newrank=true, splines=spline];
+node [fontname="Liberation Sans", fontsize=11, penwidth=1.3, margin="0.12,0.06"];
+edge [fontname="Liberation Sans", fontsize=10, color="#404040", arrowsize=0.7, penwidth=1.2];
+subgraph cluster_ups { label=<<B>Upsert interno</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+u0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<POST /interno/<BR/>estadisticas<BR/>(desde ms-ingesta)>];
+u1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Arma la fila del local<BR/>(rival = visitante)>];
+u2 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Arma la fila del<BR/>visitante<BR/>(rival = local)>];
+u3 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<Por cada fila:<BR/>¿existe (partido,<BR/>equipo)?>];
+u4 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Actualiza>];
+u5 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Inserta>];
+udb [shape=cylinder, style=filled, fillcolor="#F2F2F2", color="#7F7F7F", fontsize=10, label=<estadisticas_db>];
+u6 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200>];
+u0 -> u1;
+u1 -> u2;
+u2 -> u3;
+u3 -> u4 [label=<Sí>];
+u3 -> u5 [label=<No>];
+u4 -> u6;
+u5 -> u6;
+u4 -> udb [style="dashed"];
+u5 -> udb [style="dashed"];
+}
+subgraph cluster_pro { label=<<B>Promedios de un equipo</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+p0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<GET /equipos/{id}/<BR/>promedios?condicion<BR/>&amp;ultimos (10)>];
+p1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Busca sus últimos N<BR/>partidos en esa<BR/>condición (el más<BR/>reciente primero)>];
+p2 [shape=diamond, style=filled, fillcolor="#FFFFFF", color="#404040", margin="0.02,0.02", fontsize=10, label=<¿Tiene<BR/>partidos?>];
+p2f [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200: partidos = 0,<BR/>promedios null>];
+p3 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<aFavor: promedia<BR/>las filas del equipo>];
+p4 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<enContra: promedia<BR/>las filas del rival<BR/>en esos partidos>];
+p5 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 aFavor<BR/>y enContra>];
+p0 -> p1;
+p1 -> p2;
+p2 -> p2f [label=<No>];
+p2 -> p3 [label=<Sí>];
+p3 -> p4;
+p4 -> p5;
+}
+subgraph cluster_arb { label=<<B>Perfil del árbitro</B>>; labeljust=l; style="rounded,dashed"; color="#8EA9DB"; fontsize=12; margin=10;
+a0 [shape=box, style="rounded,filled", fillcolor="#404040", color="#404040", fontcolor="white", margin="0.16,0.06", label=<GET /arbitros/<BR/>{id}/perfil>];
+a1 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Suma las tarjetas<BR/>(amarillas + rojas)<BR/>de ambos equipos en<BR/>cada partido que dirigió>];
+a2 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Promedia tarjetas<BR/>y faltas por partido>];
+a3 [shape=box, style=filled, fillcolor="#EAF2FB", color="#4F81BD", label=<Calcula la media de<BR/>tarjetas de su liga>];
+a4 [shape=box, style="rounded,filled", fillcolor="#F2F2F2", color="#7F7F7F", margin="0.16,0.06", label=<200 perfil<BR/>del árbitro>];
+a0 -> a1;
+a1 -> a2;
+a2 -> a3;
+a3 -> a4;
+}
+{rank=same; u0; p0; a0;}
+}
