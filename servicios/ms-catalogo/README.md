@@ -83,12 +83,16 @@ Reglas generales que aplica: RN-10 (ligas y temporadas), RN-11 (dueño de los ID
 
 ## Tareas
 
-- [ ] Entidades `Liga`, `Equipo`, `Arbitro` y `Partido` con sus restricciones UNIQUE (sección 6.2).
-- [ ] Mock de `GET /partidos` el día 1, para no bloquear al Integrante 2.
-- [ ] Endpoints públicos con filtros.
-- [ ] Upsert interno (idempotente: enviar la misma fila 2 veces no duplica nada).
-- [ ] Pruebas: el upsert es idempotente y el filtro por fecha usa la hora de Lima.
-- [ ] Dockerfile.
+- [x] Entidades `Liga`, `Equipo`, `Arbitro` y `Partido` con sus restricciones UNIQUE (sección 6.2).
+- [x] Mock de `GET /partidos` el día 1: ya no hace falta, el endpoint real está listo (la web usaba el simulador).
+- [x] Endpoints públicos con filtros (`Specification` en `repository/PartidoSpecs`).
+- [x] Upsert interno (idempotente: enviar la misma fila 2 veces no duplica nada), en `service/UpsertPartidoService`.
+- [x] Pruebas: el upsert es idempotente y el filtro por fecha usa la hora de Lima, más filtros, últimos partidos de un equipo y errores (`CatalogoTest`, con H2 en memoria).
+- [x] Dockerfile.
+
+**Nombres de columnas:** igual que en ms-usuarios, PostgreSQL los guarda tal cual (`"ParIdPartido"`). En DBeaver van entre comillas: `SELECT "ParFechaHora" FROM partido;`.
+
+**Variables de entorno:** `DB_HOST`, `DB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `EUREKA_URL`.
 
 ## Pistas
 
