@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- Aviso genérico cuando una acción no se pudo completar. Nunca se muestra un error técnico (RN-WEB-04). -->
+<head th:replace="~{fragmentos :: head(${titulo})}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja" th:classappend="${@sesionUsuario.estaAutenticado()} ? '' : 'hoja-publica'">
+    <th:block th:if="${@sesionUsuario.estaAutenticado()}"><header th:replace="~{fragmentos :: cabecera('')}"></header></th:block>
+    <main class="vt-contenido">
+      <section class="bloque">
+        <div class="margen"><p class="mano"><a th:href="@{/}">Volver a Hoy</a></p></div>
+        <div class="cuerpo">
+          <h1 th:text="${titulo}">No disponible</h1>
+          <p class="grande" th:text="${mensaje}">Un servicio no responde por ahora.</p>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

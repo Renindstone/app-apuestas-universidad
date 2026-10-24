@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- / (Hoy): la apuesta del día escrita como una cuenta y los partidos del día agrupados por liga. -->
+<head th:replace="~{fragmentos :: head('Hoy')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja">
+    <header th:replace="~{fragmentos :: cabecera('hoy')}"></header>
+    <section th:replace="~{fragmentos :: avisos}"></section>
+    <main class="vt-contenido" th:with="dia=${v.dia()}">
+
+      <!-- Apuesta del día: ms-apuestas no respondió. -->
+      <section class="bloque" th:if="${dia == null}">
+        <div class="margen"><p class="mano">Sin conexión</p></div>
+        <div class="cuerpo">
+          <h1>Apuesta del día</h1>
+          <p class="aviso-seccion" role="status">Apuesta del día no disponible por ahora.</p>
+        </div>
+      </section>
+
+      <!-- Apuesta del día: hoy no hay candidatas (RN-16: «No apostar también es una decisión»). -->
+      <section class="bloque" th:if="${dia != null and dia.pick() == null}">
+        <div class="margen"><p class="mano">Hoy no</p></div>
+        <div class="cuerpo">
+          <h1>Apuesta del día</h1>
+          <p class="grande" th:text="${dia.mensaje()}">Hoy no hay apuesta del día.</p>
+        </div>
+      </section>
+
+      <!-- Apuesta del día: probabilidad, cuota, valor esperado y stake, como una cuenta que se puede seguir (RN-15). -->
+      <section class="bloque bloque-pick" th:if="${dia != null and dia.pick() != null}"
+               th:with="k=${dia.pick()}, p=${v.partidoPick()}, pr=${v.prediccionPick()}, banca=${@sesionUsuario.banca}">
+        <div class="margen">
+          <p class="mano" th:if="${pr != null}"
+             th:text="|Poisson con λ = ${@fmt.numero(pr.esperados().golesLocal(), 2)} y ${@fmt.numero(pr.esperados().golesVisitante(), 2)} goles.|">Poisson</p>
+          <p class="mano" th:text="|En promedio ganarías ${@fmt.numero(k.valorEsperado() * 100, 1)} céntimos por sol apostado. No es seguro: es un promedio.|">Promedio</p>
+        </div>
+        <div class="cuerpo">
+          <h1>Apuesta del día</h1>
+          <p class="pick-partido"><a th:href="@{/partidos/{id}(id=${k.partidoId()})}" th:text="${#strings.replace(k.partido(), ' vs ', ' – ')}">Arsenal – Chelsea</a></p>
+          <p class="pick-detalle">
+            <span th:text="${@fmt.etiqueta(k, k.partido())} + ' en ' + ${k.casa()}">Más de 2.5 goles en bet365</span><span th:if="${p != null}" th:text="|, ${@fmt.hora(p.fechaHora())} hora de Lima|">, 09:00 hora de Lima</span>.
+            <span th:if="${dia.otrasCandidatas() > 0}" th:text="|Hubo ${dia.otrasCandidatas()} candidatas más; esta es la de mayor valor esperado.|">Hubo 3 candidatas más.</span>
+          </p>
+          <div class="cuentas">
+            <div class="cuenta"><span th:text="|P(${#strings.toLowerCase(@fmt.etiqueta(k, k.partido()))})|">P</span><span class="igual">=</span><span th:text="${@fmt.numero(k.probabilidad(), 3)}">0.528</span></div>
+            <div class="cuenta"><span th:text="|Cuota de ${k.casa()}|">Cuota</span><span class="igual">=</span><span th:text="${@fmt.cuota(k.cuota())}">2.00</span></div>
+            <div class="cuenta cuenta-fuerte"><span>Valor esperado</span><span class="igual">=</span>
+              <span><th:block th:text="|${@fmt.numero(k.probabilidad(), 3)} × ${@fmt.cuota(k.cuota())} − 1 = |"></th:block><mark th:text="${@fmt.conSigno(k.valorEsperado(), 3)}">+0.056</mark></span></div>
+            <div class="cuenta"><span>Stake (¼ de Kelly, tope 3 %)</span><span class="igual">=</span>
+              <span th:if="${banca != null}"><th:block th:text="|${@fmt.pct(k.stakePct())} de ${@fmt.soles(banca)} = |"></th:block><mark th:text="${@fmt.stakeSoles(k.stakePct(), banca)}">S/ 7.00</mark></span>
+              <span th:if="${banca == null}" th:text="|${@fmt.pct(k.stakePct())} de tu banca|">1.4 % de tu banca</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Encabezado de la lista con el filtro por liga. -->
+      <section class="bloque" id="partidos">
+        <div class="margen"><p class="mano">Local / empate / visita, en %</p></div>
+        <div class="cuerpo">
+          <h2>Partidos de hoy</h2>
+          <p class="filtro">Ver
+            <a th:href="@{/} + '#partidos'" th:attr="aria-current=${liga == ''} ? 'true'">todas</a><th:block th:each="l : ${ligas}">,
+            <a th:href="@{/(liga=${l.codigo()})} + '#partidos'" th:attr="aria-current=${liga == l.codigo()} ? 'true'" th:text="${l.nombre()}">Premier League</a></th:block>
+          </p>
+          <p class="nota">Primero, la probabilidad del modelo; después, las cuotas 1X2 de bet365. En verde, las que pagan más que la cuota justa.</p>
+          <p class="aviso-seccion" role="status" th:if="${v.partidosPorLiga() == null}">Partidos no disponibles por ahora.</p>
+          <p class="nota" th:if="${v.partidosPorLiga() != null and v.partidosPorLiga().isEmpty()}">No hay partidos programados para hoy en esta liga.</p>
+        </div>
+      </section>
+
+      <!-- Un bloque por liga, con el nombre de la liga escrito en el margen. -->
+      <th:block th:if="${v.partidosPorLiga() != null}">
+        <section class="bloque bloque-liga" th:each="grupo : ${v.partidosPorLiga()}">
+          <div class="margen"><p class="mano" th:text="${grupo.key}">Premier League</p></div>
+          <div class="cuerpo">
+            <ol class="renglones">
+              <li class="renglon" th:each="f : ${grupo.value}" th:style="|--vt: fila-${f.partido().id()}|">
+                <time th:text="${@fmt.hora(f.partido().fechaHora())}">06:30</time>
+                <a th:href="@{/partidos/{id}(id=${f.partido().id()})}" th:text="|${f.partido().local().nombre()} – ${f.partido().visitante().nombre()}|">Local – Visita</a>
+                <span class="modelo" th:text="${f.modeloTexto()}">68 / 19 / 14</span>
+                <span class="cuotas">
+                  <span class="sin-cuotas" th:if="${f.sinCuotas()}">Cuotas no disponibles por ahora</span>
+                  <th:block th:unless="${f.sinCuotas()}">
+                    <span th:each="c : ${f.cuotas1x2()}" th:classappend="${c.conValor()} ? 'con-valor'" th:text="${@fmt.cuota(c.valor())}">1.37</span>
+                  </th:block>
+                </span>
+              </li>
+            </ol>
+          </div>
+        </section>
+      </th:block>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

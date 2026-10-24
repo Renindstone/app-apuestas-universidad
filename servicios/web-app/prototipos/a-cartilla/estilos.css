@@ -1,0 +1,375 @@
+/* =============================================================
+   Propuesta A: «Cartilla».
+   Color principal: melocotón #FCDCC8. Todo lo demás se arma
+   alrededor: papel para el boleto, tinta ciruela para el texto,
+   vino para marcar y verde para el valor (RN-WEB-05).
+   Sin esquinas redondeadas: todo se separa con reglas.
+   ============================================================= */
+
+:root {
+  --melocoton: #fcdcc8;      /* fondo principal */
+  --papel: #fff5ee;          /* boleto, formularios destacados */
+  --tinta: #3b2333;          /* texto y reglas fuertes */
+  --tinta-suave: #7a5f66;    /* texto secundario */
+  --vino: #9c3d54;           /* marca: apuesta del día, menú activo, pérdidas */
+  --ocre: #94661c;           /* veredicto marginal, tareas en curso */
+  --valor: #2f7a57;          /* cuota con valor */
+  --valor-fondo: #d5e9d9;
+  --regla: rgba(59, 35, 51, .2);
+
+  --titulo: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --texto: 'Instrument Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; border-radius: 0; }
+
+html {
+  background: var(--melocoton);
+  color: var(--tinta);
+  font: 400 16px/1.5 var(--texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { margin: 0; }
+a { color: inherit; text-underline-offset: 3px; }
+h1, h2 { margin: 0; font-family: var(--titulo); font-weight: 800; line-height: .95; }
+h2 { font-size: 26px; margin: 28px 0 12px; }
+p { margin: 0; }
+:focus-visible { outline: 2px solid var(--vino); outline-offset: 3px; }
+
+.hoja { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- Cabecera y menú ---------- */
+
+.cabecera {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  column-gap: 32px;
+  padding-top: 20px;
+  border-bottom: 4px double var(--tinta);
+}
+
+.marca { font: 800 46px/1 var(--titulo); text-decoration: none; letter-spacing: .01em; }
+.cabecera-fecha { display: flex; gap: 20px; color: var(--tinta-suave); }
+.cabecera-fecha span:first-child::first-letter { text-transform: uppercase; }
+.cabecera-usuario { display: flex; gap: 18px; align-items: baseline; font-weight: 500; }
+.cabecera-usuario span + span { padding-left: 18px; border-left: 1px solid var(--regla); }
+
+.menu { grid-column: 1 / -1; display: flex; gap: 32px; margin-top: 14px; overflow-x: auto; scrollbar-width: none; }
+.menu a { position: relative; padding: 8px 0 10px; text-decoration: none; font-weight: 500; white-space: nowrap; color: var(--tinta-suave); }
+.menu a[aria-current] { color: var(--tinta); }
+.menu a:hover { color: var(--tinta); }
+.vt-indicador { position: absolute; left: 0; right: 0; bottom: -1px; height: 4px; background: var(--vino); view-transition-name: indicador; }
+
+.enlace { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+.aviso {
+  margin: 18px 0 0;
+  padding: 10px 16px;
+  background: var(--papel);
+  border-left: 4px solid var(--vino);
+  animation: aviso-entra .4s cubic-bezier(.2, .7, .2, 1);
+}
+@keyframes aviso-entra { from { transform: translateY(-6px); opacity: 0; } }
+
+/* ---------- Boleto de la apuesta del día ---------- */
+
+.boleto {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  margin-top: 28px;
+  background: var(--papel);
+  border-top: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+}
+.boleto-cuerpo { padding: 22px 28px 20px; }
+.boleto-titulo { font-weight: 600; color: var(--vino); }
+.boleto-partido { font-size: clamp(42px, 6.4vw, 78px); margin: 6px 0 8px; }
+.boleto-partido a { text-decoration: none; }
+.boleto-partido a:hover { text-decoration: underline; text-decoration-thickness: 3px; }
+.boleto-partido i, .partido-cabecera h1 i { font-style: normal; color: var(--vino); }
+.boleto-seleccion { font-size: 20px; font-weight: 600; margin-bottom: 18px; }
+
+/* Talón: separado por una línea perforada con dos muescas. */
+.boleto-talon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 22px 28px;
+  border-left: 2px dashed var(--tinta);
+}
+.boleto-talon::before, .boleto-talon::after {
+  content: '';
+  position: absolute;
+  left: -12px;
+  width: 22px;
+  height: 22px;
+  background: var(--melocoton);
+  border-radius: 50%;
+}
+.boleto-talon::before { top: -12px; }
+.boleto-talon::after { bottom: -12px; }
+.talon-cuota { font: 800 96px/.9 var(--titulo); color: var(--vino); }
+.boleto-talon b { white-space: nowrap; }
+.boleto-vacio { display: block; padding: 28px; font-size: 20px; font-weight: 500; }
+
+/* Datos en fila separados por reglas verticales. */
+.datos { display: flex; flex-wrap: wrap; margin: 0; }
+.datos div { padding: 0 18px; border-left: 1px solid var(--regla); }
+.datos div:first-child { padding-left: 0; border-left: 0; }
+.datos dt { font-size: 13px; color: var(--tinta-suave); }
+.datos dd { margin: 0; font-weight: 600; font-size: 18px; font-variant-numeric: tabular-nums; }
+.datos-columna { flex-direction: column; }
+.datos-columna div { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-left: 0; border-bottom: 1px solid var(--regla); }
+.datos-columna dd { font-size: 16px; }
+
+/* ---------- Cupón de partidos ---------- */
+
+.cupon { margin-top: 36px; }
+.cupon-cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--tinta); }
+.cupon-cabecera h2 { margin: 0; font-size: 34px; }
+.cupon-leyenda { margin: 10px 0 4px; font-size: 14px; color: var(--tinta-suave); }
+
+.filtro { display: flex; flex-wrap: wrap; gap: 0; }
+.filtro button {
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--regla);
+  padding: 4px 14px;
+  font: 500 15px var(--texto);
+  color: var(--tinta-suave);
+  cursor: pointer;
+}
+.filtro button:first-child { border-left: 0; padding-left: 0; }
+.filtro button[aria-pressed="true"] { color: var(--tinta); text-decoration: underline 3px var(--vino); text-underline-offset: 7px; }
+
+.filas { list-style: none; margin: 0; padding: 0; }
+.fila {
+  display: grid;
+  grid-template-columns: 30px 54px 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--regla);
+}
+.fila-num { font: 700 22px var(--titulo); color: var(--tinta-suave); }
+.fila-hora { font-weight: 600; font-variant-numeric: tabular-nums; }
+.fila-liga { font-size: 13px; color: var(--tinta-suave); }
+.fila-partido { display: grid; text-decoration: none; font-weight: 600; font-size: 17px; line-height: 1.25; }
+.fila-partido:hover span { text-decoration: underline; }
+
+.casillas { display: grid; grid-template-columns: repeat(3, 84px); }
+.casilla {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 8px;
+  padding: 4px 12px;
+  border-left: 1px solid var(--regla);
+}
+.casilla b { font-size: 12px; color: var(--tinta-suave); }
+.casilla span { font: 700 26px/1 var(--titulo); text-align: right; }
+.casilla small { grid-column: 1 / -1; text-align: right; font-size: 12px; color: var(--tinta-suave); }
+.casilla.con-valor { background: var(--valor-fondo); }
+.casilla.con-valor span, .casilla.con-valor b { color: var(--valor); }
+.casilla-vacia { grid-column: 1 / -1; width: 252px; padding: 10px 12px; border-left: 1px solid var(--regla); font-size: 14px; color: var(--vino); }
+
+/* ---------- Análisis y pantallas internas ---------- */
+
+.volver { display: inline-block; margin-top: 22px; font-size: 14px; color: var(--tinta-suave); }
+.partido-cabecera { padding: 22px 0 18px; }
+.partido-cabecera h1 { font-size: clamp(40px, 5.6vw, 68px); margin: 4px 0 8px; }
+.partido-cabecera p { color: var(--tinta-suave); max-width: 72ch; }
+
+.franja {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  margin: 0;
+  border-top: 2px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+}
+.franja div { padding: 10px 16px 12px; border-left: 1px solid var(--regla); }
+.franja div:first-child { border-left: 0; padding-left: 0; }
+.franja dt { font-size: 13px; color: var(--tinta-suave); }
+.franja dd { margin: 0; font: 700 34px/1.1 var(--titulo); font-variant-numeric: tabular-nums; }
+
+.columnas { display: grid; grid-template-columns: minmax(0, 1fr) 360px; }
+.columnas > :first-child { padding-right: 32px; }
+.columnas > :last-child { padding-left: 32px; border-left: 1px solid var(--regla); }
+
+.tabla { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tabla th, .tabla td { padding: 7px 10px; border-bottom: 1px solid var(--regla); text-align: right; }
+.tabla th[scope="row"], .tabla thead th:first-child, .tabla td:first-child { text-align: left; padding-left: 0; }
+.tabla th[scope="row"] { font-weight: 500; }
+.tabla th[scope="row"] small { display: block; color: var(--tinta-suave); font-size: 13px; }
+.tabla thead th { font-weight: 600; font-size: 13px; color: var(--tinta-suave); border-bottom: 1px solid var(--tinta); }
+.tabla .grupo th { text-align: left; padding: 18px 0 6px; font: 700 21px var(--titulo); border-bottom: 1px solid var(--tinta); }
+.tabla td.justa { color: var(--tinta-suave); }
+.tabla td.con-valor { background: var(--valor-fondo); color: var(--valor); font-weight: 700; }
+.tabla-compacta th, .tabla-compacta td { padding: 6px 8px; font-size: 15px; }
+.tabla .vacio { text-align: left; color: var(--tinta-suave); padding: 18px 0; }
+.tabla-apuestas thead th:nth-child(2) { text-align: left; }
+.columnas > section > .filtro:first-child { margin: 20px 0 6px; }
+
+.positivo { color: var(--valor); }
+.negativo { color: var(--vino); }
+.estado-ok { color: var(--valor); }
+.estado-error { color: var(--vino); }
+.estado-en_curso { color: var(--ocre); animation: latido 1.2s ease-in-out infinite; }
+@keyframes latido { 50% { opacity: .45; } }
+
+.aviso-seccion { margin-bottom: 8px; padding: 10px 0; border-top: 1px dashed var(--vino); border-bottom: 1px dashed var(--vino); color: var(--vino); font-weight: 500; }
+.nota { margin-top: 12px; font-size: 14px; color: var(--tinta-suave); }
+.vacio { padding: 40px 0; }
+
+.explicacion { list-style: none; margin: 0; padding: 0; }
+.explicacion li { padding: 9px 0; border-bottom: 1px dashed var(--regla); font-size: 15px; }
+
+/* ---------- Formularios: solo una línea bajo cada campo ---------- */
+
+.campo { display: grid; gap: 2px; margin-bottom: 16px; }
+.campo span { font-size: 13px; color: var(--tinta-suave); }
+.campo input, .campo select {
+  width: 100%;
+  padding: 8px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1.5px solid var(--tinta);
+  font: 500 16px var(--texto);
+  color: var(--tinta);
+  appearance: none;
+}
+.campo select {
+  padding-right: 22px;
+  background: linear-gradient(45deg, transparent 50%, var(--tinta) 50%) right 8px center / 6px 6px no-repeat,
+              linear-gradient(-45deg, transparent 50%, var(--tinta) 50%) right 2px center / 6px 6px no-repeat;
+  cursor: pointer;
+}
+.campo input:focus, .campo select:focus { outline: none; border-bottom-color: var(--vino); box-shadow: 0 1.5px 0 var(--vino); }
+
+.boton {
+  padding: 12px 22px;
+  background: var(--tinta);
+  color: var(--papel);
+  border: 0;
+  font: 600 15px var(--texto);
+  cursor: pointer;
+  transition: background .15s;
+}
+.boton:hover { background: var(--vino); }
+.boton:active { transform: translateY(1px); }
+.boton-secundario { background: transparent; color: var(--tinta); box-shadow: inset 0 0 0 1.5px var(--tinta); }
+.boton-secundario:hover { background: var(--papel); }
+.error { margin: -6px 0 14px; color: var(--vino); font-weight: 500; font-size: 14px; }
+
+.resultado { margin-top: 18px; padding-top: 10px; border-top: 4px solid var(--valor); }
+.resultado-veredicto { font: 800 34px var(--titulo); }
+.resultado-con_valor .resultado-veredicto { color: var(--valor); }
+.resultado-marginal { border-top-color: var(--ocre); }
+.resultado-marginal .resultado-veredicto { color: var(--ocre); }
+.resultado-sin_valor { border-top-color: var(--vino); }
+.resultado-sin_valor .resultado-veredicto { color: var(--vino); }
+
+.acciones-ingesta { display: flex; flex-wrap: wrap; gap: 12px; padding: 0 0 24px; border-bottom: 2px solid var(--tinta); margin-bottom: 8px; }
+.datos-perfil dd { font-size: 18px; }
+
+/* ---------- Historial ---------- */
+
+.figura { margin: 24px 0; padding-bottom: 12px; border-bottom: 1px solid var(--regla); }
+.figura figcaption { font-size: 13px; color: var(--tinta-suave); }
+.grafico { width: 100%; height: auto; display: block; }
+.g-cero { stroke: var(--tinta-suave); stroke-dasharray: 4 4; }
+.g-linea { fill: none; stroke: var(--tinta); stroke-width: 2; }
+.g-area { fill: rgba(156, 61, 84, .08); }
+.g-gana { fill: var(--valor); }
+.g-pierde { fill: var(--vino); }
+
+/* ---------- Acceso ---------- */
+
+.hoja-publica { min-height: 100vh; display: flex; flex-direction: column; }
+.hoja-publica main { flex: 1; display: grid; align-items: center; }
+.acceso { display: grid; grid-template-columns: 1.15fr minmax(320px, 420px); gap: 48px; align-items: center; padding: 48px 0; }
+.marca-grande { font: 800 clamp(84px, 15vw, 200px)/.82 var(--titulo); color: var(--vino); }
+.acceso-portada p:last-child { margin-top: 18px; font-size: 19px; max-width: 34ch; }
+.acceso-form { padding: 28px 32px 30px; background: var(--papel); border-top: 2px dashed var(--tinta); border-bottom: 1px solid var(--tinta); }
+.pestanas { display: flex; gap: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--regla); }
+.pestanas a { padding: 6px 0 10px; text-decoration: none; color: var(--tinta-suave); font-weight: 500; }
+.pestanas a[aria-current] { color: var(--tinta); box-shadow: inset 0 -4px 0 var(--vino); }
+
+.pie { margin-top: 64px; padding: 16px 0 36px; border-top: 4px double var(--tinta); font-size: 13px; color: var(--tinta-suave); }
+.pie-aviso { font-weight: 600; color: var(--tinta); }
+
+/* ---------- Transiciones entre pantallas (View Transitions) ----------
+   La pantalla nueva se «imprime» de arriba hacia abajo, como un boleto
+   que sale de la máquina; al volver, se imprime de abajo hacia arriba.
+   En Thymeleaf basta con añadir: @view-transition { navigation: auto; } */
+
+.vt-contenido { view-transition-name: contenido; }
+
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .2s; }
+::view-transition-group(indicador) { animation-duration: .5s; animation-timing-function: cubic-bezier(.65, 0, .25, 1); }
+
+::view-transition-old(contenido) { animation: a-salir .28s ease-in both; }
+::view-transition-new(contenido) { animation: a-imprimir .6s cubic-bezier(.25, .8, .25, 1) .08s both; }
+html[data-direccion="atras"]::view-transition-new(contenido) { animation-name: a-imprimir-atras; }
+html[data-direccion="atras"]::view-transition-old(contenido) { animation-name: a-salir-atras; }
+
+@keyframes a-salir { to { opacity: 0; transform: translateY(-16px); } }
+@keyframes a-salir-atras { to { opacity: 0; transform: translateY(16px); } }
+@keyframes a-imprimir { from { clip-path: inset(0 0 100% 0); transform: translateY(-10px); } to { clip-path: inset(0); transform: none; } }
+@keyframes a-imprimir-atras { from { clip-path: inset(100% 0 0 0); transform: translateY(10px); } to { clip-path: inset(0); transform: none; } }
+
+/* Cambios dentro de la misma pantalla (filtros, pestañas, resultados): solo se mueven las filas. */
+html[data-direccion="misma"]::view-transition-group(contenido),
+html[data-direccion="misma"]::view-transition-old(contenido),
+html[data-direccion="misma"]::view-transition-new(contenido) { animation: none; }
+html[data-direccion="misma"] .fila,
+html[data-direccion="misma"] tr[style*="--vt"] { view-transition-name: var(--vt); view-transition-class: fila; }
+html[data-direccion="misma"] .vt-resultado { view-transition-name: resultado; }
+::view-transition-group(*.fila) { animation-duration: .35s; animation-timing-function: cubic-bezier(.3, .7, .2, 1); }
+::view-transition-new(resultado) { animation: a-imprimir .45s cubic-bezier(.25, .8, .25, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Celular ---------- */
+
+@media (max-width: 860px) {
+  .hoja { padding: 0 16px; }
+  .cabecera { grid-template-columns: 1fr auto; row-gap: 4px; }
+  .cabecera-fecha { grid-column: 1 / -1; grid-row: 2; font-size: 14px; }
+  .cabecera-usuario { font-size: 14px; gap: 10px; }
+  .cabecera-usuario span + span { padding-left: 10px; }
+  .cabecera-usuario span:first-child { display: none; }
+  .menu { gap: 22px; }
+  .marca { font-size: 38px; }
+
+  .boleto { grid-template-columns: 1fr; }
+  .boleto-cuerpo { padding: 18px 16px; }
+  .boleto-talon { border-left: 0; border-top: 2px dashed var(--tinta); padding: 18px 16px; }
+  .boleto-talon::before, .boleto-talon::after { top: -12px; bottom: auto; }
+  .boleto-talon::before { left: -12px; }
+  .boleto-talon::after { left: auto; right: -12px; }
+  .talon-cuota { font-size: 72px; }
+  .datos { row-gap: 10px; }
+
+  .fila { grid-template-columns: 26px 46px minmax(0, 1fr); row-gap: 6px; }
+  .fila-liga { display: none; }
+  .casillas { grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); }
+  .casilla:first-child { border-left: 0; }
+  .casilla-vacia { width: auto; border-left: 0; padding-left: 0; }
+
+  .columnas { grid-template-columns: minmax(0, 1fr); }
+  .columnas > :first-child { padding-right: 0; }
+  .columnas > :last-child { padding-left: 0; border-left: 0; margin-top: 12px; border-top: 2px solid var(--tinta); }
+  .tabla { display: block; overflow-x: auto; }
+  .franja div:nth-child(odd) { border-left: 0; padding-left: 0; }
+
+  .acceso { grid-template-columns: 1fr; gap: 24px; padding: 24px 0; }
+  .acceso-form { padding: 22px 16px; }
+}

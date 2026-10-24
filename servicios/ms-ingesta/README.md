@@ -56,6 +56,21 @@ Cuidado con los nombres: los encabezados exactos varían un poco entre archivos.
 | 05:00 todos los días | HISTORICO, solo de la temporada actual |
 | 08:00 y 16:00 | PROXIMOS |
 
+## Reglas de negocio
+
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-ING-01 | Es el único servicio que lee football-data. Descarga cada archivo como mucho una vez por ejecución, nunca en un bucle. | RN-11 · RF-03 |
+| RN-ING-02 | Se ejecuta sola en hora de Lima: HISTORICO a las 05:00 (solo la temporada actual) y PROXIMOS a las 08:00 y a las 16:00. Solo el ADMIN puede lanzarla a mano. | RF-03 y RF-04 · CU-09 y CU-10 |
+| RN-ING-03 | La hora del CSV es la de Londres y se convierte a UTC, de modo que el cambio de horario británico se aplica solo. | RN-12 · CB-01 |
+| RN-ING-04 | Cada fila se procesa en este orden: primero el catálogo, que devuelve los IDs; luego las estadísticas, solo si el partido ya se jugó; y por último las cuotas, solo si la fila las trae. | RF-03 · CB-02 |
+| RN-ING-05 | Una fila con error se anota y no detiene la ejecución. Si la fuente no responde, la ejecución termina en ERROR y se reintenta en la siguiente hora programada. | CU-10 · RNF-04 |
+| RN-ING-06 | Cada ejecución queda registrada con su tipo, fuente, inicio, fin, filas, estado y error. | RF-16 · CN-05 |
+
+Reglas generales que aplica: RN-10 (ligas, temporadas y casas), RN-11 (origen de los datos) y RN-12 (fechas).
+
 ## Tareas
 
 - [ ] Cliente HTTP que descarga el CSV como texto.

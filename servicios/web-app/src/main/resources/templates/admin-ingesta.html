@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- /admin/ingesta (solo ADMIN): botones para lanzar la carga y la tabla de ejecuciones. -->
+<head th:replace="~{fragmentos :: head('Ingesta')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja">
+    <header th:replace="~{fragmentos :: cabecera('admin')}"></header>
+    <section th:replace="~{fragmentos :: avisos}"></section>
+    <main class="vt-contenido">
+      <section class="bloque">
+        <div class="margen"><p class="mano">Sola a las 05:00, 08:00 y 16:00 de Lima</p></div>
+        <div class="cuerpo">
+          <h1>Ingesta de datos</h1>
+          <p class="pick-detalle">Descarga los CSV de football-data y reparte los datos entre catálogo, estadísticas y cuotas. Desde aquí puedes lanzarla a mano.</p>
+          <div class="acciones">
+            <form th:action="@{/admin/ingesta/ejecutar(tipo='HISTORICO')}" method="post"><button class="boton" type="submit">Cargar histórico</button></form>
+            <form th:action="@{/admin/ingesta/ejecutar(tipo='PROXIMOS')}" method="post"><button class="boton boton-linea" type="submit">Cargar próximos partidos</button></form>
+          </div>
+        </div>
+      </section>
+
+      <section class="bloque">
+        <div class="margen"><p class="mano">Ejecuciones</p></div>
+        <div class="cuerpo">
+          <p class="aviso-seccion" role="status" th:if="${ejecuciones == null}">Las ejecuciones no están disponibles por ahora.</p>
+          <div class="table-responsive" th:if="${ejecuciones != null}">
+            <table class="tabla">
+              <thead><tr><th scope="col">N.º</th><th scope="col">Tipo</th><th scope="col">Fuente</th><th scope="col">Inicio</th><th scope="col">Fin</th><th scope="col">Filas</th><th scope="col">Estado</th></tr></thead>
+              <tbody>
+                <tr th:each="e : ${ejecuciones}" th:style="|--vt: ejecucion-${e.id()}|">
+                  <td th:text="${e.id()}">14</td>
+                  <td th:text="${e.tipo() == 'HISTORICO'} ? 'Histórico' : 'Próximos'">Próximos</td>
+                  <td th:text="${e.fuente()}">fixtures.csv</td>
+                  <td th:text="${@fmt.fechaHora(e.inicio())}">24/10 08:00</td>
+                  <td th:text="${@fmt.fechaHora(e.fin())}">24/10 08:00</td>
+                  <td th:text="${e.filas()}">61</td>
+                  <td th:class="|estado-${#strings.toLowerCase(e.estado())}|"
+                      th:text="${e.estado() == 'OK'} ? 'Correcta' : (${e.estado() == 'EN_CURSO'} ? 'En curso' : 'Error: ' + ${e.error()})">Correcta</td>
+                </tr>
+                <tr th:if="${ejecuciones.isEmpty()}"><td colspan="7" class="vacio">Todavía no hay ejecuciones.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

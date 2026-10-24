@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- /registro: crear una cuenta. El rol lo asigna el servidor (siempre APOSTADOR). -->
+<head th:replace="~{fragmentos :: head('Crear cuenta')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja hoja-publica">
+    <main class="vt-contenido">
+      <section class="bloque">
+        <div class="margen"><p class="mano">Tus apuestas solo las ves tú</p></div>
+        <div class="cuerpo acceso">
+          <p class="marca-grande">Cuaderno de apuestas</p>
+          <form class="acceso-form" th:action="@{/registro}" th:object="${form}" method="post" novalidate>
+            <nav class="pestanas"><a th:href="@{/login}">Iniciar sesión</a><a th:href="@{/registro}" aria-current="page">Crear cuenta</a></nav>
+            <label class="campo"><span>Usuario</span><input th:field="*{nombreUsuario}" maxlength="30" autocomplete="username"></label>
+            <label class="campo"><span>Correo</span><input type="email" th:field="*{email}" autocomplete="email"></label>
+            <label class="campo"><span>Contraseña</span><input type="password" th:field="*{clave}" autocomplete="new-password"></label>
+            <label class="campo"><span>Repite la contraseña</span><input type="password" th:field="*{claveConfirmacion}" autocomplete="new-password"></label>
+            <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+            <button class="boton" type="submit">Crear cuenta</button>
+          </form>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Propuestas de diseño</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&family=Instrument+Sans:wght@400;500;600&family=Archivo:wdth,wght@62..125,400..800&family=Schibsted+Grotesk:wght@400..800&family=Caveat:wght@500&display=swap">
+  <style>
+    /* Portada para comparar las tres propuestas. Neutra a propósito: el protagonismo es de cada propuesta. */
+    :root { --fondo: #f1eee8; --texto: #2a2724; --suave: #6d6760; --regla: rgba(42, 39, 36, .18); }
+    * { box-sizing: border-box; border-radius: 0; }
+    html { background: var(--fondo); color: var(--texto); font: 400 16px/1.55 'Instrument Sans', system-ui, sans-serif; }
+    body { margin: 0; }
+    a { color: inherit; text-underline-offset: 3px; }
+    .portada { max-width: 1240px; margin: 0 auto; padding: 40px 24px 56px; }
+    .portada > header { padding-bottom: 24px; border-bottom: 2px solid var(--texto); }
+    h1 { margin: 0; font-size: clamp(30px, 4vw, 44px); line-height: 1.1; font-weight: 600; }
+    .portada > header p { margin: 10px 0 0; color: var(--suave); max-width: 76ch; }
+    .propuestas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .propuesta { padding: 28px 28px 32px; border-left: 1px solid var(--regla); display: flex; flex-direction: column; }
+    .propuesta:first-child { padding-left: 0; border-left: 0; }
+    .propuesta:last-child { padding-right: 0; }
+    .muestra { height: 150px; display: grid; place-items: center start; padding: 0 22px; margin-bottom: 18px; }
+    .paleta { display: grid; grid-template-columns: repeat(6, 1fr); margin-bottom: 18px; border-top: 1px solid var(--regla); border-bottom: 1px solid var(--regla); }
+    .paleta span { height: 34px; }
+    .paleta-nombres { display: grid; grid-template-columns: repeat(6, 1fr); font-size: 11px; color: var(--suave); margin: -14px 0 18px; }
+    h2 { margin: 0 0 6px; font-size: 22px; }
+    .propuesta p { margin: 0 0 10px; }
+    .propuesta ul { margin: 4px 0 18px; padding-left: 18px; color: var(--suave); }
+    .propuesta li { margin-bottom: 4px; }
+    .enlaces { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px 18px; padding-top: 14px; border-top: 1px solid var(--regla); }
+    .enlaces a:first-child { font-weight: 600; }
+    .pie { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--regla); font-size: 14px; color: var(--suave); }
+    .pie code { font-size: 13px; }
+
+    /* Muestras con la tipografía y el color de cada propuesta. */
+    .m-a { background: #fcdcc8; color: #9c3d54; font: 800 64px/1 'Big Shoulders Display', sans-serif; border-top: 4px double #3b2333; border-bottom: 4px double #3b2333; }
+    .m-b { background: #dce5d0; color: #1f3529; font: 800 52px/1 'Archivo', sans-serif; font-stretch: 125%; border: 2px solid #f7f9f1; position: relative; overflow: hidden; }
+    .m-b::before { content: ''; position: absolute; left: 70%; top: 0; bottom: 0; width: 2px; background: #f7f9f1; }
+    .m-b::after { content: ''; position: absolute; left: calc(70% - 44px); top: calc(50% - 45px); width: 86px; height: 86px; border: 2px solid #f7f9f1; border-radius: 50%; }
+    .m-c { background-color: #ebe1c9; color: #22385e; font: 800 40px/1 'Schibsted Grotesk', sans-serif;
+      background-image: linear-gradient(#d6826b, #d6826b), linear-gradient(rgba(34, 56, 94, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 56, 94, .08) 1px, transparent 1px);
+      background-size: 2px 100%, 20px 20px, 20px 20px; background-position: 14px 0, 0 0, 0 0; background-repeat: no-repeat, repeat, repeat; padding-left: 34px; }
+    .m-c small { display: block; font: 500 22px 'Caveat', cursive; color: #3f5d8f; margin-top: 6px; }
+
+    @media (max-width: 900px) {
+      .portada { padding: 24px 16px 40px; }
+      .propuestas { grid-template-columns: 1fr; }
+      .propuesta, .propuesta:first-child, .propuesta:last-child { padding: 24px 0 28px; border-left: 0; border-top: 1px solid var(--regla); }
+    }
+  </style>
+</head>
+<body>
+  <div class="portada">
+    <header>
+      <h1>Tres propuestas para la web de apuestas</h1>
+      <p>Las tres usan los mismos datos de prueba (sacados de los contratos de cada servicio), sin esquinas redondeadas y con transiciones entre pantallas. Navega por todas las pantallas: Hoy, Análisis de un partido, Mis apuestas, Historial, Perfil e Ingesta. Prueba también el filtro por liga, evaluar una cuota y registrar una apuesta, y abre «Liverpool – Brighton» para ver cómo se muestra el aviso cuando las cuotas no responden.</p>
+    </header>
+
+    <div class="propuestas">
+      <section class="propuesta">
+        <div class="muestra m-a">Cartilla</div>
+        <div class="paleta" aria-hidden="true"><span style="background:#fcdcc8"></span><span style="background:#fff5ee"></span><span style="background:#3b2333"></span><span style="background:#7a5f66"></span><span style="background:#9c3d54"></span><span style="background:#2f7a57"></span></div>
+        <div class="paleta-nombres"><span>Melocotón</span><span>Papel</span><span>Tinta</span><span>Gris</span><span>Vino</span><span>Valor</span></div>
+        <h2>A. Cartilla</h2>
+        <p>Como un cupón de pronósticos impreso. Color principal: melocotón <b>#FCDCC8</b>.</p>
+        <ul>
+          <li>La apuesta del día es un boleto con talón perforado.</li>
+          <li>Partidos en filas numeradas con casillas 1 X 2.</li>
+          <li>Transición: la pantalla nueva se «imprime» de arriba hacia abajo.</li>
+        </ul>
+        <p class="enlaces"><a href="a-cartilla/">Ver desde el login</a><a href="a-cartilla/?usuario=renzo#/">Entrar como apostador</a><a href="a-cartilla/?usuario=admin#/">Entrar como admin</a></p>
+      </section>
+
+      <section class="propuesta">
+        <div class="muestra m-b">Pizarra</div>
+        <div class="paleta" aria-hidden="true"><span style="background:#dce5d0"></span><span style="background:#cfdbc2"></span><span style="background:#f7f9f1"></span><span style="background:#1f3529"></span><span style="background:#d4932c"></span><span style="background:#17693f"></span></div>
+        <div class="paleta-nombres"><span>Salvia</span><span>Banda</span><span>Tiza</span><span>Bosque</span><span>Ámbar</span><span>Valor</span></div>
+        <h2>B. Pizarra</h2>
+        <p>Como la pizarra táctica del vestuario. Color principal: salvia <b>#DCE5D0</b>.</p>
+        <ul>
+          <li>Cada partido se dibuja en una cancha: local a la izquierda y visita a la derecha.</li>
+          <li>Barra 1X2 del modelo entre los nombres y promedios en espejo.</li>
+          <li>Transición: barrido de tiza de izquierda a derecha; la cancha se transforma de Hoy al análisis.</li>
+        </ul>
+        <p class="enlaces"><a href="b-pizarra/">Ver desde el login</a><a href="b-pizarra/?usuario=renzo#/">Entrar como apostador</a><a href="b-pizarra/?usuario=admin#/">Entrar como admin</a></p>
+      </section>
+
+      <section class="propuesta">
+        <div class="muestra m-c"><span>Cuaderno<small>apuntes de un modelo de Poisson</small></span></div>
+        <div class="paleta" aria-hidden="true"><span style="background:#ebe1c9"></span><span style="background:#dccfab"></span><span style="background:#22385e"></span><span style="background:#d6826b"></span><span style="background:#fccfb4"></span><span style="background:#2c7a4b"></span></div>
+        <div class="paleta-nombres"><span>Arena</span><span>Escritorio</span><span>Tinta azul</span><span>Margen</span><span>Marcador</span><span>Valor</span></div>
+        <h2>C. Cuaderno</h2>
+        <p>Como el cuaderno donde se hacen las cuentas. Color principal: arena <b>#EBE1C9</b>.</p>
+        <ul>
+          <li>Cada número viene con su cuenta: VE = 0.528 × 2.00 − 1.</li>
+          <li>El análisis va por pasos, con la matriz de marcadores de Poisson.</li>
+          <li>Los formularios se llenan como frases; transición de pasar la hoja.</li>
+        </ul>
+        <p class="enlaces"><a href="c-cuaderno/">Ver desde el login</a><a href="c-cuaderno/?usuario=renzo#/">Entrar como apostador</a><a href="c-cuaderno/?usuario=admin#/">Entrar como admin</a></p>
+      </section>
+    </div>
+
+    <p class="pie">Prototipos estáticos en <code>servicios/web-app/prototipos/</code>. Los datos viven en memoria y se reinician al recargar. La propuesta elegida se pasa a plantillas de Thymeleaf con su hoja de estilos.</p>
+  </div>
+</body>
+</html>

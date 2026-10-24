@@ -43,6 +43,22 @@ Lee `X-Usuario-Id`. Responde **200**: `{ "id": 2, "nombreUsuario": "renzo", "ema
 
 Body `{ "banca": 500.00 }`. La banca debe ser mayor o igual a 0. Responde **200** con el perfil actualizado.
 
+## Reglas de negocio
+
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-USU-01 | El nombre de usuario (hasta 30 caracteres) y el correo son únicos. El correo se guarda en minúsculas, así que «Renzo@Correo.pe» y «renzo@correo.pe» cuentan como el mismo. Un duplicado responde 409 USUARIO_DUPLICADO y no se guarda nada. | RF-01 · CB-08 |
+| RN-USU-02 | La clave tiene de 6 a 72 caracteres y debe coincidir con su confirmación. Solo se guarda su hash BCrypt, nunca la clave. | RF-01 |
+| RN-USU-03 | Toda cuenta nueva recibe el rol APOSTADOR, aunque el JSON traiga otro. | RN-13 |
+| RN-USU-04 | Si el inicio de sesión falla, el mensaje es el mismo cuando el usuario no existe y cuando la clave es incorrecta. Así no se revela qué cuentas existen. | RF-02 |
+| RN-USU-05 | El token dura 8 horas. Cuando vence, hay que iniciar sesión otra vez. | RF-02 · CB-09 |
+| RN-USU-06 | La banca es un monto que declara el usuario, mayor o igual a 0 (por defecto, 0). El sistema no mueve dinero real. | RN-08 |
+| RN-USU-07 | Al arrancar, si no existe, se crea el usuario `admin`. Su clave sale de la variable `ADMIN_PASSWORD` y nunca se escribe en el código. | RN-13 |
+
+Reglas generales que aplica: RN-13 (cuentas y roles).
+
 ## Tareas
 
 - [ ] Entidad, repositorio y servicio con BCrypt.

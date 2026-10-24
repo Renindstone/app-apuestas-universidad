@@ -66,6 +66,21 @@ Si el cruce (local, visitante, temporada) ya existe, **lo actualiza**. Si no, lo
 - **200:** `PartidoDTO`. Si `golesLocal` llega con valor, el estado pasa a `FINALIZADO`.
 - Un partido FINALIZADO **no** vuelve a PROGRAMADO, aunque llegue después una fila de `fixtures.csv` sin goles.
 
+## Reglas de negocio
+
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-CAT-01 | Solo existen tres ligas: E0, SP1 y D1. Se insertan al arrancar si la tabla está vacía. | RN-10 |
+| RN-CAT-02 | Un cruce local–visitante ocurre una sola vez por temporada. Por eso el alta de partidos es un *upsert*: si el cruce ya existe, se actualiza. Enviar la misma fila dos veces no duplica nada. | RF-05 |
+| RN-CAT-03 | Los equipos y los árbitros se crean solos la primera vez que llegan en una fila. Sus nombres son únicos. | RF-05 |
+| RN-CAT-04 | Un partido nace PROGRAMADO y pasa a FINALIZADO cuando llegan sus goles. Un partido FINALIZADO nunca vuelve a PROGRAMADO, aunque después llegue una fila sin goles. | RF-05 · RF-14 |
+| RN-CAT-05 | El árbitro queda vacío cuando no se conoce: siempre en LaLiga y la Bundesliga, y en los partidos futuros. | RN-08 |
+| RN-CAT-06 | La fecha de los filtros es un día de Lima: va de las 05:00 UTC de ese día a las 05:00 UTC del día siguiente. | RN-12 |
+
+Reglas generales que aplica: RN-10 (ligas y temporadas), RN-11 (dueño de los IDs) y RN-12 (fechas).
+
 ## Tareas
 
 - [ ] Entidades `Liga`, `Equipo`, `Arbitro` y `Partido` con sus restricciones UNIQUE (sección 6.2).

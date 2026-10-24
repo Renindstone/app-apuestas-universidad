@@ -8,10 +8,10 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 
 | Documento | Para qué |
 |---|---|
-| [docs/DocumentacionProyectoApuestas.docx](docs/DocumentacionProyectoApuestas.docx) | **Documento para entregar** (Word, formato del proyecto MTC). Los textos resaltados en amarillo se completan a mano. |
-| [docs/Documentacion.md](docs/Documentacion.md) | Mismo contenido en Markdown (fuente para regenerar el Word) y documento del proyecto (perfil, análisis, arquitectura, BD, plan de la semana y pruebas), con la estructura del proyecto MTC |
+| [docs/DocumentacionProyectoApuestas.docx](docs/DocumentacionProyectoApuestas.docx) | **Documento para entregar** (Word, con el diseño del plan de trabajo de PPP: portada con las franjas institucionales, títulos en Cambria y texto en Calibri; mantiene la estructura del proyecto MTC). |
+| [docs/Documentacion.md](docs/Documentacion.md) | Mismo contenido en Markdown (fuente para regenerar el Word) y documento del proyecto (perfil, análisis, reglas de negocio, arquitectura, BD, plan de la semana y pruebas), con la estructura del proyecto MTC |
 | [docs/guia-inicio.md](docs/guia-inicio.md) | Cómo crear cada servicio con Spring Initializr y cómo levantar todo |
-| `servicios/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, tareas y pistas |
+| `servicios/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, reglas de negocio, tareas y pistas |
 
 ## Los 9 microservicios
 
@@ -46,6 +46,7 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 | `CORNERS` | `MAS`, `MENOS` | 8.5, 9.5 o 10.5 | Córners totales del partido |
 
 - **Casas de apuestas:** `bet365`, `pinnacle` y `betano` (en minúsculas).
+- **Reglas de negocio:** las generales (RN-01 a RN-16) están en la [sección 4.5 de la documentación](docs/Documentacion.md#45-reglas-de-negocio), y las específicas, en el README de cada servicio. Si una regla cambia, se avisa en el daily, igual que un cambio de contrato.
 - **Commits:** en español y en presente ("Agrega endpoint de promedios"). Cada integrante trabaja en su rama `feature/<servicio>-<tema>` y abre un PR hacia `universidad/microservicios`, que revisa otro integrante.
 
 ## Arranque rápido

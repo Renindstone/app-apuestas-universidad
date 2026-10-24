@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- /partidos/{id}/cuota-betano: apuntar a mano una cuota de Betano. -->
+<head th:replace="~{fragmentos :: head('Cuota de Betano')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja">
+    <header th:replace="~{fragmentos :: cabecera('hoy')}"></header>
+    <main class="vt-contenido" th:with="local=${partido.local().nombre()}, visita=${partido.visitante().nombre()}">
+      <section class="bloque">
+        <div class="margen"><p class="mano"><a th:href="@{/partidos/{id}(id=${partido.id()})}">Volver al análisis</a></p></div>
+        <div class="cuerpo">
+          <h1>Cuota de Betano</h1>
+          <p class="pick-detalle" th:text="|${local} – ${visita}. Betano no publica sus cuotas en una fuente gratuita, así que se apuntan a mano y quedan con tu usuario.|">Partido</p>
+        </div>
+      </section>
+
+      <!-- La frase del formulario. La validación de la cuota es la de RN-CUO-01. -->
+      <section class="bloque">
+        <div class="margen"><p class="mano">Debe ser mayor que 1.01</p></div>
+        <div class="cuerpo">
+          <form class="frase" th:action="@{/partidos/{id}/cuota-betano(id=${partido.id()})}" th:object="${betanoForm}" method="post" novalidate>
+            <p>Betano paga <input class="blanco" th:field="*{cuota}" size="4" inputmode="decimal" placeholder="1.85" aria-label="Cuota">
+              por <select class="blanco" th:field="*{seleccion}" aria-label="Selección"><th:block th:replace="~{fragmentos :: opciones(${local}, ${visita})}"></th:block></select>.
+              <button class="boton" type="submit">Guardar cuota</button></p>
+            <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+          </form>
+        </div>
+      </section>
+
+      <!-- Las cuotas de Betano que ya se apuntaron para este partido. -->
+      <section class="bloque">
+        <div class="margen"><p class="mano">Ya apuntadas</p></div>
+        <div class="cuerpo">
+          <p class="aviso-seccion" role="status" th:if="${cuotasBetano == null}">Cuotas no disponibles por ahora.</p>
+          <p class="nota" th:if="${cuotasBetano != null and cuotasBetano.isEmpty()}">Todavía nadie apuntó cuotas de Betano para este partido.</p>
+          <div class="table-responsive" th:if="${cuotasBetano != null and !cuotasBetano.isEmpty()}">
+            <table class="tabla tabla-corta">
+              <thead><tr><th scope="col">Selección</th><th scope="col">Cuota</th><th scope="col">Apuntada</th></tr></thead>
+              <tbody>
+                <tr th:each="c : ${cuotasBetano}">
+                  <th scope="row" th:text="${@fmt.etiqueta(c, local, visita)}">Más de 4.5 tarjetas</th>
+                  <td th:text="${@fmt.cuota(c.valor())}">1.95</td>
+                  <td th:text="${@fmt.fechaHora(c.capturadaEn())}">24/10 07:40</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- /mis-apuestas: rendimiento escrito como cuenta, formulario-frase para registrar y la lista por estado. -->
+<head th:replace="~{fragmentos :: head('Mis apuestas')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja">
+    <header th:replace="~{fragmentos :: cabecera('misApuestas')}"></header>
+    <section th:replace="~{fragmentos :: avisos}"></section>
+    <main class="vt-contenido">
+
+      <!-- Rendimiento: solo cuenta las apuestas liquidadas (RN-APU-07). -->
+      <section class="bloque" th:with="r=${rendimiento}">
+        <div class="margen"><p class="mano">Solo cuentan las liquidadas</p></div>
+        <div class="cuerpo">
+          <h1>Mis apuestas</h1>
+          <p class="aviso-seccion" role="status" th:if="${r == null}">Rendimiento no disponible por ahora.</p>
+          <div class="cuentas" th:if="${r != null}">
+            <div class="cuenta"><span>Apuestas</span><span class="igual">=</span>
+              <span th:text="|${r.apuestas()}, de ellas ${r.pendientes()} pendientes, ${r.ganadas()} ganadas y ${r.perdidas()} perdidas|">12</span></div>
+            <div class="cuenta"><span>Beneficio</span><span class="igual">=</span>
+              <span><span th:class="${@fmt.claseSigno(r.beneficio())}" th:text="${@fmt.soles(r.beneficio())}">−S/ 4.00</span><th:block th:text="| sobre ${@fmt.soles(r.montoApostado())} apostados|"></th:block></span></div>
+            <div class="cuenta cuenta-fuerte"><span>ROI</span><span class="igual">=</span>
+              <span><th:block th:text="|${@fmt.numero(r.beneficio(), 2)} / ${@fmt.numero(r.montoApostado(), 2)} = |"></th:block><mark th:text="${@fmt.signoPct(r.roi())}">−2.0 %</mark></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Registrar una apuesta: «Aposté S/ … a … en …, con cuota … en …». -->
+      <section class="bloque">
+        <div class="margen"><p class="mano">Apunta una nueva</p></div>
+        <div class="cuerpo">
+          <p class="aviso-seccion" role="status" th:if="${partidosHoy == null}">No se pudieron cargar los partidos de hoy, así que por ahora no se puede registrar una apuesta.</p>
+          <p class="nota" th:if="${partidosHoy != null and partidosHoy.isEmpty()}">Hoy no hay partidos programados.</p>
+          <form class="frase" th:if="${partidosHoy != null and !partidosHoy.isEmpty()}" th:action="@{/mis-apuestas}" th:object="${apuestaForm}" method="post" novalidate>
+            <p>Aposté S/ <input class="blanco" th:field="*{monto}" size="5" inputmode="decimal" placeholder="20.00" aria-label="Monto en soles">
+              a <select class="blanco" th:field="*{seleccion}" aria-label="Selección"><th:block th:replace="~{fragmentos :: opciones('el local', 'la visita')}"></th:block></select>
+              en <select class="blanco" th:field="*{partidoId}" aria-label="Partido">
+                <option th:each="p : ${partidosHoy}" th:value="${p.id()}" th:text="|${p.local().nombre()} – ${p.visitante().nombre()}|">Arsenal – Chelsea</option></select>,
+              con cuota <input class="blanco" th:field="*{cuota}" size="4" inputmode="decimal" placeholder="2.10" aria-label="Cuota">
+              en <select class="blanco" th:field="*{casa}" aria-label="Casa"><option value="bet365">bet365</option><option value="betano">betano</option></select>.
+              <button class="boton" type="submit">Registrar apuesta</button></p>
+            <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+          </form>
+        </div>
+      </section>
+
+      <!-- Lista de apuestas con las pestañas Pendientes / Liquidadas. -->
+      <section class="bloque" id="lista">
+        <div class="margen"></div>
+        <div class="cuerpo">
+          <p class="filtro">Ver
+            <a th:href="@{/mis-apuestas(estado='PENDIENTE')} + '#lista'" th:attr="aria-current=${estado == 'PENDIENTE'} ? 'true'">pendientes</a>,
+            <a th:href="@{/mis-apuestas(estado='LIQUIDADA')} + '#lista'" th:attr="aria-current=${estado == 'LIQUIDADA'} ? 'true'">liquidadas</a></p>
+          <p class="aviso-seccion" role="status" th:if="${apuestas == null}">Tus apuestas no están disponibles por ahora.</p>
+          <div class="table-responsive" th:if="${apuestas != null}">
+            <table class="tabla">
+              <thead><tr><th scope="col">Partido</th><th scope="col">Casa</th><th scope="col">Cuota</th><th scope="col">Monto</th><th scope="col">Resultado</th></tr></thead>
+              <tbody>
+                <tr th:each="a : ${apuestas}" th:style="|--vt: apuesta-${a.id()}|">
+                  <th scope="row"><th:block th:text="${a.partido()}">Arsenal vs Chelsea</th:block>
+                    <small th:text="|${@fmt.etiqueta(a, a.partido())}, ${@fmt.fechaCorta(a.fecha())}|">Más de 2.5 goles, 24 oct</small></th>
+                  <td th:text="${a.casa()}">bet365</td>
+                  <td th:text="${@fmt.cuota(a.cuota())}">2.00</td>
+                  <td th:text="${@fmt.soles(a.monto())}">S/ 8.00</td>
+                  <td th:class="${@fmt.claseSigno(a.ganancia())}" th:text="${a.pendiente()} ? 'Pendiente' : ${@fmt.soles(a.ganancia())}">Pendiente</td>
+                </tr>
+                <tr th:if="${apuestas.isEmpty()}"><td colspan="5" class="vacio">No tienes apuestas en este estado.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rendimiento por mercado. -->
+      <section class="bloque" th:if="${rendimiento != null and !rendimiento.porMercado().isEmpty()}">
+        <div class="margen"><p class="mano">Por mercado</p></div>
+        <div class="cuerpo">
+          <div class="table-responsive">
+            <table class="tabla tabla-corta">
+              <thead><tr><th scope="col">Mercado</th><th scope="col">Apuestas</th><th scope="col">Beneficio</th><th scope="col">ROI</th></tr></thead>
+              <tbody>
+                <tr th:each="m : ${rendimiento.porMercado()}">
+                  <th scope="row" th:text="${@fmt.nombreMercado(m.mercado())}">Resultado</th>
+                  <td th:text="${m.apuestas()}">4</td>
+                  <td th:class="${@fmt.claseSigno(m.beneficio())}" th:text="${@fmt.soles(m.beneficio())}">−S/ 13.00</td>
+                  <td th:class="${@fmt.claseSigno(m.roi())}" th:text="${@fmt.signoPct(m.roi())}">−13.7 %</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

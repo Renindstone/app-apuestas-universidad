@@ -217,6 +217,139 @@ Son 9 historias, 3 por integrante:
 | HU-08 | Como visitante, quiero crear una cuenta e iniciar sesión. | 5 | Alta | Integrante 3 |
 | HU-09 | Como apostador, quiero una interfaz web para usar todo lo anterior. | 8 | Alta | Integrante 3 |
 
+### 4.5. Reglas de negocio
+
+Las reglas de negocio dicen qué debe cumplir el sistema, sin importar cómo se programe. Hay dos grupos. Las **generales** valen para todo el sistema. Las **específicas** las aplica un microservicio concreto. La columna *Relación* indica el requerimiento, el caso de uso, la prueba o el servicio con que se conecta cada regla. RN-01 a RN-08 son las mismas que muestra la presentación.
+
+Cada `servicios/<servicio>/README.md` repite sus reglas específicas con el mismo código. Si una regla cambia, se actualizan los dos documentos y se avisa en el daily, igual que con los contratos.
+
+#### 4.5.1. Reglas generales
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-01 Margen de la casa | Cada cuota esconde una probabilidad implícita: `q = 1 / cuota`. Las probabilidades implícitas de todas las selecciones de un mercado suman más de 1, y ese exceso es el margen de la casa: `margen = Σq − 1`. Por ejemplo, las cuotas 2.10, 3.40 y 3.60 dan un margen de 4.8 %. | RF-09 · ms-cuotas |
+| RN-02 Probabilidad sin margen | La probabilidad que el mercado asigna a cada selección se obtiene quitando el margen con el método multiplicativo: `p = q / Σq`. Así, las probabilidades vuelven a sumar 1. | RF-09 · ms-cuotas |
+| RN-03 Valor esperado | `EV = p × cuota − 1`, donde `p` es la probabilidad del modelo. Es lo que se gana o se pierde en promedio por cada unidad apostada, si `p` es correcta. | RF-11 · CB-05 · ms-apuestas |
+| RN-04 Veredicto | Una cuota es CON_VALOR si su EV es de 3 % o más, MARGINAL si su EV está entre 0 y 3 %, y SIN_VALOR si su EV es 0 o negativo. | RF-11 · CB-06 · ms-apuestas |
+| RN-05 Stake sugerido | Se apuesta un cuarto de lo que indica el criterio de Kelly, con un tope de 3 % de la banca: `stake = min(0.25 × EV / (cuota − 1), 0.03)`. Si el EV es 0 o negativo, el stake es 0. | RF-11 · CB-05 · ms-apuestas |
+| RN-06 Apuesta del día | Son candidatas las cuotas de bet365 o Betano entre 1.50 y 2.60, con probabilidad de 42 % o más, EV de 3 % o más y al menos 5 partidos de muestra por equipo. Gana la de mayor EV, y hay como mucho una por día. Si ninguna cumple, el sistema dice «Hoy no hay apuesta del día». | RF-12 · CU-06 · CN-07 · ms-apuestas |
+| RN-07 Liquidación | Una apuesta ganada deja `monto × (cuota − 1)` de beneficio y una perdida resta el monto. Todas las líneas terminan en .5, así que nunca hay empate (*push*). Solo se liquidan partidos FINALIZADO. | RF-14 · CB-07 · ms-apuestas |
+| RN-08 Límites del sistema | El sistema solo recomienda. No se conecta a ninguna casa de apuestas, no apuesta por el usuario y no maneja dinero real. El usuario apuesta por su cuenta y, si quiere, registra la apuesta para medir su rendimiento. Solo se analizan mercados previos al partido, sin apuestas en vivo. El factor árbitro solo existe en la Premier League. | Secciones 1.4 y 1.5 |
+| RN-09 Mercados válidos | Solo existen los mercados, selecciones y líneas de la tabla del README raíz: 1X2, GOLES (1.5, 2.5 y 3.5), AMBOS_MARCAN, TARJETAS (3.5, 4.5 y 5.5) y CORNERS (8.5, 9.5 y 10.5). Cualquier otra combinación se rechaza con 400. Las tarjetas suman amarillas y rojas de ambos equipos. | README raíz · todos los servicios |
+| RN-10 Ligas, temporadas y casas | Se trabaja con la Premier League (E0), LaLiga (SP1) y la Bundesliga (D1). Se cargan la temporada actual y la anterior. La anterior solo sirve de historia para los promedios, porque al empezar una temporada cada equipo tiene pocos partidos: las recomendaciones siempre son sobre partidos por jugar. Las casas son bet365 y Pinnacle, que vienen de football-data, y Betano, que se ingresa a mano. | Sección 1.4 · RF-03 |
+| RN-11 Origen de los datos | Los partidos, las estadísticas y las cuotas solo entran por `ms-ingesta`, desde football-data.co.uk. La única excepción son las cuotas de Betano, que ingresa el usuario. `ms-catalogo` es el dueño de los IDs de liga, equipo, árbitro y partido. | RF-03, RF-04 y RF-10 · Sección 5.2 |
+| RN-12 Fechas | Todas las fechas se guardan en UTC. «Un día» siempre es un día de Lima, de 05:00 a 05:00 UTC. La web muestra las horas en hora de Lima, y las tareas programadas usan la zona America/Lima. | README raíz |
+| RN-13 Cuentas y roles | Hay dos roles. APOSTADOR es el que el servidor asigna a toda cuenta nueva. ADMIN corresponde a un único usuario que se crea al arrancar. Solo el ADMIN lanza la ingesta y ve su historial. | RF-01, RF-02 y RF-16 · CN-03 |
+| RN-14 Privacidad de las apuestas | Cada usuario ve solo sus propias apuestas y su rendimiento. El usuario siempre se identifica por el token (la cabecera `X-Usuario-Id` que pone el gateway), nunca por un dato del JSON. | RF-13 y RF-15 · RNF-03 |
+| RN-15 Honestidad | El sistema muestra probabilidades, valor esperado y de dónde sale cada número. Nunca habla de «apuestas seguras» ni promete ganancias: el modelo de Poisson es didáctico y no le gana a las casas de forma sostenida. | RNF-08 · Sección 1.5 |
+| RN-16 Juego responsable | La plataforma se dirige solo a mayores de 18 años y muestra mensajes de juego responsable. Cuando no hay apuesta del día, lo dice con claridad: «No apostar también es una decisión». Solo menciona casas con autorización vigente del MINCETUR. | Sección 1.6 |
+
+#### 4.5.2. Reglas específicas de cada microservicio
+
+Las reglas RN-01 y RN-02 las implementa `ms-cuotas`, y las RN-03 a RN-07, `ms-apuestas`. Por eso no se repiten aquí. `discovery-server` no tiene reglas de negocio propias, porque solo registra y localiza servicios.
+
+**api-gateway** (Integrante 3)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-GAT-01 | Solo son públicas (sin token) estas rutas: `POST /api/usuarios/auth/**`, los `GET` de `/api/catalogo/**`, `/actuator/health` y Swagger. Todo lo demás exige un token bien firmado y vigente. Si falta, responde 401. | RNF-03 · CB-09 · CN-02 |
+| RN-GAT-02 | `/api/ingesta/**` exige además el rol ADMIN. Si no lo tiene, responde 403. | RN-13 · CN-03 |
+| RN-GAT-03 | Ninguna ruta `/interno/**` se atiende desde fuera: responde 403 sin reenviar la petición. | RNF-03 · CN-04 |
+| RN-GAT-04 | Las cabeceras `X-Usuario-Id` y `X-Usuario-Rol` que mande el cliente se borran y se reemplazan por las del token, para que nadie pueda suplantar a otro usuario. | RN-14 |
+| RN-GAT-05 | Solo la web (`http://localhost:8090`) puede llamar a la API desde un navegador (CORS). | RNF-03 |
+
+**ms-usuarios** (Integrante 3)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-USU-01 | El nombre de usuario (hasta 30 caracteres) y el correo son únicos. El correo se guarda en minúsculas, así que «Renzo@Correo.pe» y «renzo@correo.pe» cuentan como el mismo. Un duplicado responde 409 USUARIO_DUPLICADO y no se guarda nada. | RF-01 · CB-08 |
+| RN-USU-02 | La clave tiene de 6 a 72 caracteres y debe coincidir con su confirmación. Solo se guarda su hash BCrypt, nunca la clave. | RF-01 |
+| RN-USU-03 | Toda cuenta nueva recibe el rol APOSTADOR, aunque el JSON traiga otro. | RN-13 |
+| RN-USU-04 | Si el inicio de sesión falla, el mensaje es el mismo cuando el usuario no existe y cuando la clave es incorrecta. Así no se revela qué cuentas existen. | RF-02 |
+| RN-USU-05 | El token dura 8 horas. Cuando vence, hay que iniciar sesión otra vez. | RF-02 · CB-09 |
+| RN-USU-06 | La banca es un monto que declara el usuario, mayor o igual a 0 (por defecto, 0). El sistema no mueve dinero real. | RN-08 |
+| RN-USU-07 | Al arrancar, si no existe, se crea el usuario `admin`. Su clave sale de la variable `ADMIN_PASSWORD` y nunca se escribe en el código. | RN-13 |
+
+**ms-catalogo** (Integrante 1)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-CAT-01 | Solo existen tres ligas: E0, SP1 y D1. Se insertan al arrancar si la tabla está vacía. | RN-10 |
+| RN-CAT-02 | Un cruce local–visitante ocurre una sola vez por temporada. Por eso el alta de partidos es un *upsert*: si el cruce ya existe, se actualiza. Enviar la misma fila dos veces no duplica nada. | RF-05 |
+| RN-CAT-03 | Los equipos y los árbitros se crean solos la primera vez que llegan en una fila. Sus nombres son únicos. | RF-05 |
+| RN-CAT-04 | Un partido nace PROGRAMADO y pasa a FINALIZADO cuando llegan sus goles. Un partido FINALIZADO nunca vuelve a PROGRAMADO, aunque después llegue una fila sin goles. | RF-05 · RF-14 |
+| RN-CAT-05 | El árbitro queda vacío cuando no se conoce: siempre en LaLiga y la Bundesliga, y en los partidos futuros. | RN-08 |
+| RN-CAT-06 | La fecha de los filtros es un día de Lima: va de las 05:00 UTC de ese día a las 05:00 UTC del día siguiente. | RN-12 |
+
+**ms-ingesta** (Integrante 1)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-ING-01 | Es el único servicio que lee football-data. Descarga cada archivo como mucho una vez por ejecución, nunca en un bucle. | RN-11 · RF-03 |
+| RN-ING-02 | Se ejecuta sola en hora de Lima: HISTORICO a las 05:00 (solo la temporada actual) y PROXIMOS a las 08:00 y a las 16:00. Solo el ADMIN puede lanzarla a mano. | RF-03 y RF-04 · CU-09 y CU-10 |
+| RN-ING-03 | La hora del CSV es la de Londres y se convierte a UTC, de modo que el cambio de horario británico se aplica solo. | RN-12 · CB-01 |
+| RN-ING-04 | Cada fila se procesa en este orden: primero el catálogo, que devuelve los IDs; luego las estadísticas, solo si el partido ya se jugó; y por último las cuotas, solo si la fila las trae. | RF-03 · CB-02 |
+| RN-ING-05 | Una fila con error se anota y no detiene la ejecución. Si la fuente no responde, la ejecución termina en ERROR y se reintenta en la siguiente hora programada. | CU-10 · RNF-04 |
+| RN-ING-06 | Cada ejecución queda registrada con su tipo, fuente, inicio, fin, filas, estado y error. | RF-16 · CN-05 |
+
+**ms-estadisticas** (Integrante 1)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-EST-01 | Cada partido se guarda como dos filas, una por equipo, y en cada una el rival es el otro equipo. Si el mismo partido llega otra vez, se actualizan esas filas. | RF-06 |
+| RN-EST-02 | Los promedios *a favor* salen de las filas del equipo. Los promedios *en contra* salen de las filas de su rival en esos mismos partidos. | RF-06 |
+| RN-EST-03 | Se toman los últimos N partidos (10 por defecto), del más reciente al más antiguo y sin importar la temporada. Se pueden filtrar como local, como visitante o todos. | RF-06 · RN-10 |
+| RN-EST-04 | Si un equipo no tiene partidos, la respuesta indica 0 partidos y deja los promedios vacíos (`null`), nunca en cero: no tener datos no es lo mismo que no hacer goles. | RF-06 |
+| RN-EST-05 | El perfil del árbitro suma las tarjetas de ambos equipos en cada partido que dirigió y lo compara con la media de su liga. | RF-07 |
+| RN-EST-06 | Un partido que aún no se jugó no tiene estadísticas: la consulta responde 404. | RF-14 |
+
+**ms-cuotas** (Integrante 2)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-CUO-01 | Toda cuota es mayor que 1, y las que ingresa el usuario deben ser mayores que 1.01. | RF-10 · CB-04 |
+| RN-CUO-02 | Las cuotas de bet365 y Pinnacle solo llegan por la ingesta. Las de Betano solo se ingresan a mano y se guardan con tipo MANUAL y con el ID del usuario que las cargó. | RN-10 · RF-10 |
+| RN-CUO-03 | Una cuota manual solo se acepta si el partido existe en `ms-catalogo` (si no, 404) y si el mercado, la selección y la línea son válidos (si no, 400). | RF-10 · RN-09 |
+| RN-CUO-04 | La consulta muestra la cuota más reciente de cada casa, mercado, selección y línea. Si la misma cuota se guarda dos veces, se actualiza en lugar de duplicarse. | RF-09 |
+| RN-CUO-05 | El margen y las probabilidades sin margen (RN-01 y RN-02) solo se calculan con el mercado completo. Si falta una selección, la respuesta es 409 MERCADO_INCOMPLETO. | RF-09 |
+
+**ms-predicciones** (Integrante 2)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-PRE-01 | No guarda nada: en cada petición pide los datos y vuelve a calcular. | RF-08 |
+| RN-PRE-02 | El valor esperado de cada estadística combina la media de la liga con el ataque de un equipo y la defensa del otro. El local se mide jugando en casa y el visitante jugando fuera, en sus últimos 10 partidos. | RF-08 |
+| RN-PRE-03 | Si un equipo tiene pocos partidos, cada factor se acerca a la media de la liga: `factor' = (n × factor + 5) / (n + 5)`. | RF-08 |
+| RN-PRE-04 | Los mercados de goles, 1X2 y ambos marcan salen de una matriz de Poisson de 0 a 10 goles por equipo. Los de córners y tarjetas usan Poisson sobre el total del partido. | RF-08 · CB-03 |
+| RN-PRE-05 | Las tarjetas se ajustan con el factor árbitro. Ese factor se acerca a 1 cuando el árbitro tiene pocos partidos (con un peso de 10), y vale 1 si el partido no tiene árbitro. | RF-07 · RN-08 |
+| RN-PRE-06 | La cuota justa de una selección es `1 / probabilidad`. La respuesta trae todos los mercados y líneas de RN-09, con una explicación de dónde sale cada número. | RF-08 · RN-15 |
+| RN-PRE-07 | Si `ms-catalogo` o `ms-estadisticas` no responden, devuelve 503: nunca inventa una probabilidad. | RNF-04 |
+
+**ms-apuestas** (Integrante 2)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-APU-01 | La probabilidad de una evaluación siempre sale de `ms-predicciones`, y el usuario solo manda la cuota. Por eso evaluar una cuota funciona aunque `ms-cuotas` no responda. | RF-11 · RN-03 |
+| RN-APU-02 | La apuesta del día se genera sola a las 09:00 de Lima. Si ya existe para esa fecha, se devuelve la guardada, y solo se recalcula cuando se pide con `recalcular=true`. | RF-12 · CU-06 |
+| RN-APU-03 | Todas las candidatas se guardan como *pick*, pero solo la de mayor EV se marca como apuesta del día. Pinnacle no se usa para elegirla, porque el equipo apuesta en bet365 y Betano. | RF-12 · RN-06 |
+| RN-APU-04 | Sin cuotas no hay apuesta del día: si `ms-cuotas` no responde, devuelve 503. | RNF-04 |
+| RN-APU-05 | Al registrar una apuesta, se guarda también el nombre del partido («Arsenal vs Chelsea»), para mostrar el historial sin consultar a `ms-catalogo`. El monto debe ser mayor que 0 y la cuota, mayor que 1. | RF-13 · RN-09 |
+| RN-APU-06 | La liquidación corre a las 06:00 de Lima. Cada mercado gana o pierde según la tabla del contrato; por ejemplo, GOLES MAS gana si el total de goles supera la línea. Tarjetas y córners necesitan las estadísticas finales, y si todavía no están, la apuesta queda pendiente hasta el día siguiente. | RF-14 · CU-10 · CB-07 |
+| RN-APU-07 | El rendimiento solo cuenta las apuestas liquidadas del propio usuario: `ROI = beneficio / monto apostado`, en total y por mercado. | RF-15 · CN-09 · RN-14 |
+| RN-APU-08 | El historial de la apuesta del día solo cuenta los picks liquidados, con un stake fijo de 1 unidad. Así mide la calidad de las recomendaciones y no depende de la banca de cada usuario. | RF-15 |
+
+**web-app** (Integrante 3)
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-WEB-01 | Solo habla con el `api-gateway`, nunca directamente con un microservicio. | RNF-01 |
+| RN-WEB-02 | El token se guarda en la sesión del servidor, no en el navegador. Si el gateway responde 401, se borra la sesión y se vuelve a `/login`. | RNF-03 |
+| RN-WEB-03 | Todas las horas se muestran en hora de Lima. | RN-12 |
+| RN-WEB-04 | Si una sección falla, la página se muestra igual, con un aviso como «Cuotas no disponibles por ahora», y nunca con una pantalla de error. | RNF-04 · CN-08 |
+| RN-WEB-05 | Una cuota se pinta de verde cuando supera a la cuota justa, es decir, cuando su valor esperado es positivo. | RN-03 |
+| RN-WEB-06 | La pantalla de ingesta solo aparece para el ADMIN. | RN-13 |
+| RN-WEB-07 | El pie de cada página dice: «Solo para mayores de 18 años. Juega con responsabilidad.» | RN-16 |
+
 ---
 
 ## 5. Arquitectura de software

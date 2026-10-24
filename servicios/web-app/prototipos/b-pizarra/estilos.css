@@ -1,0 +1,398 @@
+/* =============================================================
+   Propuesta B: «Pizarra».
+   Color principal: salvia #DCE5D0, como el verde gastado de una
+   pizarra táctica. Las líneas estructurales son de «tiza» (casi
+   blanco) y dibujan la cancha; el ámbar marca lo elegido y el
+   verde intenso, el valor (RN-WEB-05).
+   Una sola familia, Archivo, jugando con su ancho: expandida para
+   títulos y condensada para cifras.
+   ============================================================= */
+
+:root {
+  --salvia: #dce5d0;        /* fondo principal */
+  --salvia-honda: #cfdbc2;  /* banda lateral y franjas del césped */
+  --tiza: #f7f9f1;          /* líneas de la cancha y superficies */
+  --bosque: #1f3529;        /* texto */
+  --musgo: #587260;         /* texto secundario */
+  --musgo-claro: #93ab90;   /* visitante en las barras */
+  --ambar: #d4932c;         /* lo elegido: menú activo, foco */
+  --valor: #17693f;         /* cuota con valor */
+  --perdida: #a3473a;
+  --ocre: #8a6417;
+  --regla: rgba(31, 53, 41, .15);
+
+  --fuente: 'Archivo', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; border-radius: 0; }
+
+html {
+  background: var(--salvia);
+  color: var(--bosque);
+  font: 400 16px/1.5 var(--fuente);
+  font-stretch: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { margin: 0; }
+a { color: inherit; text-underline-offset: 3px; }
+h1, h2, h3 { margin: 0; line-height: 1.05; }
+h2 { font-size: 22px; font-weight: 800; font-stretch: 118%; margin: 28px 0 12px; }
+p { margin: 0; }
+:focus-visible { outline: 2px solid var(--ambar); outline-offset: 3px; }
+
+/* ---------- Banda lateral y campo de juego ---------- */
+
+.tablero { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
+
+.banda {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0 24px 24px;
+  background: var(--salvia-honda);
+  border-right: 2px solid var(--tiza);
+}
+.marca { font-size: 32px; font-weight: 800; font-stretch: 125%; text-decoration: none; line-height: 1; }
+.banda-fecha { margin: 6px 24px 32px 0; font-size: 14px; color: var(--musgo); }
+.banda-fecha::first-letter, .rotulo::first-letter { text-transform: uppercase; }
+
+.menu { display: flex; flex-direction: column; }
+.menu a { position: relative; padding: 9px 16px; text-decoration: none; font-weight: 600; color: var(--musgo); white-space: nowrap; }
+.menu a[aria-current], .menu a:hover { color: var(--bosque); }
+.vt-indicador { position: absolute; left: 0; top: 7px; bottom: 7px; width: 4px; background: var(--ambar); view-transition-name: indicador; }
+
+.banda-usuario { margin: auto 24px 0 0; padding-top: 14px; border-top: 2px solid var(--tiza); font-size: 14px; }
+.banda-banca { font-size: 22px; font-weight: 700; font-stretch: 90%; font-variant-numeric: tabular-nums; }
+.enlace { background: none; border: 0; padding: 0; font: inherit; color: var(--musgo); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+.juego { min-width: 0; padding: 28px 48px 0; max-width: 1200px; }
+
+.aviso {
+  margin-bottom: 18px;
+  padding: 10px 16px;
+  background: var(--tiza);
+  box-shadow: inset 4px 0 0 var(--ambar);
+  animation: aviso-entra .4s cubic-bezier(.2, .7, .2, 1);
+}
+@keyframes aviso-entra { from { transform: translateX(-8px); opacity: 0; } }
+
+.rotulo { font-size: 14px; color: var(--musgo); margin-bottom: 10px; }
+.volver { display: inline-block; margin-bottom: 12px; font-size: 14px; color: var(--musgo); }
+
+/* ---------- La cancha ---------- */
+
+.cancha {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 190px 1fr;
+  align-items: center;
+  min-height: 230px;
+  border: 2px solid var(--tiza);
+  /* Franjas de césped cortado, muy suaves. */
+  background: repeating-linear-gradient(90deg, transparent 0 72px, rgba(255, 255, 255, .16) 72px 144px);
+}
+.cancha::before { content: ''; position: absolute; top: 0; bottom: 0; left: calc(50% - 1px); width: 2px; background: var(--tiza); }
+.mitad { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 24px 28px 24px 100px; }
+.mitad-visita { padding: 24px 100px 24px 28px; text-align: right; }
+/* Áreas grandes de cada arco. */
+.mitad::before { content: ''; position: absolute; top: 24%; bottom: 24%; width: 66px; border: 2px solid var(--tiza); }
+.mitad-local::before { left: -2px; border-left: 0; }
+.mitad-visita::before { right: -2px; border-right: 0; }
+.equipo { font-size: clamp(28px, 3.4vw, 46px); font-weight: 800; font-stretch: 125%; line-height: 1; margin-bottom: 8px; }
+.mitad-dato { color: var(--musgo); font-size: 15px; }
+
+.circulo {
+  position: relative;
+  z-index: 1;
+  place-self: center;
+  width: 172px;
+  height: 172px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: var(--salvia);
+  border: 2px solid var(--tiza);
+  border-radius: 50%;
+  text-decoration: none;
+  color: var(--musgo);
+  font-size: 14px;
+}
+a.circulo:hover { background: var(--tiza); }
+.circulo-cuota { display: block; font-size: 52px; font-weight: 800; font-stretch: 112%; line-height: 1; color: var(--bosque); }
+.circulo-titulo { font-weight: 600; }
+
+.seleccion { font-size: clamp(26px, 3vw, 36px); font-weight: 800; font-stretch: 112%; margin: 20px 0 12px; }
+.sin-pick { padding: 32px; border: 2px solid var(--tiza); font-size: 20px; font-weight: 500; }
+
+/* Comparación en espejo, pegada a la cancha: continúa sus bandas laterales. */
+.espejo { position: relative; padding: 14px 28px; border: 2px solid var(--tiza); border-top: 0; margin-bottom: 18px; }
+.espejo::before { content: ''; position: absolute; top: 0; bottom: 0; left: calc(50% - 1px); width: 2px; background: var(--tiza); }
+.espejo-fila { position: relative; display: grid; grid-template-columns: 56px 1fr 150px 1fr 56px; align-items: center; gap: 10px; height: 34px; }
+.espejo-valor { font-weight: 700; font-stretch: 85%; font-variant-numeric: tabular-nums; }
+.espejo-fila .espejo-valor:last-child { text-align: right; }
+.espejo-lado i { display: block; height: 12px; background: var(--bosque); }
+.espejo-lado.izq i { margin-left: auto; }
+.espejo-lado.der i { background: var(--musgo-claro); }
+.espejo-etiqueta { position: relative; z-index: 1; justify-self: center; padding: 0 8px; background: var(--salvia); font-size: 13px; color: var(--musgo); }
+
+/* Línea de medio campo como separador. */
+.linea-media { position: relative; height: 2px; margin: 44px 0; border: 0; background: var(--tiza); overflow: visible; }
+.linea-media::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 38px;
+  height: 38px;
+  transform: translate(-50%, -50%);
+  background: var(--salvia);
+  border: 2px solid var(--tiza);
+  border-radius: 50%;
+}
+
+/* ---------- Marcador de cifras ---------- */
+
+.marcador { display: flex; flex-wrap: wrap; margin: 0; row-gap: 10px; }
+.marcador div { padding: 2px 22px; border-left: 2px solid var(--tiza); }
+.marcador div:first-child { padding-left: 0; border-left: 0; }
+.marcador dt { font-size: 13px; color: var(--musgo); }
+.marcador dd { margin: 0; font-size: 22px; font-weight: 700; font-stretch: 88%; font-variant-numeric: tabular-nums; }
+
+/* ---------- Lista de partidos ---------- */
+
+.cabecera-lista { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; }
+.cabecera-lista h2 { margin: 0; font-size: 30px; font-stretch: 125%; }
+
+.filtro { display: flex; flex-wrap: wrap; gap: 20px; }
+.filtro button { padding: 6px 0; background: none; border: 0; font: 600 15px var(--fuente); color: var(--musgo); cursor: pointer; }
+.filtro button[aria-pressed="true"] { color: var(--bosque); box-shadow: inset 0 -3px 0 var(--ambar); }
+
+.liga { margin: 26px 0 0; padding-bottom: 6px; font-size: 15px; font-weight: 700; font-stretch: 125%; color: var(--musgo); border-bottom: 2px solid var(--tiza); }
+.partidos { list-style: none; margin: 0; padding: 0; }
+.partido {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) minmax(180px, 1.4fr) minmax(0, 1fr) 200px;
+  align-items: center;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--regla);
+}
+.partido time { font-weight: 700; font-stretch: 85%; font-variant-numeric: tabular-nums; }
+.partido-local, .partido-visita { font-weight: 600; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.partido-local { text-align: right; }
+.partido-local:hover, .partido-visita:hover { text-decoration: underline; }
+
+.barra { display: flex; height: 22px; font-size: 11px; font-weight: 600; font-stretch: 80%; line-height: 22px; }
+.barra span { overflow: hidden; padding: 0 6px; white-space: nowrap; }
+.b-local { background: var(--bosque); color: var(--tiza); }
+.b-empate { background: var(--musgo-claro); text-align: center; }
+.b-visita { background: var(--tiza); text-align: right; }
+
+.cuotas-1x2 { display: grid; grid-template-columns: repeat(3, 1fr); font-size: 19px; font-weight: 700; font-stretch: 78%; font-variant-numeric: tabular-nums; text-align: right; }
+.cuotas-1x2 span { padding: 2px 8px; }
+.cuotas-1x2 .con-valor { background: var(--tiza); color: var(--valor); box-shadow: inset 0 -3px 0 var(--valor); }
+.sin-cuotas { grid-column: 1 / -1; font-size: 13px; font-weight: 500; font-stretch: 80%; white-space: nowrap; color: var(--perdida); }
+
+/* ---------- Pantallas internas ---------- */
+
+.titulo { padding: 4px 0 22px; }
+.titulo h1 { font-size: clamp(34px, 4.6vw, 56px); font-weight: 800; font-stretch: 125%; }
+.titulo p { margin-top: 10px; color: var(--musgo); max-width: 70ch; }
+
+.columnas { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; }
+.columnas > :last-child { padding-left: 32px; border-left: 2px solid var(--tiza); }
+.columnas h2:first-child { margin-top: 0; }
+
+.tabla { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tabla th, .tabla td { padding: 7px 10px; border-bottom: 1px solid var(--regla); text-align: right; }
+.tabla th[scope="row"], .tabla thead th:first-child { text-align: left; padding-left: 0; font-weight: 500; }
+.tabla th[scope="row"] small { display: block; font-size: 13px; color: var(--musgo); }
+.tabla thead th { font-size: 13px; font-weight: 600; color: var(--musgo); border-bottom: 2px solid var(--tiza); }
+.tabla td { font-stretch: 85%; font-weight: 600; }
+.tabla .grupo th { text-align: left; padding: 20px 0 6px; font-size: 15px; font-weight: 800; font-stretch: 125%; border-bottom: 2px solid var(--tiza); }
+.tabla .justa { color: var(--musgo); }
+.tabla td.con-valor { background: var(--tiza); color: var(--valor); font-weight: 800; box-shadow: inset 0 -3px 0 var(--valor); }
+.tabla .vacio { text-align: left; color: var(--musgo); padding: 18px 0; }
+/* La probabilidad lleva su propia barra de fondo. */
+.prob { display: block; padding: 0 0 3px; background: linear-gradient(90deg, var(--musgo-claro) calc(var(--p) * 100%), rgba(31, 53, 41, .08) 0) left bottom / 100% 3px no-repeat; }
+
+.positivo { color: var(--valor); }
+.negativo { color: var(--perdida); }
+.estado-ok { color: var(--valor); }
+.estado-error { color: var(--perdida); }
+.estado-en_curso { color: var(--ocre); animation: latido 1.2s ease-in-out infinite; }
+@keyframes latido { 50% { opacity: .45; } }
+
+.aviso-seccion { margin-bottom: 8px; padding: 10px 14px; background: var(--tiza); box-shadow: inset 4px 0 0 var(--perdida); color: var(--perdida); font-weight: 500; }
+.nota { margin-top: 10px; font-size: 14px; color: var(--musgo); max-width: 80ch; }
+.vacio { padding: 40px 0; }
+
+.explicacion { list-style: none; margin: 0; padding: 0; }
+.explicacion li { padding: 9px 0 9px 16px; border-bottom: 1px solid var(--regla); font-size: 15px; box-shadow: inset 2px 0 0 var(--tiza); }
+
+.banca-grande { margin-top: 28px; font-size: clamp(48px, 7vw, 84px); font-weight: 800; font-stretch: 112%; line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* ---------- Formularios ---------- */
+
+.campo { display: grid; gap: 2px; margin-bottom: 16px; }
+.campo span { font-size: 13px; color: var(--musgo); }
+.campo input, .campo select {
+  width: 100%;
+  padding: 8px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--bosque);
+  font: 500 16px var(--fuente);
+  color: var(--bosque);
+  appearance: none;
+}
+.campo select {
+  padding-right: 22px;
+  background: linear-gradient(45deg, transparent 50%, var(--bosque) 50%) right 8px center / 6px 6px no-repeat,
+              linear-gradient(-45deg, transparent 50%, var(--bosque) 50%) right 2px center / 6px 6px no-repeat;
+  cursor: pointer;
+}
+.campo input:focus, .campo select:focus { outline: none; border-bottom-color: var(--ambar); }
+.campos-par { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.boton { padding: 12px 22px; background: var(--bosque); color: var(--tiza); border: 0; font: 700 15px var(--fuente); font-stretch: 112%; cursor: pointer; transition: background .15s; }
+.boton:hover { background: #2f4d3b; }
+.boton:active { transform: translateY(1px); }
+.boton-linea { background: transparent; color: var(--bosque); box-shadow: inset 0 0 0 2px var(--bosque); }
+.boton-linea:hover { background: var(--tiza); }
+.error { margin: -6px 0 14px; color: var(--perdida); font-weight: 500; font-size: 14px; }
+
+.resultado { margin-top: 18px; padding-top: 12px; border-top: 4px solid var(--valor); }
+.resultado-veredicto { margin-bottom: 8px; font-size: 30px; font-weight: 800; font-stretch: 125%; color: var(--valor); }
+.resultado-marginal { border-top-color: var(--ocre); }
+.resultado-marginal .resultado-veredicto { color: var(--ocre); }
+.resultado-sin_valor { border-top-color: var(--perdida); }
+.resultado-sin_valor .resultado-veredicto { color: var(--perdida); }
+.resultado .marcador div { padding: 2px 14px; }
+.resultado .marcador div:first-child { padding-left: 0; }
+
+.acciones-ingesta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* ---------- Historial ---------- */
+
+.figura { margin: 28px 0; }
+.figura figcaption { font-size: 13px; color: var(--musgo); }
+.grafico { display: block; width: 100%; height: auto; border-top: 2px solid var(--tiza); border-bottom: 2px solid var(--tiza); }
+.g-cero { stroke: var(--tiza); stroke-width: 2; }
+.g-linea { fill: none; stroke: var(--bosque); stroke-width: 2.5; }
+.g-area { fill: rgba(31, 53, 41, .07); }
+.g-gana { fill: var(--valor); }
+.g-pierde { fill: var(--perdida); }
+
+/* ---------- Acceso ---------- */
+
+.publico { max-width: 1120px; margin: 0 auto; padding: 0 24px; min-height: 100vh; display: flex; flex-direction: column; }
+.publico main { flex: 1; display: grid; align-items: center; }
+.publico .aviso { margin-top: 20px; }
+.acceso { display: grid; grid-template-columns: 1.1fr minmax(320px, 400px); gap: 56px; align-items: center; padding: 48px 0; }
+.marca-grande { font-size: clamp(64px, 11vw, 148px); font-weight: 800; font-stretch: 125%; line-height: .9; }
+.acceso-portada p:last-child { margin-top: 18px; font-size: 19px; max-width: 36ch; }
+.acceso-form { padding: 26px 30px 30px; border: 2px solid var(--tiza); background: rgba(247, 249, 241, .4); }
+.pestanas { display: flex; gap: 24px; margin-bottom: 24px; border-bottom: 2px solid var(--tiza); }
+.pestanas a { padding: 6px 0 10px; text-decoration: none; color: var(--musgo); font-weight: 600; }
+.pestanas a[aria-current] { color: var(--bosque); box-shadow: inset 0 -3px 0 var(--ambar); }
+
+.pie { margin-top: 64px; padding: 16px 0 32px; border-top: 2px solid var(--tiza); font-size: 13px; color: var(--musgo); }
+.pie strong { color: var(--bosque); }
+
+/* ---------- Transiciones entre pantallas ----------
+   Barrido de tiza: la pantalla nueva entra de izquierda a derecha
+   (de derecha a izquierda al volver). La cancha se transforma de
+   una pantalla a otra, y el marcador ámbar del menú se desliza.
+   En Thymeleaf: @view-transition { navigation: auto; } */
+
+.vt-contenido { view-transition-name: contenido; }
+.vt-cancha { view-transition-name: cancha; }
+
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .2s; }
+::view-transition-group(indicador) { animation-duration: .45s; animation-timing-function: cubic-bezier(.65, 0, .25, 1); }
+::view-transition-group(cancha) { animation-duration: .6s; animation-timing-function: cubic-bezier(.5, 0, .2, 1); }
+
+::view-transition-old(contenido), ::view-transition-old(cancha):only-child { animation: b-sale .3s ease-in both; }
+::view-transition-new(contenido), ::view-transition-new(cancha):only-child { animation: b-barre .6s cubic-bezier(.3, .7, .2, 1) .06s both; }
+html[data-direccion="atras"]::view-transition-old(contenido),
+html[data-direccion="atras"]::view-transition-old(cancha):only-child { animation-name: b-sale-atras; }
+html[data-direccion="atras"]::view-transition-new(contenido),
+html[data-direccion="atras"]::view-transition-new(cancha):only-child { animation-name: b-barre-atras; }
+
+@keyframes b-sale { to { opacity: 0; transform: translateX(-40px); } }
+@keyframes b-sale-atras { to { opacity: 0; transform: translateX(40px); } }
+@keyframes b-barre { from { clip-path: inset(0 100% 0 0); transform: translateX(24px); } to { clip-path: inset(0); transform: none; } }
+@keyframes b-barre-atras { from { clip-path: inset(0 0 0 100%); transform: translateX(-24px); } to { clip-path: inset(0); transform: none; } }
+
+/* Dentro de la misma pantalla solo se mueven las filas y el resultado. */
+html[data-direccion="misma"]::view-transition-group(contenido),
+html[data-direccion="misma"]::view-transition-old(contenido),
+html[data-direccion="misma"]::view-transition-new(contenido) { animation: none; }
+html[data-direccion="misma"] .partido,
+html[data-direccion="misma"] .liga,
+html[data-direccion="misma"] tr[style*="--vt"] { view-transition-name: var(--vt); view-transition-class: fila; }
+html[data-direccion="misma"] .vt-resultado { view-transition-name: resultado; }
+::view-transition-group(*.fila) { animation-duration: .35s; animation-timing-function: cubic-bezier(.3, .7, .2, 1); }
+::view-transition-new(resultado) { animation: b-barre .45s cubic-bezier(.3, .7, .2, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Celular: la banda pasa arriba y la cancha se pone vertical ---------- */
+
+@media (max-width: 900px) {
+  .tablero { grid-template-columns: minmax(0, 1fr); }
+  .banda { min-width: 0; }
+  .banda {
+    z-index: 5;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 12px 16px 0;
+    border-right: 0;
+    border-bottom: 2px solid var(--tiza);
+  }
+  .marca { font-size: 26px; }
+  .banda-fecha { display: none; }
+  .banda-usuario { display: flex; gap: 12px; align-items: baseline; margin: 0 0 0 auto; padding: 0; border: 0; }
+  .banda-usuario p:first-child { display: none; }
+  .banda-banca { font-size: 17px; }
+  .menu { order: 3; width: 100%; flex-direction: row; overflow-x: auto; scrollbar-width: none; margin-top: 6px; }
+  .menu a { padding: 10px 14px 12px 0; margin-right: 8px; }
+  .vt-indicador { top: auto; bottom: 0; left: 0; right: 14px; width: auto; height: 4px; }
+  .juego { padding: 20px 16px 0; }
+
+  .cancha { grid-template-columns: 1fr; min-height: 0; }
+  .cancha::before { top: calc(50% - 1px); bottom: auto; left: 0; right: 0; width: auto; height: 2px; }
+  .mitad, .mitad-visita { padding: 22px 16px; text-align: center; }
+  .mitad::before { top: auto; bottom: auto; left: 30%; right: 30%; width: auto; height: 34px; border: 2px solid var(--tiza); }
+  .mitad-local::before { top: -2px; border-top: 0; }
+  .mitad-visita::before { bottom: -2px; border-bottom: 0; }
+  .mitad-local { padding-top: 46px; }
+  .mitad-visita { padding-bottom: 46px; }
+  .circulo { width: 128px; height: 128px; }
+  .circulo-cuota { font-size: 38px; }
+  .espejo { padding: 12px 10px; }
+  .espejo-fila { grid-template-columns: 40px 1fr 96px 1fr 40px; gap: 6px; }
+
+  .partido { grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr); row-gap: 8px; }
+  .partido-local { text-align: left; }
+  .partido-visita { text-align: right; }
+  .barra { grid-column: 1 / -1; order: 4; }
+  .cuotas-1x2 { grid-column: 1 / -1; order: 5; }
+
+  .columnas { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .columnas > :last-child { padding-left: 0; border-left: 0; margin-top: 28px; padding-top: 4px; border-top: 2px solid var(--tiza); }
+  .tabla { display: block; overflow-x: auto; }
+  .marcador div { padding: 2px 14px; }
+
+  .acceso { grid-template-columns: 1fr; gap: 24px; padding: 24px 0; }
+  .acceso-form { padding: 22px 16px; }
+  .publico { padding: 0 16px; }
+}

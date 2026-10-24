@@ -29,10 +29,16 @@ eureka:
 
 `EUREKA_URL` se sobrescribe en Docker con `http://discovery-server:8761/eureka`.
 
+## Reglas de negocio
+
+No tiene reglas de negocio propias: solo registra y localiza servicios. Las reglas generales están en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio).
+
 ## Tareas
 
-- [ ] Proyecto creado y arrancando en 8761.
+- [x] Proyecto creado y arrancando en 8761 (Spring Boot 4.1.2 y Spring Cloud 2025.1.4).
 - [ ] Panel en http://localhost:8761 que muestra los otros 8 servicios registrados (el gateway y los 7 de negocio).
-- [ ] Dockerfile.
+- [x] Dockerfile.
+
+En desarrollo, `enable-self-preservation` está apagado para que el panel no muestre servicios que ya se apagaron (los quita a los pocos segundos).
 
 **Hecho cuando:** los 8 servicios aparecen con estado UP en el panel.

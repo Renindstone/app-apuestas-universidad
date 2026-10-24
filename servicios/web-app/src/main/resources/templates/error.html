@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- Página que usa Spring Boot para cualquier error que llegue hasta el final (por ejemplo, una ruta que no existe). -->
+<head th:replace="~{fragmentos :: head('No encontrado')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja hoja-publica">
+    <main class="vt-contenido">
+      <section class="bloque">
+        <div class="margen"><p class="mano"><a th:href="@{/}">Volver a Hoy</a></p></div>
+        <div class="cuerpo">
+          <h1 th:text="${status == 404} ? 'Esta página no existe' : 'Algo no salió bien'">Esta página no existe</h1>
+          <p class="grande" th:text="${status == 404} ? 'Revisa la dirección o vuelve a Hoy desde el enlace del margen.' : 'Intenta de nuevo en unos minutos. Si sigue pasando, avísale al equipo.'">Revisa la dirección.</p>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

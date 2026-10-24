@@ -34,6 +34,20 @@ Swagger de cada servicio a través del gateway (opcional): `/api/<servicio>/v3/a
 
 Clave: `JWT_SECRET`, la misma variable de entorno que usa `ms-usuarios`. Debe tener al menos 32 caracteres para HS256.
 
+## Reglas de negocio
+
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-GAT-01 | Solo son públicas (sin token) estas rutas: `POST /api/usuarios/auth/**`, los `GET` de `/api/catalogo/**`, `/actuator/health` y Swagger. Todo lo demás exige un token bien firmado y vigente. Si falta, responde 401. | RNF-03 · CB-09 · CN-02 |
+| RN-GAT-02 | `/api/ingesta/**` exige además el rol ADMIN. Si no lo tiene, responde 403. | RN-13 · CN-03 |
+| RN-GAT-03 | Ninguna ruta `/interno/**` se atiende desde fuera: responde 403 sin reenviar la petición. | RNF-03 · CN-04 |
+| RN-GAT-04 | Las cabeceras `X-Usuario-Id` y `X-Usuario-Rol` que mande el cliente se borran y se reemplazan por las del token, para que nadie pueda suplantar a otro usuario. | RN-14 |
+| RN-GAT-05 | Solo la web (`http://localhost:8090`) puede llamar a la API desde un navegador (CORS). | RNF-03 |
+
+Reglas generales que aplica: RN-13 (roles) y RN-14 (privacidad).
+
 ## Tareas
 
 - [ ] Rutas hacia los 7 servicios (probar `GET /api/catalogo/ligas` con el mock).

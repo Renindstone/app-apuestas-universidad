@@ -63,6 +63,21 @@ Promedio por equipo y partido, separado por condición. Si no se pasa `temporada
 
 Devuelve `{ "partidoId": 1532, "local": {...}, "visitante": {...} }` con el mismo formato del POST, o **404** si el partido aún no se jugó. Lo usa `ms-apuestas` para liquidar tarjetas y córners.
 
+## Reglas de negocio
+
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-EST-01 | Cada partido se guarda como dos filas, una por equipo, y en cada una el rival es el otro equipo. Si el mismo partido llega otra vez, se actualizan esas filas. | RF-06 |
+| RN-EST-02 | Los promedios *a favor* salen de las filas del equipo. Los promedios *en contra* salen de las filas de su rival en esos mismos partidos. | RF-06 |
+| RN-EST-03 | Se toman los últimos N partidos (10 por defecto), del más reciente al más antiguo y sin importar la temporada. Se pueden filtrar como local, como visitante o todos. | RF-06 · RN-10 |
+| RN-EST-04 | Si un equipo no tiene partidos, la respuesta indica 0 partidos y deja los promedios vacíos (`null`), nunca en cero: no tener datos no es lo mismo que no hacer goles. | RF-06 |
+| RN-EST-05 | El perfil del árbitro suma las tarjetas de ambos equipos en cada partido que dirigió y lo compara con la media de su liga. | RF-07 |
+| RN-EST-06 | Un partido que aún no se jugó no tiene estadísticas: la consulta responde 404. | RF-14 |
+
+Reglas generales que aplica: RN-09 (tarjetas = amarillas + rojas) y RN-12 (fechas).
+
 ## Tareas
 
 - [ ] Entidad e índices.

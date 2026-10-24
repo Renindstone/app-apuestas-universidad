@@ -1,0 +1,20 @@
+server:
+  port: ${PORT:8090}
+  servlet:
+    session:
+      # La sesión viaja solo en la cookie, nunca en la URL (;jsessionid=...).
+      tracking-modes: cookie
+
+spring:
+  application:
+    name: web-app
+
+# URL del api-gateway: la web solo habla con él (RN-WEB-01). En Docker: http://api-gateway:8080
+gateway:
+  url: ${GATEWAY_URL:http://localhost:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

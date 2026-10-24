@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- /historial: cómo le fue a la apuesta del día, con stake plano de 1 unidad (RN-APU-08). -->
+<head th:replace="~{fragmentos :: head('Historial')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja">
+    <header th:replace="~{fragmentos :: cabecera('historial')}"></header>
+    <section th:replace="~{fragmentos :: avisos}"></section>
+    <main class="vt-contenido">
+      <section class="bloque">
+        <div class="margen"><p class="mano">1 unidad por pick, sin importar tu banca</p></div>
+        <div class="cuerpo">
+          <h1>Historial de la apuesta del día</h1>
+          <p class="aviso-seccion" role="status" th:if="${h == null}">Historial no disponible por ahora.</p>
+          <div class="cuentas" th:if="${h != null}">
+            <div class="cuenta"><span th:text="|Picks en ${dias} días|">Picks</span><span class="igual">=</span>
+              <span th:text="|${h.picks()}: ${h.ganados()} ganados y ${h.perdidos()} perdidos|">21</span></div>
+            <div class="cuenta"><span>Beneficio</span><span class="igual">=</span><span th:text="|${@fmt.conSigno(h.beneficioUnidades(), 2)} unidades|">+1.35</span></div>
+            <div class="cuenta cuenta-fuerte"><span>ROI</span><span class="igual">=</span>
+              <span><th:block th:text="|${@fmt.numero(h.beneficioUnidades(), 2)} / ${h.picks()} = |"></th:block><mark th:text="${@fmt.signoPct(h.roi())}">+6.4 %</mark></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gráfico de beneficio acumulado, dibujado en el servidor (GraficoBeneficio). -->
+      <section class="bloque" th:if="${grafico != null}" th:with="g=${grafico}">
+        <div class="margen"><p class="mano">Beneficio acumulado</p></div>
+        <div class="cuerpo">
+          <figure class="figura">
+            <svg class="grafico" viewBox="0 0 900 220" role="img" aria-label="Beneficio acumulado de la apuesta del día">
+              <line class="g-cero" x1="12" x2="888" th:attr="y1=${g.yCero()},y2=${g.yCero()}"></line>
+              <path class="g-area" th:attr="d=${g.area()}"></path>
+              <path class="g-linea" th:attr="d=${g.linea()}"></path>
+              <rect th:each="pt : ${g.puntos()}" th:class="${pt.gana()} ? 'g-gana' : 'g-pierde'" width="6" height="6"
+                    th:attr="x=${pt.x() - 3},y=${pt.y() - 3}"><title th:text="${pt.titulo()}">24 oct</title></rect>
+            </svg>
+            <figcaption>Cada cuadro es un pick: verde si ganó, rojo si perdió.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="bloque" th:if="${h != null}">
+        <div class="margen"><p class="mano">Últimos</p></div>
+        <div class="cuerpo">
+          <div class="table-responsive">
+            <table class="tabla">
+              <thead><tr><th scope="col">Partido</th><th scope="col">Selección</th><th scope="col">Cuota</th><th scope="col">Resultado</th></tr></thead>
+              <tbody>
+                <tr th:each="k : ${h.ultimos()}">
+                  <th scope="row"><th:block th:text="${k.partido()}">Leipzig vs Wolfsburg</th:block><small th:text="${@fmt.fechaCorta(k.fecha())}">23 oct</small></th>
+                  <td th:text="${@fmt.etiqueta(k, k.partido())}">Más de 2.5 goles</td>
+                  <td th:text="${@fmt.cuota(k.cuota())}">1.72</td>
+                  <td th:class="${k.ganado()} ? 'positivo' : 'negativo'" th:text="|${@fmt.conSigno(k.unidades(), 2)} u|">+0.72 u</td>
+                </tr>
+                <tr th:if="${h.ultimos().isEmpty()}"><td colspan="4" class="vacio">Todavía no hay picks liquidados.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

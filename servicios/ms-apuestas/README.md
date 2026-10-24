@@ -98,6 +98,23 @@ Recorre los picks y las apuestas pendientes. Para cada uno pide el partido a `ms
 - Todas las líneas terminan en .5, así que no hay empate (*push*).
 - Si las estadísticas aún no están, la apuesta queda pendiente para el día siguiente.
 
+## Reglas de negocio
+
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-APU-01 | La probabilidad de una evaluación siempre sale de `ms-predicciones`, y el usuario solo manda la cuota. Por eso evaluar una cuota funciona aunque `ms-cuotas` no responda. | RF-11 · RN-03 |
+| RN-APU-02 | La apuesta del día se genera sola a las 09:00 de Lima. Si ya existe para esa fecha, se devuelve la guardada, y solo se recalcula cuando se pide con `recalcular=true`. | RF-12 · CU-06 |
+| RN-APU-03 | Todas las candidatas se guardan como *pick*, pero solo la de mayor EV se marca como apuesta del día. Pinnacle no se usa para elegirla, porque el equipo apuesta en bet365 y Betano. | RF-12 · RN-06 |
+| RN-APU-04 | Sin cuotas no hay apuesta del día: si `ms-cuotas` no responde, devuelve 503. | RNF-04 |
+| RN-APU-05 | Al registrar una apuesta, se guarda también el nombre del partido («Arsenal vs Chelsea»), para mostrar el historial sin consultar a `ms-catalogo`. El monto debe ser mayor que 0 y la cuota, mayor que 1. | RF-13 · RN-09 |
+| RN-APU-06 | La liquidación corre a las 06:00 de Lima. Cada mercado gana o pierde según la tabla del contrato; por ejemplo, GOLES MAS gana si el total de goles supera la línea. Tarjetas y córners necesitan las estadísticas finales, y si todavía no están, la apuesta queda pendiente hasta el día siguiente. | RF-14 · CU-10 · CB-07 |
+| RN-APU-07 | El rendimiento solo cuenta las apuestas liquidadas del propio usuario: `ROI = beneficio / monto apostado`, en total y por mercado. | RF-15 · CN-09 · RN-14 |
+| RN-APU-08 | El historial de la apuesta del día solo cuenta los picks liquidados, con un stake fijo de 1 unidad. Así mide la calidad de las recomendaciones y no depende de la banca de cada usuario. | RF-15 |
+
+Este servicio implementa las reglas generales RN-03 a RN-07 (valor esperado, veredicto, stake, apuesta del día y liquidación), y aplica RN-09 (mercados válidos), RN-14 (privacidad) y RN-16 (juego responsable).
+
 ## Tareas
 
 - [ ] Entidades `Pick` y `ApuestaUsuario` (sección 6.6).

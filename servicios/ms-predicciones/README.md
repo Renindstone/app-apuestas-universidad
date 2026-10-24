@@ -79,6 +79,22 @@ Si no hay árbitro (LaLiga o Bundesliga), el factor vale 1. El 10 hace que un á
 
 Incluye **todos** los mercados y líneas de la tabla del README raíz. Si `ms-catalogo` o `ms-estadisticas` no responden, devuelve **503** `{"error":"SERVICIO_NO_DISPONIBLE","detalle":"ms-estadisticas no responde"}`.
 
+## Reglas de negocio
+
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-PRE-01 | No guarda nada: en cada petición pide los datos y vuelve a calcular. | RF-08 |
+| RN-PRE-02 | El valor esperado de cada estadística combina la media de la liga con el ataque de un equipo y la defensa del otro. El local se mide jugando en casa y el visitante jugando fuera, en sus últimos 10 partidos. | RF-08 |
+| RN-PRE-03 | Si un equipo tiene pocos partidos, cada factor se acerca a la media de la liga: `factor' = (n × factor + 5) / (n + 5)`. | RF-08 |
+| RN-PRE-04 | Los mercados de goles, 1X2 y ambos marcan salen de una matriz de Poisson de 0 a 10 goles por equipo. Los de córners y tarjetas usan Poisson sobre el total del partido. | RF-08 · CB-03 |
+| RN-PRE-05 | Las tarjetas se ajustan con el factor árbitro. Ese factor se acerca a 1 cuando el árbitro tiene pocos partidos (con un peso de 10), y vale 1 si el partido no tiene árbitro. | RF-07 · RN-08 |
+| RN-PRE-06 | La cuota justa de una selección es `1 / probabilidad`. La respuesta trae todos los mercados y líneas de RN-09, con una explicación de dónde sale cada número. | RF-08 · RN-15 |
+| RN-PRE-07 | Si `ms-catalogo` o `ms-estadisticas` no responden, devuelve 503: nunca inventa una probabilidad. | RNF-04 |
+
+Reglas generales que aplica: RN-08 (factor árbitro solo en la Premier), RN-09 (mercados válidos) y RN-15 (honestidad).
+
 ## Tareas
 
 - [ ] Mock del endpoint el día 1, para que `ms-apuestas` y la web puedan avanzar.

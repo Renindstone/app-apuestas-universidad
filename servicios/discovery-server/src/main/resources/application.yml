@@ -1,0 +1,20 @@
+server:
+  port: ${PORT:8761}
+
+spring:
+  application:
+    name: discovery-server
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOSTNAME:localhost}
+  client:
+    # El servidor no se registra a sí mismo ni descarga el registro de otro Eureka: es el único.
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    # En desarrollo los servicios se apagan y se reinician seguido. Sin esto, Eureka mantiene
+    # en el panel servicios que ya no existen y muestra el aviso «EMERGENCY!».
+    enable-self-preservation: false
+    # Revisa cada 5 segundos qué servicios dejaron de enviar su latido y los quita del registro.
+    eviction-interval-timer-in-ms: 5000

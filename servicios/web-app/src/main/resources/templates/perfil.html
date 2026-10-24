@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- /perfil: datos de la cuenta y la banca (la web no mueve dinero real, RN-USU-06). -->
+<head th:replace="~{fragmentos :: head('Perfil')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja">
+    <header th:replace="~{fragmentos :: cabecera('perfil')}"></header>
+    <section th:replace="~{fragmentos :: avisos}"></section>
+    <main class="vt-contenido">
+      <section class="bloque">
+        <div class="margen"><p class="mano">La web no mueve dinero real</p></div>
+        <div class="cuerpo">
+          <h1>Perfil</h1>
+          <p class="aviso-seccion" role="status" th:if="${usuario == null}">Tu perfil no está disponible por ahora.</p>
+          <div class="cuentas" th:if="${usuario != null}">
+            <div class="cuenta"><span>Usuario</span><span class="igual">=</span><span th:text="${usuario.nombreUsuario()}">renzo</span></div>
+            <div class="cuenta"><span>Correo</span><span class="igual">=</span><span th:text="${usuario.email()}">renzo@correo.pe</span></div>
+            <div class="cuenta"><span>Rol</span><span class="igual">=</span><span th:text="${usuario.rol() == 'ADMIN'} ? 'Administrador' : 'Apostador'">Apostador</span></div>
+            <div class="cuenta" th:if="${pick != null}"><span>Stake de hoy</span><span class="igual">=</span>
+              <span><th:block th:text="|${@fmt.pct(pick.stakePct())} de ${@fmt.soles(usuario.banca())} = |"></th:block><mark th:text="${@fmt.stakeSoles(pick.stakePct(), usuario.banca())}">S/ 7.00</mark></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bloque">
+        <div class="margen"><p class="mano">Mayor o igual a 0</p></div>
+        <div class="cuerpo">
+          <form class="frase" th:action="@{/perfil/banca}" th:object="${bancaForm}" method="post" novalidate>
+            <p>Mi banca es S/ <input class="blanco" th:field="*{banca}" size="7" inputmode="decimal" aria-label="Banca en soles">.
+              <button class="boton" type="submit">Guardar banca</button></p>
+            <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+          </form>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

@@ -57,6 +57,20 @@ Si falta alguna selección del mercado (por ejemplo, solo hay `MAS` sin `MENOS`)
 - Margen: `margen = Σ q_i − 1`. Por ejemplo, 2.10 / 3.40 / 3.60 da 0.476 + 0.294 + 0.278 − 1 = **0.048** (4.8 %).
 - Probabilidad sin margen (método multiplicativo): `p_i = q_i / Σ q_j`.
 
+## Reglas de negocio
+
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+
+| ID | Regla | Relación |
+|---|---|---|
+| RN-CUO-01 | Toda cuota es mayor que 1, y las que ingresa el usuario deben ser mayores que 1.01. | RF-10 · CB-04 |
+| RN-CUO-02 | Las cuotas de bet365 y Pinnacle solo llegan por la ingesta. Las de Betano solo se ingresan a mano y se guardan con tipo MANUAL y con el ID del usuario que las cargó. | RN-10 · RF-10 |
+| RN-CUO-03 | Una cuota manual solo se acepta si el partido existe en `ms-catalogo` (si no, 404) y si el mercado, la selección y la línea son válidos (si no, 400). | RF-10 · RN-09 |
+| RN-CUO-04 | La consulta muestra la cuota más reciente de cada casa, mercado, selección y línea. Si la misma cuota se guarda dos veces, se actualiza en lugar de duplicarse. | RF-09 |
+| RN-CUO-05 | El margen y las probabilidades sin margen (RN-01 y RN-02) solo se calculan con el mercado completo. Si falta una selección, la respuesta es 409 MERCADO_INCOMPLETO. | RF-09 |
+
+Este servicio implementa las reglas generales RN-01 (margen) y RN-02 (probabilidad sin margen), y aplica RN-09 (mercados válidos) y RN-10 (casas).
+
 ## Tareas
 
 - [ ] Entidad y repositorio. Mock de `GET /partidos/{id}/cuotas` el día 1.

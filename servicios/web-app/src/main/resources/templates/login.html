@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- /login: la tapa del cuaderno con el formulario de inicio de sesión. -->
+<head th:replace="~{fragmentos :: head('Iniciar sesión')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja hoja-publica">
+    <section th:replace="~{fragmentos :: avisos}"></section>
+    <main class="vt-contenido">
+      <section class="bloque">
+        <div class="margen"><p class="mano">Apuntes de un modelo de Poisson</p></div>
+        <div class="cuerpo acceso">
+          <p class="marca-grande">Cuaderno de apuestas</p>
+          <p class="grande">Cada probabilidad viene con su cuenta, para que sepas de dónde sale antes de decidir.</p>
+          <form class="acceso-form" th:action="@{/login}" th:object="${form}" method="post" novalidate>
+            <nav class="pestanas"><a th:href="@{/login}" aria-current="page">Iniciar sesión</a><a th:href="@{/registro}">Crear cuenta</a></nav>
+            <label class="campo"><span>Usuario</span><input th:field="*{nombreUsuario}" autocomplete="username" autofocus></label>
+            <label class="campo"><span>Contraseña</span><input type="password" th:field="*{clave}" autocomplete="current-password"></label>
+            <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+            <button class="boton" type="submit">Entrar</button>
+          </form>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>

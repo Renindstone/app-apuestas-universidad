@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- /partidos/{id} (Análisis): la cuenta completa, paso a paso, y el formulario para evaluar una cuota. -->
+<head th:replace="~{fragmentos :: head('Análisis')}"></head>
+<body>
+<div class="escritorio">
+  <div class="hoja">
+    <header th:replace="~{fragmentos :: cabecera('hoy')}"></header>
+    <section th:replace="~{fragmentos :: avisos}"></section>
+    <main class="vt-contenido" th:with="p=${v.partido()}, pr=${v.prediccion()}, local=${v.partido().local().nombre()}, visita=${v.partido().visitante().nombre()}">
+
+      <!-- Encabezado: equipos, liga, hora de Lima, árbitro y muestra. -->
+      <section class="bloque">
+        <div class="margen"><p class="mano"><a th:href="@{/}">Volver a Hoy</a></p></div>
+        <div class="cuerpo">
+          <h1 th:text="|${local} – ${visita}|">Arsenal – Chelsea</h1>
+          <p class="pick-detalle">
+            <th:block th:text="|${p.liga().nombre()}, ${@fmt.hora(p.fechaHora())} hora de Lima.|"></th:block>
+            <th:block th:if="${p.arbitro() != null}" th:text="|Árbitro ${p.arbitro().nombre()}.|"></th:block>
+            <th:block th:if="${p.arbitro() == null}">Sin árbitro asignado.</th:block>
+            <th:block th:if="${pr != null}" th:text="|Muestra: ${pr.muestra().partidosLocal()} y ${pr.muestra().partidosVisitante()} partidos.|"></th:block>
+          </p>
+        </div>
+      </section>
+
+      <!-- Sin predicción: el resto de la página se muestra igual (RN-WEB-04). -->
+      <section class="bloque" th:if="${pr == null}">
+        <div class="margen"><p class="mano">Sin modelo</p></div>
+        <div class="cuerpo"><p class="aviso-seccion" role="status">Probabilidades no disponibles por ahora. Las cuotas de las casas siguen abajo.</p></div>
+      </section>
+
+      <!-- Paso 1: valores esperados del modelo. -->
+      <section class="bloque" th:if="${pr != null}">
+        <div class="margen"><p class="mano">Paso 1<br>media de la liga × ataque × defensa del rival</p></div>
+        <div class="cuerpo">
+          <h2>Goles esperados</h2>
+          <div class="cuentas">
+            <div class="cuenta"><span th:text="|λ ${local}|">λ local</span><span class="igual">=</span><span><mark th:text="${@fmt.numero(pr.esperados().golesLocal(), 2)}">1.82</mark></span></div>
+            <div class="cuenta"><span th:text="|λ ${visita}|">λ visita</span><span class="igual">=</span><span><mark th:text="${@fmt.numero(pr.esperados().golesVisitante(), 2)}">0.97</mark></span></div>
+            <div class="cuenta"><span>Córners esperados</span><span class="igual">=</span><span th:text="${@fmt.numero(pr.esperados().corners(), 1)}">10.4</span></div>
+            <div class="cuenta"><span>Tarjetas esperadas</span><span class="igual">=</span>
+              <span th:text="|${@fmt.numero(pr.esperados().tarjetas(), 1)}, con un factor árbitro de ${@fmt.numero(pr.factorArbitro(), 2)}|">4.6</span></div>
+            <div class="cuenta"><span>Tiros esperados</span><span class="igual">=</span><span th:text="${@fmt.numero(pr.esperados().tiros(), 1)}">24.3</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Paso 2: matriz de marcadores y de dónde sale el 1X2. -->
+      <section class="bloque" th:if="${pr != null}" th:with="m=${v.matriz()}">
+        <div class="margen"><p class="mano">Paso 2<br>la diagonal punteada son los empates</p></div>
+        <div class="cuerpo">
+          <h2>Marcadores posibles</h2>
+          <div class="table-responsive">
+            <table class="matriz">
+              <caption th:text="|Goles de ${local} en filas y de ${visita} en columnas. Cada casilla es la probabilidad, en %, de ese marcador exacto.|">Matriz</caption>
+              <thead><tr><th></th><th scope="col" th:each="j : ${#numbers.sequence(0, m.tamanio() - 1)}" th:text="${j}">0</th></tr></thead>
+              <tbody>
+                <tr th:each="i : ${#numbers.sequence(0, m.tamanio() - 1)}">
+                  <th scope="row" th:text="${i}">0</th>
+                  <td th:each="j : ${#numbers.sequence(0, m.tamanio() - 1)}"
+                      th:classappend="${(i == j ? 'diagonal ' : '') + (m.intensidad(i, j) > 0.5 ? 'oscura' : '')}"
+                      th:style="|--t: ${@fmt.numero(m.intensidad(i, j), 3)}|"
+                      th:title="|${i}-${j}: ${@fmt.pct(m.celda(i, j))}|"
+                      th:text="${@fmt.numero(m.celda(i, j) * 100, 1)}">6.1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="cuentas">
+            <div class="cuenta"><span th:text="|Gana ${local}|">Gana local</span><span class="igual">=</span><span>suma bajo la diagonal = <mark th:text="${@fmt.pct(v.probabilidad('1X2|LOCAL|'))}">57.3 %</mark></span></div>
+            <div class="cuenta"><span>Empate</span><span class="igual">=</span><span>suma de la diagonal = <mark th:text="${@fmt.pct(v.probabilidad('1X2|EMPATE|'))}">22.8 %</mark></span></div>
+            <div class="cuenta"><span th:text="|Gana ${visita}|">Gana visita</span><span class="igual">=</span><span>suma sobre la diagonal = <mark th:text="${@fmt.pct(v.probabilidad('1X2|VISITA|'))}">19.8 %</mark></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Paso 3: probabilidad y cuota justa frente a la cuota de cada casa. En verde, las que tienen valor (RN-WEB-05). -->
+      <section class="bloque">
+        <div class="margen"><p class="mano">Paso 3<br>cuota justa = 1 / probabilidad</p></div>
+        <div class="cuerpo">
+          <h2>Comparar con las casas</h2>
+          <p class="aviso-seccion" role="status" th:if="${v.sinCuotas()}">Cuotas no disponibles por ahora. Las probabilidades del modelo siguen disponibles.</p>
+          <div class="table-responsive">
+            <table class="tabla">
+              <thead>
+                <tr><th scope="col">Selección</th><th scope="col">Modelo</th><th scope="col">Justa</th>
+                  <th:block th:unless="${v.sinCuotas()}"><th scope="col" th:each="casa : ${casas}" th:text="${casa}">bet365</th></th:block></tr>
+              </thead>
+              <tbody th:each="g : ${v.grupos()}">
+                <tr class="grupo"><th scope="rowgroup" th:colspan="${v.sinCuotas() ? 3 : 3 + casas.size()}" th:text="${g.nombre()}">Goles</th></tr>
+                <tr th:each="fila : ${g.filas()}">
+                  <th scope="row" th:text="${fila.etiqueta()}">Más de 2.5 goles</th>
+                  <td th:text="${@fmt.numero(fila.probabilidad(), 3)}">0.528</td>
+                  <td class="justa" th:text="${@fmt.cuota(fila.cuotaJusta())}">1.89</td>
+                  <th:block th:unless="${v.sinCuotas()}">
+                    <td th:each="casa : ${casas}" th:with="c=${fila.casas().get(casa)}"
+                        th:classappend="${c.conValor()} ? 'con-valor'"
+                        th:title="${c.valorEsperado() != null} ? |EV ${@fmt.signoPct(c.valorEsperado())}|"
+                        th:text="${@fmt.cuota(c.valor())}">2.00</td>
+                  </th:block>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="nota">bet365 y Pinnacle solo publican 1X2 y más/menos 2.5 goles.
+            <a th:href="@{/partidos/{id}/cuota-betano(id=${p.id()})}">Ingresar una cuota de Betano</a></p>
+        </div>
+      </section>
+
+      <!-- Paso 4: evaluar una cuota, como una frase con espacios en blanco. -->
+      <section class="bloque" id="evaluar">
+        <div class="margen"><p class="mano">Paso 4<br>VE = p × cuota − 1</p></div>
+        <div class="cuerpo">
+          <h2>Evaluar tu cuota</h2>
+          <form class="frase" th:action="@{/partidos/{id}/evaluar(id=${p.id()})}" th:object="${evaluacionForm}" method="post" novalidate>
+            <p>Si <select class="blanco" th:field="*{casa}" aria-label="Casa"><option th:each="c : ${casas}" th:value="${c}" th:text="${c}">bet365</option></select>
+              paga <input class="blanco" th:field="*{cuota}" size="4" inputmode="decimal" aria-label="Cuota">
+              por <select class="blanco" th:field="*{seleccion}" aria-label="Selección"><th:block th:replace="~{fragmentos :: opciones(${local}, ${visita})}"></th:block></select>,
+              <button class="boton" type="submit">calcula el valor esperado</button></p>
+            <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+          </form>
+          <div class="resultado vt-resultado" th:if="${evaluacion != null}"
+               th:classappend="|resultado-${#strings.toLowerCase(evaluacion.veredicto())}|">
+            <div class="cuenta cuenta-fuerte"><span>Valor esperado</span><span class="igual">=</span>
+              <span><th:block th:text="|${@fmt.numero(evaluacion.probabilidad(), 3)} × ${@fmt.cuota(evaluacionForm.cuota)} − 1 = |"></th:block><mark th:text="${@fmt.conSigno(evaluacion.valorEsperado(), 3)}">+0.071</mark></span></div>
+            <div class="cuenta"><span>Cuota justa</span><span class="igual">=</span>
+              <span th:text="|1 / ${@fmt.numero(evaluacion.probabilidad(), 3)} = ${@fmt.cuota(evaluacion.cuotaJusta())}|">2.05</span></div>
+            <p class="veredicto">
+              <th:block th:text="${@fmt.veredicto(evaluacion.veredicto())} + '.'"></th:block>
+              <th:block th:if="${evaluacion.stakePct() > 0}" th:text="|Stake sugerido: ${@fmt.pct(evaluacion.stakePct())} de tu banca (${@fmt.stakeSoles(evaluacion.stakePct(), @sesionUsuario.banca)}).|"></th:block>
+              <th:block th:unless="${evaluacion.stakePct() > 0}">No conviene apostar a esta cuota.</th:block>
+            </p>
+          </div>
+          <p class="nota" th:if="${evaluacion == null}">La probabilidad la pone el modelo; tú solo escribes la cuota que te ofrecen.</p>
+        </div>
+      </section>
+
+      <!-- Notas: de dónde sale cada número, según ms-predicciones (RN-15). -->
+      <section class="bloque" th:if="${pr != null}">
+        <div class="margen"><p class="mano">Notas</p></div>
+        <div class="cuerpo">
+          <h2>De dónde salen los números</h2>
+          <ul class="explicacion"><li th:each="frase : ${pr.explicacion()}" th:text="${frase}">Arsenal marca 2.1 goles por partido en casa.</li></ul>
+        </div>
+      </section>
+    </main>
+    <section th:replace="~{fragmentos :: pie}"></section>
+  </div>
+</div>
+</body>
+</html>
