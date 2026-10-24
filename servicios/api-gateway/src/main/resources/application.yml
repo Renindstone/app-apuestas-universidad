@@ -1,0 +1,36 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            # Si un servicio no acepta la conexión en 2 s o no responde en 10 s, se corta (RNF-04).
+            connect-timeout: 2000
+            response-timeout: 10s
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+    # Pide la lista de servicios a Eureka cada 5 s, así nota pronto cuando uno arranca o se cae.
+    registry-fetch-interval-seconds: 5
+
+# Clave para validar el JWT: la misma variable JWT_SECRET que usa ms-usuarios (al menos 32 caracteres).
+# El valor por defecto solo sirve para desarrollo local; en Docker llega desde el .env.
+jwt:
+  secreto: ${JWT_SECRET:clave-de-desarrollo-local-para-jwt-de-32-o-mas}
+
+# Única web que puede llamar a la API desde un navegador (RN-GAT-05).
+web:
+  url: ${WEB_URL:http://localhost:8090}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
