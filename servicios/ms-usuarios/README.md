@@ -61,12 +61,16 @@ Reglas generales que aplica: RN-13 (cuentas y roles).
 
 ## Tareas
 
-- [ ] Entidad, repositorio y servicio con BCrypt.
-- [ ] Registro y login con JWT.
-- [ ] `GET /me` y `PUT /me/banca`.
-- [ ] Usuario admin inicial (`CommandLineRunner`).
-- [ ] Pruebas: CB-08 (correo duplicado) y una de login correcto.
-- [ ] Dockerfile.
+- [x] Entidad, repositorio y servicio con BCrypt.
+- [x] Registro y login con JWT.
+- [x] `GET /me` y `PUT /me/banca`.
+- [x] Usuario admin inicial (`CommandLineRunner`, en `config/AdminInicial`).
+- [x] Pruebas: CB-08 (correo duplicado) y una de login correcto (`UsuarioServiceTest`), más el flujo completo por HTTP (`FlujoUsuarioTest`, con H2 en memoria).
+- [x] Dockerfile.
+
+**Nombres de columnas:** `application.yml` usa `PhysicalNamingStrategyStandardImpl` y `globally_quoted_identifiers`, así PostgreSQL guarda los nombres tal cual (`"UsuNombreUsuario"`). En DBeaver hay que escribirlos entre comillas: `SELECT "UsuNombreUsuario" FROM usuario;`.
+
+**Variables de entorno:** `ADMIN_PASSWORD` (sin ella no se crea el admin y el log lo avisa), `JWT_SECRET` (la misma del gateway; en local, sin `.env`, ambos usan el mismo valor de desarrollo), `DB_HOST`, `DB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `EUREKA_URL`.
 
 ## Pistas
 

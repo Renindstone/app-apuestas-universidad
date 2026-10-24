@@ -1,0 +1,45 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  application:
+    name: ms-usuarios
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5441}/usuarios_db
+    username: ${POSTGRES_USER:apuestas}
+    password: ${POSTGRES_PASSWORD:apuestas_dev}
+  jpa:
+    hibernate:
+      ddl-auto: update        # suficiente para una semana; en producción se usaría Flyway
+      # Respeta los nombres de columna tal cual (UsuIdUsuario), sin pasarlos a usu_id_usuario.
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        # Pone comillas a los nombres para que PostgreSQL guarde las mayúsculas de la convención (UsuNombreUsuario).
+        globally_quoted_identifiers: true
+    open-in-view: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    # Se registra con su IP y no con el nombre de la máquina (en Docker, ese nombre es un id al azar).
+    prefer-ip-address: true
+
+# Clave para firmar el JWT: la misma variable JWT_SECRET que usa el api-gateway (al menos 32 caracteres).
+# El valor por defecto solo sirve para desarrollo local; en Docker llega desde el .env.
+jwt:
+  secreto: ${JWT_SECRET:clave-de-desarrollo-local-para-jwt-de-32-o-mas}
+  horas: 8
+
+# Contraseña del usuario admin que se crea al arrancar (RN-USU-07). Nunca va escrita en el código.
+admin:
+  clave: ${ADMIN_PASSWORD:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
