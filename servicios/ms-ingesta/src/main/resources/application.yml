@@ -27,6 +27,7 @@ ingesta:
   temporada-actual: "2627"
   temporada-anterior: "2526"
   # true: lee los CSV de src/main/resources/muestras/ en lugar de descargarlos (sirve sin internet).
+  # Las muestras son una copia de football-data del 25/10/2026. Se borran cuando ya no hagan falta.
   usar-muestras: ${INGESTA_USAR_MUESTRAS:false}
 
 eureka:

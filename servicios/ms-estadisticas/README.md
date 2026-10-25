@@ -80,11 +80,19 @@ Reglas generales que aplica: RN-09 (tarjetas = amarillas + rojas) y RN-12 (fecha
 
 ## Tareas
 
-- [ ] Entidad e índices.
-- [ ] Upsert interno.
-- [ ] Promedios de equipo, liga y árbitro con consultas `AVG` en el repositorio.
-- [ ] Pruebas: los promedios en contra usan al rival, y un equipo sin partidos devuelve `null`.
-- [ ] Dockerfile.
+- [x] Entidad e índices (`entity/EstadisticaPartido`, con UNIQUE(EpaIdPartido, EpaIdEquipo)).
+- [x] Upsert interno (reenviar un partido actualiza sus 2 filas y no las duplica), en `service/EstadisticasService`.
+- [x] Promedios de equipo, liga y árbitro con consultas `AVG` en el repositorio (`repository/EstadisticaRepository`).
+- [x] Pruebas: los promedios en contra usan al rival, un equipo sin partidos devuelve `null`, últimos N por condición, liga por temporada, árbitro, 404 y validaciones (`EstadisticasTest`, con H2 en memoria).
+- [x] Dockerfile.
+
+**Detalles del contrato** (los usan `ms-predicciones` y `ms-apuestas`):
+
+- Los promedios van con 2 decimales.
+- Sin partidos, van en `null` los objetos completos: `"aFavor": null`, `"enContra": null` en un equipo y `"local": null`, `"visitante": null` en una liga. En el árbitro van en `null` las tres cifras.
+- El 404 de `GET /partidos/{id}/estadisticas` es `{"error":"PARTIDO_SIN_ESTADISTICAS", ...}`.
+
+**Variables de entorno:** `DB_HOST`, `DB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `EUREKA_URL`.
 
 ## Pistas
 

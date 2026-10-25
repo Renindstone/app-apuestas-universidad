@@ -73,13 +73,17 @@ Reglas generales que aplica: RN-10 (ligas, temporadas y casas), RN-11 (origen de
 
 ## Tareas
 
-- [ ] Cliente HTTP que descarga el CSV como texto.
-- [ ] `CsvFootballDataParser` que convierte una fila en un `PartidoCsv` (record con todo lo de la tabla).
-- [ ] Clientes Feign hacia los 3 servicios.
-- [ ] Orquestador con registro en `ejecucion_ingesta`.
-- [ ] Endpoints y `@Scheduled`.
-- [ ] Pruebas: CB-01 (fila completa y hora de Londres a UTC) y CB-02 (fila sin jugar). **Usen un CSV pequeño en `src/test/resources`**, sin internet.
-- [ ] Dockerfile.
+- [x] Cliente HTTP que descarga el CSV como texto (`service/DescargadorCsv`).
+- [x] `CsvFootballDataParser` que convierte una fila en un `PartidoCsv` (record con todo lo de la tabla).
+- [x] Clientes Feign hacia los 3 servicios.
+- [x] Orquestador con registro en `ejecucion_ingesta` (`service/ProcesadorIngesta`).
+- [x] Endpoints y `@Scheduled`.
+- [x] Pruebas: CB-01 (fila completa y hora de Londres a UTC) y CB-02 (fila sin jugar), con CSV pequeños en `src/test/resources/csv`.
+- [x] Dockerfile.
+
+**Muestras:** `src/main/resources/muestras/` tiene una copia de los 7 archivos del 25/10/2026, para `ingesta.usar-muestras=true` (variable `INGESTA_USAR_MUESTRAS`). Se borra cuando ya no haga falta.
+
+**Pinnacle:** desde la temporada 2627, football-data ya no trae `PSH`/`PSD`/`PSA` ni `P>2.5`/`P<2.5` (tampoco en `fixtures.csv`). El parser se salta esas columnas, así que de la temporada actual solo se cargan cuotas de bet365.
 
 ## Pistas
 
