@@ -1,4 +1,4 @@
-server:
+cserver:
   port: ${PORT:8081}
 
 spring:
