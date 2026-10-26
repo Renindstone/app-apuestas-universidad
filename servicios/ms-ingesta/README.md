@@ -81,8 +81,6 @@ Reglas generales que aplica: RN-10 (ligas, temporadas y casas), RN-11 (origen de
 - [x] Pruebas: CB-01 (fila completa y hora de Londres a UTC) y CB-02 (fila sin jugar), con CSV pequeños en `src/test/resources/csv`.
 - [x] Dockerfile.
 
-**Muestras:** `src/main/resources/muestras/` tiene una copia de los 7 archivos del 25/10/2026, para `ingesta.usar-muestras=true` (variable `INGESTA_USAR_MUESTRAS`). Se borra cuando ya no haga falta.
-
 **Pinnacle:** football-data dejó de publicar `PSH`/`PSD`/`PSA` y `P>2.5`/`P<2.5` en enero de 2026, a mitad de la temporada 2526. Solo los traen 549 de sus 1066 partidos, y ninguno de la 2627 ni de `fixtures.csv`. El parser se salta las celdas vacías, así que de la temporada actual solo se cargan cuotas de bet365.
 
 ## Pistas

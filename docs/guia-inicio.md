@@ -131,7 +131,7 @@ docker compose -f infra/docker-compose.yml --env-file .env up -d --build
 - La primera vez tarda varios minutos, porque cada imagen descarga Maven y sus dependencias.
 - **Direcciones:** la web queda en http://localhost:8090, el gateway en http://localhost:8080 y el panel de Eureka en http://localhost:8761.
 - **Arranque:** los servicios tardan medio minuto en verse entre sí, que es lo que tarda Eureka en repartir el registro.
-- **Ingesta:** para cargar datos, entra a la web como `admin` (con la clave `ADMIN_PASSWORD` del `.env`). En **Ingesta**, ejecuta HISTORICO y luego PROXIMOS. Sin internet, pon `INGESTA_USAR_MUESTRAS=true` en el `.env`: así se usan las copias de `ms-ingesta/src/main/resources/muestras/`.
+- **Ingesta:** para cargar datos, entra a la web como `admin` (con la clave `ADMIN_PASSWORD` del `.env`). En **Ingesta**, ejecuta HISTORICO y luego PROXIMOS.
 - **Memoria:** cada JVM tiene un tope de 384 MB, unos 5 GB en total. Se puede cambiar con `JAVA_OPCIONES` en el `.env`.
 - **Apagar:** `docker compose -f infra/docker-compose.yml down` apaga todo; con `-v` también borra los datos de PostgreSQL.
 

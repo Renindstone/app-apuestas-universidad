@@ -90,10 +90,7 @@ services:
   ms-ingesta:
     <<: *servicio
     build: ../servicios/ms-ingesta
-    environment:
-      <<: *entorno-bd
-      # true: lee las copias de src/main/resources/muestras/ en lugar de descargar de football-data.
-      INGESTA_USAR_MUESTRAS: ${INGESTA_USAR_MUESTRAS:-false}
+    environment: *entorno-bd
     depends_on: *depende-de-bd
 
   ms-estadisticas:
