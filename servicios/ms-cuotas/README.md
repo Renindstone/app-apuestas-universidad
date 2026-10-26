@@ -73,13 +73,23 @@ Este servicio implementa las reglas generales RN-01 (margen) y RN-02 (probabilid
 
 ## Tareas
 
-- [ ] Entidad y repositorio. Mock de `GET /partidos/{id}/cuotas` el día 1.
-- [ ] Upsert interno.
-- [ ] Consulta de la última cuota por selección.
-- [ ] `CuotaService.quitarMargen()` y su endpoint.
-- [ ] Cuota manual con validación y Feign.
-- [ ] Pruebas: CB-04 (cuota ≤ 1 lanza `CuotaInvalidaException`) y una de margen con el ejemplo de arriba.
-- [ ] Dockerfile.
+- [x] Entidad y repositorio (`entity/Cuota`, con `CHECK(CuoValor > 1)` e índice en `CuoIdPartido`). El mock del día 1 ya no hace falta: el endpoint real está listo.
+- [x] Upsert interno: se validan todas las cuotas antes de guardar, así una cuota mala no deja la mitad guardada.
+- [x] Consulta de la última cuota por selección.
+- [x] `CuotaService.quitarMargen()` y su endpoint. Los mercados válidos están en `service/Mercados`.
+- [x] Cuota manual con validación y Feign (`client/CatalogoClient`).
+- [x] Pruebas: CB-04 y el margen del ejemplo (`CuotaServiceTest`); upsert, filtro por casa, mercado incompleto, cuota manual (con ms-catalogo simulado) y validaciones (`CuotasTest`, con H2 en memoria).
+- [x] Dockerfile.
+
+**Detalles del contrato:**
+
+- `margen` y `probabilidades` van con 3 decimales. Si no hay ninguna cuota de esa casa y mercado, también responde 409 `MERCADO_INCOMPLETO`.
+- `POST /interno/cuotas` solo acepta `bet365` y `pinnacle`, y nunca el tipo `MANUAL`. `POST /cuotas/manual` solo acepta `betano` (RN-CUO-02).
+- `POST /cuotas/manual` responde 201 con la cuota guardada, en el mismo formato que `GET /partidos/{id}/cuotas`. Sin la cabecera `X-Usuario-Id`, responde 401 `NO_AUTORIZADO`. Si ms-catalogo no responde, 503 `SERVICIO_NO_DISPONIBLE`.
+- Una cuota manual de la misma selección y línea reemplaza a la anterior, aunque la cargue otro usuario.
+- **Pinnacle:** desde la temporada 2627, football-data ya no trae cuotas de Pinnacle (ver el README de `ms-ingesta`). Para los partidos actuales, `probabilidades-mercado?casa=pinnacle` responde 409.
+
+**Variables de entorno:** `DB_HOST`, `DB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `EUREKA_URL`.
 
 ## Pistas
 

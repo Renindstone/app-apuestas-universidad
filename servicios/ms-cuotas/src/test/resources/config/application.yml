@@ -1,0 +1,14 @@
+# Configuración solo para las pruebas: H2 en memoria (modo PostgreSQL) y sin Eureka.
+# Está en config/ para sumarse al application.yml principal (y ganarle) en lugar de reemplazarlo.
+spring:
+  datasource:
+    url: jdbc:h2:mem:cuotas;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+eureka:
+  client:
+    enabled: false
