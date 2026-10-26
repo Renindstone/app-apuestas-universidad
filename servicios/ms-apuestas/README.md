@@ -117,13 +117,28 @@ Este servicio implementa las reglas generales RN-03 a RN-07 (valor esperado, ver
 
 ## Tareas
 
-- [ ] Entidades `Pick` y `ApuestaUsuario` (sección 6.6).
-- [ ] `ValorService.evaluar()` y `POST /evaluaciones`.
-- [ ] Apuesta del día y su `@Scheduled`.
-- [ ] Mis apuestas y rendimiento.
-- [ ] Liquidación.
-- [ ] Pruebas: CB-05, CB-06 y CB-07, y que el rendimiento solo muestra las apuestas del usuario del token.
-- [ ] Dockerfile.
+- [x] Entidades `Pick` y `ApuestaUsuario` (sección 6.6).
+- [x] `ValorService.evaluar()` y `POST /evaluaciones`.
+- [x] Apuesta del día y su `@Scheduled` (`service/ApuestaDelDiaService`).
+- [x] Mis apuestas y rendimiento (`service/MisApuestasService`).
+- [x] Liquidación (`service/LiquidacionService`).
+- [x] Pruebas: CB-05 y CB-06 (`ValorServiceTest`), CB-07 y la tabla de liquidación completa (`LiquidacionServiceTest`). También la apuesta del día, el historial, la liquidación y que el rendimiento solo muestra las apuestas del usuario del token (`ApuestasTest`, con H2 y los 4 servicios simulados).
+- [x] Dockerfile.
+
+**Detalles del contrato:**
+
+- `POST /interno/liquidar` responde `{"picks": 2, "apuestas": 3, "pendientes": 1}`: lo que se liquidó y lo que sigue pendiente.
+- `GET /apuesta-del-dia?recalcular=true` responde 409 `YA_LIQUIDADA` si ese día ya tiene picks liquidados, porque recalcular borraría su historial. Un día sin candidatas no guarda nada, así que se vuelve a calcular en cada consulta.
+- Errores de `POST /evaluaciones`:
+  - 400 si la selección o la casa no existen, o si la cuota no es mayor que 1.
+  - 404 si el partido no existe.
+  - 409 `SIN_DATOS` si el modelo aún no tiene datos.
+  - 503 si ms-predicciones no responde.
+- En la apuesta del día, un partido sin datos para el modelo se salta. Si ms-catalogo, ms-predicciones o ms-cuotas no responden, devuelve 503.
+- `GET /mis-apuestas` acepta `estado` como opcional (sin él, devuelve todas). Sin la cabecera `X-Usuario-Id` responde 401. `porMercado` va en orden alfabético.
+- Se pueden registrar apuestas de partidos ya jugados, como pide la prueba CN-09; se liquidan en la siguiente liquidación.
+
+**Honestidad (RN-15):** con datos reales, la apuesta del día suele salir con EV de 20–30 %. No es valor real: es el modelo, que se toma muy en serio la racha de 10 partidos de un equipo. Por ejemplo, el Union Berlin recibió 2.9 goles por partido fuera, y el modelo le da 0.72 al Augsburg cuando bet365, sin margen, le da 0.52. La mejora opcional de las pistas (mezclar con el mercado) atenuaría esto, pero ya no hay Pinnacle desde enero de 2026; se podría usar bet365 sin margen.
 
 ## Pistas
 
