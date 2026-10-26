@@ -1,4 +1,4 @@
-# discovery-server (Eureka) · Integrante 3 · puerto 8761
+# discovery-server (Eureka) · Renzo (Integrante 3) · puerto 8761
 
 **Responsabilidad:** registro y descubrimiento de servicios. Cada microservicio se registra al arrancar con su nombre (`spring.application.name`). Feign y el gateway lo encuentran por ese nombre (`lb://ms-catalogo`), sin IPs fijas.
 
@@ -31,7 +31,7 @@ eureka:
 
 ## Reglas de negocio
 
-No tiene reglas de negocio propias: solo registra y localiza servicios. Las reglas generales están en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio).
+No tiene reglas de negocio propias: solo registra y localiza servicios. Las reglas generales están en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio).
 
 ## Tareas
 

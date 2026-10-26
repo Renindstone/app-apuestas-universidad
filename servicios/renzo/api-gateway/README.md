@@ -1,4 +1,4 @@
-# api-gateway · Integrante 3 · puerto 8080
+# api-gateway · Renzo (Integrante 3) · puerto 8080
 
 **Responsabilidad:** es el único punto de entrada al sistema. Enruta cada petición al servicio que corresponde, valida el JWT, aplica las reglas por rol y bloquea las rutas internas.
 
@@ -36,7 +36,7 @@ Clave: `JWT_SECRET`, la misma variable de entorno que usa `ms-usuarios`. Debe te
 
 ## Reglas de negocio
 
-Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
 
 | ID | Regla | Relación |
 |---|---|---|

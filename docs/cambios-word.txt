@@ -1,0 +1,186 @@
+CAMBIOS PENDIENTES EN docs/DocumentacionProyectoApuestas.docx
+================================================================
+
+Son los cambios de docs/Documentacion.md del commit 49d4404 («Doc») y los del
+26/10 (carpetas por integrante y conclusiones) que todavía no están en el
+Word. Lo demás del Word ya coincide con el Markdown (se revisó la sección 1.4
+y las reglas RN-06 y RN-10, que eran los cambios anteriores).
+
+Cómo leer este archivo:
+  - Lo que va entre `acentos graves` se escribe en Consolas, como el resto del
+    código en el Word, y sin los acentos graves.
+  - Lo que va entre **dobles asteriscos** va en negrita, sin los asteriscos.
+  - Los guiones al inicio de una línea son viñetas.
+
+
+----------------------------------------------------------------
+CAMBIO 1. Sección 7: nueva subsección «7.1. Retrospectiva»
+----------------------------------------------------------------
+
+Dónde: al final de la sección 7, justo después del párrafo que empieza con
+«Definición de terminado: cada historia está terminada cuando...» y antes del
+título «8 Plan de pruebas».
+
+Formato: el título «7.1. Retrospectiva» con el mismo estilo que
+«8.1. Caja blanca (cobertura de caminos)» (usa la brocha de Copiar formato).
+Los tres subtítulos («Qué funcionó», «Qué se retrasó y por qué» y «Lecciones»)
+van como párrafo en negrita, igual que «Definición de terminado».
+
+Texto para pegar:
+
+7.1. Retrospectiva
+
+**Qué funcionó**
+
+- **Los contratos primero.** Cada servicio tenía su `README.md` con endpoints, JSON y reglas antes de escribir código. Así cada servicio se construyó y probó por separado, y al unirlos en el `docker-compose.yml` no hubo que cambiar ningún contrato.
+- **Un orden de construcción según las dependencias:** gateway, usuarios, catálogo, ingesta, estadísticas, cuotas, predicciones y apuestas. Cada servicio encontraba listos a los que llama por Feign, así que no hicieron falta los mocks de la «regla de oro».
+- **Pruebas en dos niveles.** Hay 96 pruebas unitarias y de integración en los 10 módulos, todas en verde, y las 9 pruebas de caja negra pasaron contra el sistema completo (sección 8).
+- **La resiliencia se cumplió:** si `ms-cuotas` cae, la web sigue mostrando las probabilidades con un aviso (CN-08), y la evaluación manual no depende de las cuotas (RN-APU-01).
+
+**Qué se retrasó y por qué**
+
+- **La implementación empezó el sábado 24 y no el martes 20.** Del lunes 19 al martes 20 se hicieron el replanteamiento, la documentación, los diagramas de flujo y la presentación. Los servicios y la web se programaron el sábado 24 y el domingo 25, por falta de tiempo del equipo entre semana. Para recuperar el retraso, el código se escribió con ayuda de un asistente de IA (Claude), servicio por servicio, y el equipo revisó cada entrega antes de pasar a la siguiente.
+- **Docker estuvo disponible recién el domingo 25 por la noche.** Hasta entonces, las pruebas de integración usaron un PostgreSQL temporal y los jar levantados a mano. Con Docker listo, el sistema completo se probó de punta a punta el mismo día.
+- **Cambios de diseño sobre la marcha:**
+    - Pinnacle dejó de publicar cuotas en enero de 2026. Por eso la apuesta del día compara contra el mercado sin margen de la misma casa (RN-06).
+    - Usado solo, el modelo daba apuestas del día con EV de 20–30 %, que no es valor real. Se mezcló al 50 % con el mercado (RN-15).
+    - Se quitaron los CSV de muestra: la ingesta ahora descarga los datos de football-data.co.uk.
+  (Estas tres van como viñetas de segundo nivel, con sangría.)
+
+**Lecciones**
+
+- El usuario `admin` solo se crea si no existe (RN-USU-07). Si `ADMIN_PASSWORD` cambia en el `.env` después del primer arranque, el admin conserva la clave anterior. En ese caso hay que borrar el volumen (`down -v`) o cambiar la clave en la base de datos.
+- Con 10 JVM, el sistema necesita unos 5 GB de memoria. El tope de 384 MB por servicio (`JAVA_OPCIONES`) fue necesario para que todo cupiera en una laptop.
+
+
+----------------------------------------------------------------
+CAMBIO 2. Sección 8.1: tabla de caja blanca
+----------------------------------------------------------------
+
+2a. Agregar una sexta columna a la derecha de «Salida esperada».
+    Encabezado: Resultado (25/10/2026)
+    Valores, fila por fila (los nombres de las clases de prueba en Consolas):
+
+    CB-01  Pasa (`CsvFootballDataParserTest`)
+    CB-02  Pasa (`CsvFootballDataParserTest` y `ProcesadorIngestaTest`)
+    CB-03  Pasa (`PoissonServiceTest`)
+    CB-04  Pasa (`CuotaServiceTest`)
+    CB-05  Pasa (`ValorServiceTest`)
+    CB-06  Pasa (`ValorServiceTest`)
+    CB-07  Pasa (`LiquidacionServiceTest`)
+    CB-08  Pasa (`UsuarioServiceTest` y `FlujoUsuarioTest`)
+    CB-09  Pasa (`JwtAuthFilterTest`)
+
+    Si la tabla no cabe en el ancho de la página con 6 columnas, baja la letra
+    de la tabla a 9 pt.
+
+2b. Corregir la fila CB-09, columna «Método».
+    Dice:        JwtFilter (gateway)
+    Debe decir:  `JwtAuthFilter` (gateway)
+    (Es el nombre real de la clase en el código.)
+
+2c. Agregar un párrafo justo debajo de la tabla, antes del título
+    «8.2. Caja negra»:
+
+Corrida del 25/10/2026: `./mvnw test` en los 10 módulos, con 96 pruebas, 0 fallos y 0 errores.
+
+
+----------------------------------------------------------------
+CAMBIO 3. Sección 8.2: tabla de caja negra
+----------------------------------------------------------------
+
+3a. Agregar un párrafo justo debajo del título «8.2. Caja negra», antes de la
+    tabla:
+
+Se ejecutaron el 25/10/2026 contra el `docker-compose.yml` completo, por el gateway (:8080) y la web (:8090).
+
+3b. Agregar una quinta columna a la derecha de «Resultado esperado».
+    Encabezado: Resultado obtenido
+    Valores, fila por fila:
+
+    CN-01  Pasa: registro 201 con rol APOSTADOR, login 200 con token y la web redirige al panel
+    CN-02  Pasa: 401
+    CN-03  Pasa: 403
+    CN-04  Pasa: 403 con token y sin él; el catálogo siguió con 1308 partidos
+    CN-05  Pasa: 6 archivos (3 ligas × 2 temporadas) en OK, 1279 filas en 24 s y 1308 partidos en el catálogo
+    CN-06  Pasa: Ipswich vs Nott'm Forest con árbitro, goles esperados, matriz de marcadores y promedios, en 0.07 s
+    CN-07  Pasa: con la fecha 15/07/2026 responde "Hoy no hay apuesta del día: ninguna apuesta supera los umbrales…"
+    CN-08  Pasa: la página responde 200 con las probabilidades y el aviso "Cuotas no disponibles por ahora"
+    CN-09  Pasa: 3 apuestas a LOCAL con cuota 2.00 y 10 de monto (1-1, 0-1 y 3-1) dan 1 ganada, 2 perdidas, beneficio −10 y ROI −33.3 %
+
+
+----------------------------------------------------------------
+CAMBIO 4. Secciones 4.5 y 5.7: ruta de los contratos
+----------------------------------------------------------------
+
+Los servicios ahora están dentro de una carpeta por integrante
+(servicios/renzo, servicios/guillermo y servicios/joseph). La ruta aparece
+dos veces en el Word, en Consolas:
+
+4a. Sección 4.5, párrafo que empieza con «Cada servicios/<servicio>/README.md
+    repite sus reglas...».
+4b. Sección 5.7, primer párrafo, en la frase «Siguen los contratos de
+    servicios/<servicio>/README.md».
+
+En los dos casos:
+    Dice:        `servicios/<servicio>/README.md`
+    Debe decir:  `servicios/<integrante>/<servicio>/README.md`
+
+
+----------------------------------------------------------------
+CAMBIO 5. Sección 9.1: Conclusiones
+----------------------------------------------------------------
+
+Dónde: debajo del título «9.1. Conclusiones», que hoy está vacío, y antes de
+«9.2. Trabajo futuro».
+
+Formato: los dos subtítulos («Qué aportó separar el sistema en
+microservicios, frente al monolito del proyecto MTC:» y «Qué costó:») van como
+párrafo en negrita, igual que los de la 7.1. En el primero, solo va en negrita
+hasta «microservicios».
+
+Texto para pegar:
+
+Se cumplieron los cinco objetivos específicos de la sección 1.3:
+
+- **Integración de datos.** `ms-ingesta` descarga los CSV de football-data.co.uk tres veces al día (05:00, 08:00 y 16:00, hora de Lima) y reparte sus datos entre los servicios. En la prueba CN-05 cargó 1279 filas de 3 ligas y 2 temporadas en 24 s.
+- **Probabilidades por mercado.** `ms-predicciones` calcula con Poisson los mercados 1X2, goles, ambos marcan, tarjetas (con factor árbitro) y córners. En CN-06 respondió en 0.07 s.
+- **Apuesta del día.** `ms-apuestas` compara esas probabilidades con las cuotas y propone como mucho una apuesta al día. Si ninguna supera los umbrales, lo dice (CN-07). Usado solo, el modelo daba valores esperados de 20–30 %, así que se mezcla al 50 % con el mercado (RN-06). Es un modelo didáctico que no le gana a las casas de forma sostenida, y el sistema solo recomienda (RN-15).
+- **Seguimiento de apuestas.** Cada usuario registra sus apuestas, que se liquidan solas cada día a las 06:00, y ve sus ganadas, perdidas y ROI (CN-09).
+- **Despliegue.** Un solo `docker compose up` levanta los 9 microservicios, la web y PostgreSQL con sus 6 bases de datos. Las 96 pruebas automáticas y las 9 de caja negra pasaron (sección 8).
+
+**Qué aportó separar el sistema en microservicios**, frente al monolito del proyecto MTC:
+
+- Cada servicio tuvo un dueño, un contrato, una base de datos y pruebas propias. Por eso se pudo construir y probar cada uno por separado, y al unirlos no hubo que cambiar ningún contrato (7.1).
+- Una falla queda aislada: si `ms-cuotas` cae, el análisis sigue mostrando las probabilidades con un aviso (CN-08).
+- Si el contrato no cambia, un cambio en un servicio solo obliga a recompilar y reiniciar ese servicio.
+
+**Qué costó:**
+
+- Más configuración: el registro de servicios (Eureka), el gateway con la validación JWT, las llamadas Feign entre servicios y 6 bases de datos, en lugar de una aplicación con una base.
+- Más llamadas por la red: un análisis de partido pasa por el gateway y por varios servicios. Cada llamada puede fallar, y hubo que decidir qué hacer en cada caso (5.7).
+- Más recursos: 10 JVM necesitan unos 5 GB de memoria, y en una laptop hubo que limitar la memoria y la CPU de cada servicio.
+- Más difícil de depurar: un error puede atravesar el gateway y dos o tres servicios, cada uno con su propio log.
+
+Para un sistema de este tamaño, un monolito habría sido más simple de construir y desplegar. La separación se justifica por el objetivo del curso: aplicar la arquitectura de microservicios con Spring Boot y Spring Cloud.
+
+
+----------------------------------------------------------------
+CAMBIO 6. Índice
+----------------------------------------------------------------
+
+Al terminar, clic derecho sobre el índice > Actualizar campo > Actualizar
+toda la tabla, para que aparezca «7.1. Retrospectiva» y se corrijan los
+números de página (las tablas más anchas y las conclusiones pueden mover las
+páginas).
+
+
+----------------------------------------------------------------
+NO VA EN EL WORD (solo para que lo tengas presente)
+----------------------------------------------------------------
+
+- docs/guion-demo.md y el enlace nuevo en README.md son documentos del
+  repositorio, no del Word.
+- El Word sigue nombrando a los dueños como «Integrante 1/2/3» (secciones 3,
+  4.4, 4.5.2, 5.2, 5.7.2 y 7). La equivalencia está en la tabla del README.md:
+  Guillermo es el Integrante 1, Joseph el 2 y Renzo el 3.

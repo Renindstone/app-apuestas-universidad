@@ -1,4 +1,4 @@
-# ms-estadisticas · Integrante 1 · puerto 8084 · BD `estadisticas_db`
+# ms-estadisticas · Guillermo (Integrante 1) · puerto 8084 · BD `estadisticas_db`
 
 **Responsabilidad:** guarda las estadísticas de cada equipo en cada partido y calcula promedios: de un equipo (a favor y en contra, como local o visitante, en los últimos N partidos), de la liga y del árbitro. Es la materia prima de `ms-predicciones`.
 
@@ -65,7 +65,7 @@ Devuelve `{ "partidoId": 1532, "local": {...}, "visitante": {...} }` con el mism
 
 ## Reglas de negocio
 
-Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
 
 | ID | Regla | Relación |
 |---|---|---|

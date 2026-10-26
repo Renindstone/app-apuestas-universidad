@@ -221,7 +221,7 @@ Son 9 historias, 3 por integrante:
 
 Las reglas de negocio dicen qué debe cumplir el sistema, sin importar cómo se programe. Hay dos grupos. Las **generales** valen para todo el sistema. Las **específicas** las aplica un microservicio concreto. La columna *Relación* indica el requerimiento, el caso de uso, la prueba o el servicio con que se conecta cada regla. RN-01 a RN-08 son las mismas que muestra la presentación.
 
-Cada `servicios/<servicio>/README.md` repite sus reglas específicas con el mismo código. Si una regla cambia, se actualizan los dos documentos y se avisa en el daily, igual que con los contratos.
+Cada `servicios/<integrante>/<servicio>/README.md` repite sus reglas específicas con el mismo código. Si una regla cambia, se actualizan los dos documentos y se avisa en el daily, igual que con los contratos.
 
 #### 4.5.1. Reglas generales
 
@@ -501,7 +501,7 @@ Los puertos de PostgreSQL (5441) y de la web (8090) se eligieron para no chocar 
 
 ### 5.7. Diagramas de flujo de los microservicios
 
-Los diagramas de esta sección muestran, paso a paso, qué hace cada microservicio y en qué momento llama a otro. Complementan la arquitectura lógica (5.2) y la secuencia de la apuesta del día (5.3). Siguen los contratos de `servicios/<servicio>/README.md`: si un contrato cambia, también hay que actualizar su diagrama. Las fuentes Graphviz están en [`docs/diagramas/flujo/`](diagramas/flujo/). Para regenerar una imagen: `dot -Tpng -Gdpi=220 archivo.dot -o archivo.png`.
+Los diagramas de esta sección muestran, paso a paso, qué hace cada microservicio y en qué momento llama a otro. Complementan la arquitectura lógica (5.2) y la secuencia de la apuesta del día (5.3). Siguen los contratos de `servicios/<integrante>/<servicio>/README.md`: si un contrato cambia, también hay que actualizar su diagrama. Las fuentes Graphviz están en [`docs/diagramas/flujo/`](diagramas/flujo/). Para regenerar una imagen: `dot -Tpng -Gdpi=220 archivo.dot -o archivo.png`.
 
 **Simbología** (con los colores de la arquitectura lógica):
 
@@ -729,7 +729,28 @@ Se ejecutaron el 25/10/2026 contra el `docker-compose.yml` completo, por el gate
 
 ### 9.1. Conclusiones
 
-_(Completar al terminar: qué se logró de los objetivos de 1.3, qué aportó la separación en microservicios frente al monolito del proyecto MTC y qué costó: más configuración, red y despliegue.)_
+Se cumplieron los cinco objetivos específicos de la sección 1.3:
+
+- **Integración de datos.** `ms-ingesta` descarga los CSV de football-data.co.uk tres veces al día (05:00, 08:00 y 16:00, hora de Lima) y reparte sus datos entre los servicios. En la prueba CN-05 cargó 1279 filas de 3 ligas y 2 temporadas en 24 s.
+- **Probabilidades por mercado.** `ms-predicciones` calcula con Poisson los mercados 1X2, goles, ambos marcan, tarjetas (con factor árbitro) y córners. En CN-06 respondió en 0.07 s.
+- **Apuesta del día.** `ms-apuestas` compara esas probabilidades con las cuotas y propone como mucho una apuesta al día. Si ninguna supera los umbrales, lo dice (CN-07). Usado solo, el modelo daba valores esperados de 20–30 %, así que se mezcla al 50 % con el mercado (RN-06). Es un modelo didáctico que no le gana a las casas de forma sostenida, y el sistema solo recomienda (RN-15).
+- **Seguimiento de apuestas.** Cada usuario registra sus apuestas, que se liquidan solas cada día a las 06:00, y ve sus ganadas, perdidas y ROI (CN-09).
+- **Despliegue.** Un solo `docker compose up` levanta los 9 microservicios, la web y PostgreSQL con sus 6 bases de datos. Las 96 pruebas automáticas y las 9 de caja negra pasaron (sección 8).
+
+**Qué aportó separar el sistema en microservicios**, frente al monolito del proyecto MTC:
+
+- Cada servicio tuvo un dueño, un contrato, una base de datos y pruebas propias. Por eso se pudo construir y probar cada uno por separado, y al unirlos no hubo que cambiar ningún contrato (7.1).
+- Una falla queda aislada: si `ms-cuotas` cae, el análisis sigue mostrando las probabilidades con un aviso (CN-08).
+- Si el contrato no cambia, un cambio en un servicio solo obliga a recompilar y reiniciar ese servicio.
+
+**Qué costó:**
+
+- Más configuración: el registro de servicios (Eureka), el gateway con la validación JWT, las llamadas Feign entre servicios y 6 bases de datos, en lugar de una aplicación con una base.
+- Más llamadas por la red: un análisis de partido pasa por el gateway y por varios servicios. Cada llamada puede fallar, y hubo que decidir qué hacer en cada caso (5.7).
+- Más recursos: 10 JVM necesitan unos 5 GB de memoria, y en una laptop hubo que limitar la memoria y la CPU de cada servicio.
+- Más difícil de depurar: un error puede atravesar el gateway y dos o tres servicios, cada uno con su propio log.
+
+Para un sistema de este tamaño, un monolito habría sido más simple de construir y desplegar. La separación se justifica por el objetivo del curso: aplicar la arquitectura de microservicios con Spring Boot y Spring Cloud.
 
 ### 9.2. Trabajo futuro
 

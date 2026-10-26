@@ -1,4 +1,4 @@
-# ms-usuarios · Integrante 3 · puerto 8081 · BD `usuarios_db`
+# ms-usuarios · Renzo (Integrante 3) · puerto 8081 · BD `usuarios_db`
 
 **Responsabilidad:** cuentas de usuario. Registra, inicia sesión (emite el JWT) y guarda el perfil y la banca. Es el único servicio que conoce las contraseñas.
 
@@ -45,7 +45,7 @@ Body `{ "banca": 500.00 }`. La banca debe ser mayor o igual a 0. Responde **200*
 
 ## Reglas de negocio
 
-Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
 
 | ID | Regla | Relación |
 |---|---|---|

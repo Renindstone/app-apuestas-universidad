@@ -12,22 +12,22 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 | [docs/Documentacion.md](docs/Documentacion.md) | Mismo contenido en Markdown (fuente para regenerar el Word) y documento del proyecto (perfil, análisis, reglas de negocio, arquitectura, BD, plan de la semana y pruebas), con la estructura del proyecto MTC |
 | [docs/guia-inicio.md](docs/guia-inicio.md) | Cómo crear cada servicio con Spring Initializr y cómo levantar todo |
 | [docs/guion-demo.md](docs/guion-demo.md) | Preparación y pasos de la demo del lunes 26, con los comandos y qué hacer si algo falla |
-| `servicios/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, reglas de negocio, tareas y pistas |
+| `servicios/<integrante>/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, reglas de negocio, tareas y pistas |
 
 ## Los 9 microservicios
 
 | # | Servicio | Puerto | Base de datos | Dueño |
 |---|---|---|---|---|
-| 1 | [discovery-server](servicios/discovery-server/README.md) | 8761 | — | Integrante 3 |
-| 2 | [api-gateway](servicios/api-gateway/README.md) | 8080 | — | Integrante 3 |
-| 3 | [ms-usuarios](servicios/ms-usuarios/README.md) | 8081 | usuarios_db | Integrante 3 |
-| 4 | [ms-catalogo](servicios/ms-catalogo/README.md) | 8082 | catalogo_db | Integrante 1 |
-| 5 | [ms-ingesta](servicios/ms-ingesta/README.md) | 8083 | ingesta_db | Integrante 1 |
-| 6 | [ms-estadisticas](servicios/ms-estadisticas/README.md) | 8084 | estadisticas_db | Integrante 1 |
-| 7 | [ms-cuotas](servicios/ms-cuotas/README.md) | 8085 | cuotas_db | Integrante 2 |
-| 8 | [ms-predicciones](servicios/ms-predicciones/README.md) | 8086 | — | Integrante 2 |
-| 9 | [ms-apuestas](servicios/ms-apuestas/README.md) | 8087 | apuestas_db | Integrante 2 |
-| — | [web-app](servicios/web-app/README.md) (cliente, no cuenta como microservicio) | 8090 | — | Integrante 3 |
+| 1 | [discovery-server](servicios/renzo/discovery-server/README.md) | 8761 | — | Renzo (Integrante 3) |
+| 2 | [api-gateway](servicios/renzo/api-gateway/README.md) | 8080 | — | Renzo (Integrante 3) |
+| 3 | [ms-usuarios](servicios/renzo/ms-usuarios/README.md) | 8081 | usuarios_db | Renzo (Integrante 3) |
+| 4 | [ms-catalogo](servicios/guillermo/ms-catalogo/README.md) | 8082 | catalogo_db | Guillermo (Integrante 1) |
+| 5 | [ms-ingesta](servicios/guillermo/ms-ingesta/README.md) | 8083 | ingesta_db | Guillermo (Integrante 1) |
+| 6 | [ms-estadisticas](servicios/guillermo/ms-estadisticas/README.md) | 8084 | estadisticas_db | Guillermo (Integrante 1) |
+| 7 | [ms-cuotas](servicios/joseph/ms-cuotas/README.md) | 8085 | cuotas_db | Joseph (Integrante 2) |
+| 8 | [ms-predicciones](servicios/joseph/ms-predicciones/README.md) | 8086 | — | Joseph (Integrante 2) |
+| 9 | [ms-apuestas](servicios/joseph/ms-apuestas/README.md) | 8087 | apuestas_db | Joseph (Integrante 2) |
+| — | [web-app](servicios/renzo/web-app/README.md) (cliente, no cuenta como microservicio) | 8090 | — | Renzo (Integrante 3) |
 
 ## Convenciones comunes (todos los servicios)
 

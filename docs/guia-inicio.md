@@ -44,7 +44,7 @@ En https://start.spring.io:
 | Package name | `pe.edu.unu.apuestas.catalogo` |
 | Dependencias | Las que indica el README del servicio |
 
-Descomprimir **dentro de `servicios/<servicio>/`**, sin crear otra carpeta encima. El `README.md` del servicio se queda donde está.
+Descomprimir **dentro de `servicios/<integrante>/<servicio>/`**, sin crear otra carpeta encima. El `README.md` del servicio se queda donde está.
 
 ## 4. Configuración base de un servicio de negocio
 

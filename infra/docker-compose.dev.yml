@@ -1,0 +1,128 @@
+# Override de desarrollo: baja el uso de CPU y memoria sin tocar docker-compose.yml ni el código.
+# Desde la raíz del repo:
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.dev.yml --env-file .env up -d
+# Para volver al comportamiento de siempre, basta con no pasar este archivo.
+# Aquí JAVA_TOOL_OPTIONS reemplaza a JAVA_OPCIONES del .env.
+
+# Cada JVM tiene como máximo medio núcleo y 512 MB: 9 JVM usan a lo sumo 4.5 de los 12 hilos del Ryzen.
+x-recursos: &recursos
+  resources:
+    limits:
+      cpus: "0.5"
+      memory: 512M
+
+# Serial GC y solo el compilador C1: menos hilos y menos CPU al arrancar. Con 0.5 CPU la JVM creería
+# que tiene 1 núcleo; con 2, los pools de hilos no quedan en uno solo.
+x-jvm: &jvm
+  JAVA_TOOL_OPTIONS: "-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:ActiveProcessorCount=2 -Xmx256m"
+
+x-jvm-lazy: &jvm-lazy
+  <<: *jvm
+  SPRING_MAIN_LAZY_INITIALIZATION: "true"
+
+# Con start_interval se revisa cada 5 s mientras arranca; los fallos de los primeros 4 min no cuentan.
+x-salud: &salud
+  interval: 15s
+  timeout: 5s
+  retries: 3
+  start_period: 4m
+  start_interval: 5s
+
+# Los ms-* arrancan cuando el gateway ya responde (y el gateway, cuando Eureka ya responde).
+x-ms: &ms
+  deploy: *recursos
+  environment: *jvm-lazy
+  depends_on:
+    api-gateway:
+      condition: service_healthy
+
+services:
+  discovery-server:
+    deploy: *recursos
+    environment: *jvm-lazy
+    # El pom no declara Actuator, pero llega con spring-cloud-starter-netflix-eureka-server.
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8761/actuator/health"]
+
+  api-gateway:
+    deploy: *recursos
+    environment: *jvm-lazy
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8080/actuator/health"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+
+  ms-usuarios:
+    <<: *ms
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8081/actuator/health"]
+
+  ms-catalogo:
+    <<: *ms
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8082/actuator/health"]
+
+  ms-ingesta:
+    <<: *ms
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8083/actuator/health"]
+
+  ms-estadisticas:
+    <<: *ms
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8084/actuator/health"]
+
+  ms-cuotas:
+    <<: *ms
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8085/actuator/health"]
+
+  ms-predicciones:
+    <<: *ms
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8086/actuator/health"]
+
+  # Sin lazy-initialization: sus @Scheduled (liquidación 06:00, apuesta del día 09:00) solo se
+  # registrarían cuando alguien llamara a su controlador, y la liquidación casi nunca se llama a mano.
+  ms-apuestas:
+    <<: *ms
+    environment: *jvm
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8087/actuator/health"]
+
+  # La web arranca al final, cuando todos los servicios ya responden.
+  web-app:
+    deploy: *recursos
+    environment: *jvm-lazy
+    healthcheck:
+      <<: *salud
+      test: ["CMD", "curl", "-fs", "http://localhost:8090/actuator/health"]
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+      ms-usuarios:
+        condition: service_healthy
+      ms-catalogo:
+        condition: service_healthy
+      ms-ingesta:
+        condition: service_healthy
+      ms-estadisticas:
+        condition: service_healthy
+      ms-cuotas:
+        condition: service_healthy
+      ms-predicciones:
+        condition: service_healthy
+      ms-apuestas:
+        condition: service_healthy

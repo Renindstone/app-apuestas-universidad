@@ -1,4 +1,4 @@
-# web-app · Integrante 3 · puerto 8090 (cliente, no cuenta como microservicio)
+# web-app · Renzo (Integrante 3) · puerto 8090 (cliente, no cuenta como microservicio)
 
 **Responsabilidad:** la interfaz para el usuario. Solo habla con el **api-gateway** (`http://localhost:8080`, o `http://api-gateway:8080` en Docker), nunca directamente con los microservicios.
 
@@ -30,7 +30,7 @@ Tras el login, guarda el JWT en la `HttpSession` del servidor (no en `localStora
 
 ## Reglas de negocio
 
-Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
 
 | ID | Regla | Relación |
 |---|---|---|
@@ -74,8 +74,8 @@ Reglas generales que aplica: RN-12 (fechas), RN-15 (honestidad) y RN-16 (juego r
 ## Probarla sin los microservicios
 
 ```bash
-node servicios/web-app/simulador/gateway-simulado.mjs     # gateway simulado en el puerto 8080
-cd servicios/web-app && ./mvnw spring-boot:run            # web en http://localhost:8090
+node servicios/renzo/web-app/simulador/gateway-simulado.mjs     # gateway simulado en el puerto 8080
+cd servicios/renzo/web-app && ./mvnw spring-boot:run            # web en http://localhost:8090
 ```
 
 Cualquier usuario entra con una clave de 6 caracteres o más, y `admin` entra con rol ADMIN. El partido Liverpool – Brighton simula que `ms-cuotas` no responde.

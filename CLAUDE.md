@@ -6,13 +6,13 @@ Proyecto universitario de un equipo de 3 personas: 9 microservicios con Spring B
 
 - **No escribas el código de los servicios** (clases Java, controladores, entidades, tests) salvo que el usuario lo pida explícitamente para algo concreto. Por defecto, explica, da pistas, revisa el código del equipo, encuentra errores y propone cómo corregirlos.
 - Cuando el usuario pida ayuda con código, empieza por lo mínimo: explica el concepto, señala el archivo y la línea, y da un fragmento corto si hace falta. Evita reescribir clases enteras.
-- Si te piden revisar un PR o un servicio, contrástalo con su contrato en `servicios/<servicio>/README.md` y con la documentación.
+- Si te piden revisar un PR o un servicio, contrástalo con su contrato en `servicios/<integrante>/<servicio>/README.md` y con la documentación.
 - Puedes editar libremente la documentación (`docs/`, los README) y la infraestructura (`infra/`) si el usuario lo pide.
 
 ## Fuentes de verdad
 
 - `docs/Documentacion.md`: requerimientos, arquitectura, BD, plan de la semana y pruebas.
-- `servicios/<servicio>/README.md`: **contrato** de cada servicio (endpoints y JSON). Si el código y el contrato no coinciden, gana el contrato, salvo que el equipo decida cambiarlo.
+- `servicios/<integrante>/<servicio>/README.md`: **contrato** de cada servicio (endpoints y JSON). Si el código y el contrato no coinciden, gana el contrato, salvo que el equipo decida cambiarlo.
 - `README.md`: convenciones comunes (mercados, errores, fechas y paquetes).
 
 ## Convenciones

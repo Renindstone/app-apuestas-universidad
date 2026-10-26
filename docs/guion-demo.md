@@ -43,7 +43,7 @@ docker stop app-apuestas-ms-cuotas-1
 docker start app-apuestas-ms-cuotas-1      # tarda medio minuto en volver a Eureka
 
 # Paso 10: pruebas de un servicio (unos 7 s con las dependencias ya descargadas)
-cd servicios/ms-apuestas && ./mvnw test
+cd servicios/joseph/ms-apuestas && ./mvnw test
 ```
 
 ## Si algo falla en vivo

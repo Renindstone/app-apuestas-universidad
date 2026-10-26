@@ -1,4 +1,4 @@
-# ms-ingesta · Integrante 1 · puerto 8083 · BD `ingesta_db`
+# ms-ingesta · Guillermo (Integrante 1) · puerto 8083 · BD `ingesta_db`
 
 **Responsabilidad:** descarga los CSV gratuitos de [football-data.co.uk](https://www.football-data.co.uk) y reparte sus datos entre `ms-catalogo`, `ms-estadisticas` y `ms-cuotas`. **Es el único servicio que conoce el formato de football-data** (capa anticorrupción): los demás reciben JSON limpio.
 
@@ -58,7 +58,7 @@ Cuidado con los nombres: los encabezados exactos varían un poco entre archivos.
 
 ## Reglas de negocio
 
-Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
 
 | ID | Regla | Relación |
 |---|---|---|

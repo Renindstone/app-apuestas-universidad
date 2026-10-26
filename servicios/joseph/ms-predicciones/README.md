@@ -1,4 +1,4 @@
-# ms-predicciones · Integrante 2 · puerto 8086 · sin BD
+# ms-predicciones · Joseph (Integrante 2) · puerto 8086 · sin BD
 
 **Responsabilidad:** calcula la probabilidad de cada mercado de un partido con un **modelo de Poisson** a partir de los promedios de `ms-estadisticas`. No guarda nada: cada petición pide los datos y calcula. Es el corazón "matemático" del sistema.
 
@@ -81,7 +81,7 @@ Incluye **todos** los mercados y líneas de la tabla del README raíz. Si `ms-ca
 
 ## Reglas de negocio
 
-Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
 
 | ID | Regla | Relación |
 |---|---|---|

@@ -1,6 +1,6 @@
 // =============================================================
 // Datos de prueba del gateway simulado. Imitan el JSON de los
-// contratos (servicios/<servicio>/README.md) y viven en memoria:
+// contratos (servicios/<integrante>/<servicio>/README.md) y viven en memoria:
 // se reinician cada vez que se arranca el simulador.
 // =============================================================
 

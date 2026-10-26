@@ -1,4 +1,4 @@
-# ms-apuestas · Integrante 2 · puerto 8087 · BD `apuestas_db`
+# ms-apuestas · Joseph (Integrante 2) · puerto 8087 · BD `apuestas_db`
 
 **Responsabilidad:** convierte probabilidades y cuotas en decisiones. Evalúa el valor esperado de una cuota y genera la **apuesta del día**. También guarda las apuestas de cada usuario, las liquida cuando termina el partido y calcula el rendimiento.
 
@@ -100,7 +100,7 @@ Recorre los picks y las apuestas pendientes. Para cada uno pide el partido a `ms
 
 ## Reglas de negocio
 
-Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
 
 | ID | Regla | Relación |
 |---|---|---|

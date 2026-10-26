@@ -3,7 +3,7 @@
 // microservicios. Responde las mismas rutas /api/... que el
 // api-gateway real, con el JSON de los contratos.
 //
-// Uso:  node servicios/web-app/simulador/gateway-simulado.mjs
+// Uso:  node servicios/renzo/web-app/simulador/gateway-simulado.mjs
 //       (escucha en el puerto 8080; otro puerto: PORT=8088 node ...)
 //
 // Casos para probar:

@@ -1,4 +1,4 @@
-# ms-catalogo · Integrante 1 · puerto 8082 · BD `catalogo_db`
+# ms-catalogo · Guillermo (Integrante 1) · puerto 8082 · BD `catalogo_db`
 
 **Responsabilidad:** ligas, equipos, árbitros y partidos. **Es el dueño de los IDs:** el resto de servicios guarda `partidoId`, `equipoId`, `ligaId` y `arbitroId` tal como los entrega este servicio. **Debe estar listo antes que los demás**, así que el día 1 tengan al menos el mock de `GET /partidos`.
 
@@ -68,7 +68,7 @@ Si el cruce (local, visitante, temporada) ya existe, **lo actualiza**. Si no, lo
 
 ## Reglas de negocio
 
-Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
+Reglas específicas de este servicio, con el mismo código que en la [sección 4.5 de la documentación](../../../docs/Documentacion.md#45-reglas-de-negocio). Si cambian, se actualizan los dos documentos y se avisa en el daily.
 
 | ID | Regla | Relación |
 |---|---|---|

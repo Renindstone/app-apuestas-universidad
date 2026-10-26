@@ -48,7 +48,7 @@ services:
 
   discovery-server:
     <<: *servicio
-    build: ../servicios/discovery-server
+    build: ../servicios/renzo/discovery-server
     environment:
       EUREKA_HOSTNAME: discovery-server
       JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
@@ -57,7 +57,7 @@ services:
 
   api-gateway:
     <<: *servicio
-    build: ../servicios/api-gateway
+    build: ../servicios/renzo/api-gateway
     environment:
       EUREKA_URL: http://discovery-server:8761/eureka
       # La misma clave que ms-usuarios: con ella se firman y se validan los JWT.
@@ -73,7 +73,7 @@ services:
 
   ms-usuarios:
     <<: *servicio
-    build: ../servicios/ms-usuarios
+    build: ../servicios/renzo/ms-usuarios
     environment:
       <<: *entorno-bd
       JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el .env (copia .env.example)}
@@ -83,32 +83,32 @@ services:
 
   ms-catalogo:
     <<: *servicio
-    build: ../servicios/ms-catalogo
+    build: ../servicios/guillermo/ms-catalogo
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   ms-ingesta:
     <<: *servicio
-    build: ../servicios/ms-ingesta
+    build: ../servicios/guillermo/ms-ingesta
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   ms-estadisticas:
     <<: *servicio
-    build: ../servicios/ms-estadisticas
+    build: ../servicios/guillermo/ms-estadisticas
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   ms-cuotas:
     <<: *servicio
-    build: ../servicios/ms-cuotas
+    build: ../servicios/joseph/ms-cuotas
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   # Sin base de datos: solo necesita Eureka para encontrar a ms-catalogo y ms-estadisticas.
   ms-predicciones:
     <<: *servicio
-    build: ../servicios/ms-predicciones
+    build: ../servicios/joseph/ms-predicciones
     environment:
       EUREKA_URL: http://discovery-server:8761/eureka
       JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
@@ -118,14 +118,14 @@ services:
 
   ms-apuestas:
     <<: *servicio
-    build: ../servicios/ms-apuestas
+    build: ../servicios/joseph/ms-apuestas
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   # La web solo habla con el gateway (RN-WEB-01), por su nombre dentro de la red.
   web-app:
     <<: *servicio
-    build: ../servicios/web-app
+    build: ../servicios/renzo/web-app
     environment:
       GATEWAY_URL: http://api-gateway:8080
       JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
