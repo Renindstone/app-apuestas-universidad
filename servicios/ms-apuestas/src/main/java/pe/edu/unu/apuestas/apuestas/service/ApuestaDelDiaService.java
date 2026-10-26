@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,6 +49,8 @@ public class ApuestaDelDiaService {
     private static final double PROBABILIDAD_MINIMA = 0.42;
     private static final double VALOR_MINIMO = 0.03;
     private static final int MUESTRA_MINIMA = 5;
+    // Peso del modelo al mezclarlo con el mercado: p = 0.5 × p_modelo + 0.5 × p_mercado (pistas del README).
+    private static final double PESO_MODELO = 0.5;
 
     // RN-16: sin candidatas se dice con claridad.
     static final String SIN_APUESTA = "Hoy no hay apuesta del día: ninguna apuesta supera los umbrales. No apostar también es una decisión.";
@@ -96,9 +100,11 @@ public class ApuestaDelDiaService {
     }
 
     /**
-     * RN-06: por cada partido PROGRAMADO del día, compara las cuotas de bet365 y Betano con la probabilidad del modelo.
-     * Son candidatas las de cuota entre 1.50 y 2.60, probabilidad ≥ 0.42, EV ≥ 0.03 y al menos 5 partidos de muestra por
-     * equipo. Un partido sin datos para el modelo se salta; si un servicio no responde, 503 (RN-APU-04).
+     * RN-06: por cada partido PROGRAMADO del día, compara las cuotas de bet365 y Betano con una probabilidad que mezcla
+     * al 50 % el modelo y el mercado sin margen de la misma casa. El modelo solo se toma muy en serio las rachas de 10
+     * partidos; el mercado lo modera. Son candidatas las de cuota entre 1.50 y 2.60, probabilidad ≥ 0.42, EV ≥ 0.03 y
+     * al menos 5 partidos de muestra por equipo. Sin el mercado completo de esa casa no hay con qué contrastar al modelo, y
+     * la cuota no es candidata. Un partido sin datos para el modelo se salta; si un servicio no responde, 503 (RN-APU-04).
      */
     private List<Pick> candidatas(LocalDate dia) {
         List<Pick> candidatas = new ArrayList<>();
@@ -109,20 +115,47 @@ public class ApuestaDelDiaService {
                     || prediccion.get().muestra().partidosVisitante() < MUESTRA_MINIMA) {
                 continue;
             }
-            for (CuotaMercadoDTO cuota : Remoto.llamar("ms-cuotas", partido.id(), () -> cuotas.cuotas(partido.id()))) {
+            List<CuotaMercadoDTO> delPartido = Remoto.llamar("ms-cuotas", partido.id(), () -> cuotas.cuotas(partido.id()));
+            for (CuotaMercadoDTO cuota : delPartido) {
                 if (!CASAS.contains(cuota.casa()) || cuota.valor().compareTo(CUOTA_MINIMA) < 0 || cuota.valor().compareTo(CUOTA_MAXIMA) > 0) {
                     continue;
                 }
+                Double delMercado = sinMargen(delPartido, cuota);
+                if (delMercado == null) {
+                    continue;
+                }
                 ValorService.buscar(prediccion.get(), cuota.mercado(), cuota.seleccion(), cuota.linea()).ifPresent(mercado -> {
-                    ValorService.Valor valor = ValorService.evaluar(mercado.probabilidad(), cuota.valor().doubleValue());
-                    if (mercado.probabilidad() >= PROBABILIDAD_MINIMA && valor.valorEsperado() >= VALOR_MINIMO) {
+                    double probabilidad = Math.round((PESO_MODELO * mercado.probabilidad() + (1 - PESO_MODELO) * delMercado) * 1000) / 1000.0;
+                    ValorService.Valor valor = ValorService.evaluar(probabilidad, cuota.valor().doubleValue());
+                    if (probabilidad >= PROBABILIDAD_MINIMA && valor.valorEsperado() >= VALOR_MINIMO) {
                         candidatas.add(new Pick(dia, partido.id(), partido.descripcion(), cuota.mercado(), cuota.seleccion(), cuota.linea(),
-                                cuota.casa(), cuota.valor(), mercado.probabilidad(), valor.valorEsperado(), valor.stakePct()));
+                                cuota.casa(), cuota.valor(), probabilidad, valor.valorEsperado(), valor.stakePct()));
                     }
                 });
             }
         }
         return candidatas;
+    }
+
+    /**
+     * RN-02 con las cuotas de la misma casa, mercado y línea: p = (1 / cuota) / Σ (1 / cuota) de todas sus selecciones.
+     * Es la misma cuenta que ms-cuotas en /probabilidades-mercado, hecha aquí para no pedir otra vez las cuotas que ya se
+     * tienen. null si a esa casa le falta alguna selección del mercado.
+     */
+    static Double sinMargen(List<CuotaMercadoDTO> delPartido, CuotaMercadoDTO cuota) {
+        Map<String, Double> inversas = new HashMap<>();
+        for (CuotaMercadoDTO otra : delPartido) {
+            boolean mismaLinea = cuota.linea() == null ? otra.linea() == null : otra.linea() != null && otra.linea().compareTo(cuota.linea()) == 0;
+            if (otra.casa().equals(cuota.casa()) && otra.mercado().equals(cuota.mercado()) && mismaLinea) {
+                inversas.put(otra.seleccion(), 1 / otra.valor().doubleValue());
+            }
+        }
+        List<String> selecciones = Mercados.selecciones(cuota.mercado(), cuota.linea());
+        if (!inversas.keySet().containsAll(selecciones)) {
+            return null;
+        }
+        double suma = selecciones.stream().mapToDouble(inversas::get).sum();
+        return inversas.get(cuota.seleccion()) / suma;
     }
 
     // La predicción del partido, o vacío si no existe o si el modelo aún no tiene datos. Si ms-predicciones no responde, 503.

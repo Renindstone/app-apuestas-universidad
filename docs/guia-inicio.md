@@ -25,10 +25,10 @@ cp .env.example .env
 ```
 
 ```bash
-docker compose -f infra/docker-compose.yml --env-file .env up -d
+docker compose -f infra/docker-compose.yml --env-file .env up -d postgres
 ```
 
-Esto levanta PostgreSQL 16 en `localhost:5441` con las 6 bases de datos ya creadas. Para verlas en DBeaver: host `localhost`, puerto `5441`, usuario y contraseña los del `.env`.
+Esto levanta solo PostgreSQL 16 en `localhost:5441` con las 6 bases de datos ya creadas. Para verlas en DBeaver: host `localhost`, puerto `5441`, usuario y contraseña los del `.env`.
 
 ## 3. Crear cada servicio con Spring Initializr
 
@@ -121,6 +121,19 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
 En el `docker-compose.yml` completo, cada servicio recibe `EUREKA_URL=http://discovery-server:8761/eureka`, `DB_HOST=postgres` y `DB_PORT=5432`, y depende (`depends_on`) de `postgres` y `discovery-server`.
+
+### Levantar todo con Docker
+
+```bash
+docker compose -f infra/docker-compose.yml --env-file .env up -d --build
+```
+
+- La primera vez tarda varios minutos, porque cada imagen descarga Maven y sus dependencias.
+- **Direcciones:** la web queda en http://localhost:8090, el gateway en http://localhost:8080 y el panel de Eureka en http://localhost:8761.
+- **Arranque:** los servicios tardan medio minuto en verse entre sí, que es lo que tarda Eureka en repartir el registro.
+- **Ingesta:** para cargar datos, entra a la web como `admin` (con la clave `ADMIN_PASSWORD` del `.env`). En **Ingesta**, ejecuta HISTORICO y luego PROXIMOS. Sin internet, pon `INGESTA_USAR_MUESTRAS=true` en el `.env`: así se usan las copias de `ms-ingesta/src/main/resources/muestras/`.
+- **Memoria:** cada JVM tiene un tope de 384 MB, unos 5 GB en total. Se puede cambiar con `JAVA_OPCIONES` en el `.env`.
+- **Apagar:** `docker compose -f infra/docker-compose.yml down` apaga todo; con `-v` también borra los datos de PostgreSQL.
 
 ## 8. Flujo de Git
 

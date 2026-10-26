@@ -36,7 +36,7 @@ Si no se pasa `fecha`, toma el día de hoy en Lima. Si ya hay apuesta del día g
 **Algoritmo:**
 1. Pedir a `ms-catalogo` los partidos `PROGRAMADO` de la fecha.
 2. Para cada uno, pedir la predicción a `ms-predicciones` y las cuotas de **bet365 y betano** a `ms-cuotas`. Pinnacle no se usa porque el equipo apuesta en bet365 y Betano.
-3. Calcular el EV de cada cuota con la probabilidad de su mercado, selección y línea.
+3. Calcular el EV de cada cuota con una probabilidad que mezcla el modelo y el mercado: `p = 0.5 × p_modelo + 0.5 × p_mercado`, donde `p_mercado` es la probabilidad sin margen (RN-02) de la misma casa, mercado y línea. Si a esa casa le falta una selección del mercado, la cuota no es candidata.
 4. Son candidatas las que cumplen: cuota entre 1.50 y 2.60, probabilidad ≥ 0.42, EV ≥ 0.03, y al menos 5 partidos de muestra por equipo.
 5. Guardar todas las candidatas como `pick`. La de mayor EV se marca con `PicEsApuestaDelDia = true`.
 
@@ -138,9 +138,9 @@ Este servicio implementa las reglas generales RN-03 a RN-07 (valor esperado, ver
 - `GET /mis-apuestas` acepta `estado` como opcional (sin él, devuelve todas). Sin la cabecera `X-Usuario-Id` responde 401. `porMercado` va en orden alfabético.
 - Se pueden registrar apuestas de partidos ya jugados, como pide la prueba CN-09; se liquidan en la siguiente liquidación.
 
-**Honestidad (RN-15):** con datos reales, la apuesta del día suele salir con EV de 20–30 %. No es valor real: es el modelo, que se toma muy en serio la racha de 10 partidos de un equipo. Por ejemplo, el Union Berlin recibió 2.9 goles por partido fuera, y el modelo le da 0.72 al Augsburg cuando bet365, sin margen, le da 0.52. La mejora opcional de las pistas (mezclar con el mercado) atenuaría esto, pero ya no hay Pinnacle desde enero de 2026; se podría usar bet365 sin margen.
+**Honestidad (RN-15):** solo con el modelo, la apuesta del día salía con EV de 20–30 %. No era valor real: el modelo se toma muy en serio la racha de 10 partidos de un equipo. Por ejemplo, el Union Berlin recibió 2.9 goles por partido fuera, y el modelo le daba 0.72 al Augsburg cuando bet365, sin margen, le da 0.52. Por eso la apuesta del día mezcla el modelo con el mercado (paso 3). Como Pinnacle dejó de publicarse en enero de 2026, se usa el mercado sin margen de la misma casa. Esa mitad del mercado resta el margen de la casa, así que para salir candidata el modelo tiene que ver bastante más valor que el umbral. `POST /evaluaciones` sigue usando solo el modelo, porque RN-APU-01 exige que funcione aunque ms-cuotas no responda. Por eso la probabilidad del pick y la de una evaluación de la misma cuota pueden ser distintas.
 
 ## Pistas
 
-- **Mejora opcional (si sobra tiempo):** combinar el modelo con el mercado, `p = 0.5 × p_modelo + 0.5 × p_pinnacle`, usando `GET /partidos/{id}/probabilidades-mercado?casa=pinnacle`. La rama `main` encontró que el mercado afilado (Pinnacle) predice mejor que un modelo propio, y que la combinación mejora al modelo solo.
+- **Mejora aplicada en la apuesta del día** (paso 3), con el mercado sin margen de la misma casa porque ya no hay Pinnacle. La idea original: combinar el modelo con el mercado, `p = 0.5 × p_modelo + 0.5 × p_pinnacle`, usando `GET /partidos/{id}/probabilidades-mercado?casa=pinnacle`. La rama `main` encontró que el mercado afilado (Pinnacle) predice mejor que un modelo propio, y que la combinación mejora al modelo solo.
 - Si `ms-cuotas` no responde, la evaluación manual (`POST /evaluaciones`) sigue funcionando, porque la cuota la manda el usuario. Solo la apuesta del día devuelve 503.

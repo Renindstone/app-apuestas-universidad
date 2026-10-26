@@ -107,18 +107,29 @@ class ApuestasTest {
     }
 
     /**
-     * Hoy se juegan el partido 1532, con 10 partidos de muestra, y el 1533, con solo 4. Las cuotas del 1532:
-     * GOLES MAS 2.5 en bet365 a 2.00 (p 0.531, EV 0.062) y 1X2 LOCAL en betano a 2.10 (p 0.50, EV 0.05) son candidatas.
-     * No lo son: la de Pinnacle (no se usa), la de 1.40 (cuota baja), la de p 0.41 (probabilidad baja) y la de EV 0.02.
+     * Hoy se juegan el partido 1532, con 10 partidos de muestra, y el 1533, con solo 4. La probabilidad de cada cuota mezcla
+     * al 50 % el modelo y el mercado sin margen de la misma casa. Del 1532 son candidatas:
+     * - GOLES MAS 2.5 en bet365 a 2.00: modelo 0.70, mercado 0.474 (2.00 / 1.80), mezcla 0.587 y EV 0.174.
+     * - 1X2 LOCAL en betano a 2.10: modelo 0.62, mercado 0.454 (2.10 / 3.40 / 3.60), mezcla 0.537 y EV 0.128.
+     * No lo son: Pinnacle (no se usa), 1X2 de bet365 (cuotas fuera de 1.50–2.60), AMBOS_MARCAN SI (EV 0.05 pero
+     * probabilidad 0.404), CORNERS 9.5 (EV negativo) y CORNERS MAS 10.5 (sin MENOS no hay mercado con qué contrastar).
      */
     private void hoySeJuegan() {
         doReturn(List.of(partido(1532L, null, null), partido(1533L, null, null))).when(catalogo).partidos(HOY, "PROGRAMADO");
-        doReturn(prediccion(1532L, 10, mercado("GOLES", "MAS", 2.5, 0.531), mercado("1X2", "LOCAL", null, 0.50),
-                mercado("1X2", "VISITA", null, 0.25), mercado("AMBOS_MARCAN", "SI", null, 0.41), mercado("CORNERS", "MAS", 9.5, 0.51)))
+        doReturn(prediccion(1532L, 10, mercado("1X2", "LOCAL", null, 0.62), mercado("1X2", "EMPATE", null, 0.20),
+                mercado("1X2", "VISITA", null, 0.18), mercado("GOLES", "MAS", 2.5, 0.70), mercado("GOLES", "MENOS", 2.5, 0.30),
+                mercado("AMBOS_MARCAN", "SI", null, 0.45), mercado("AMBOS_MARCAN", "NO", null, 0.55),
+                mercado("CORNERS", "MAS", 9.5, 0.52), mercado("CORNERS", "MENOS", 9.5, 0.48), mercado("CORNERS", "MAS", 10.5, 0.45)))
                 .when(predicciones).prediccion(1532L);
-        doReturn(List.of(cuota("bet365", "GOLES", "MAS", "2.50", "2.00"), cuota("betano", "1X2", "LOCAL", null, "2.10"),
-                cuota("pinnacle", "GOLES", "MAS", "2.50", "2.20"), cuota("bet365", "1X2", "VISITA", null, "1.40"),
-                cuota("bet365", "AMBOS_MARCAN", "SI", null, "2.60"), cuota("bet365", "CORNERS", "MAS", "9.50", "2.00")))
+        doReturn(List.of(cuota("bet365", "GOLES", "MAS", "2.50", "2.00"), cuota("bet365", "GOLES", "MENOS", "2.50", "1.80"),
+                cuota("betano", "1X2", "LOCAL", null, "2.10"), cuota("betano", "1X2", "EMPATE", null, "3.40"),
+                cuota("betano", "1X2", "VISITA", null, "3.60"),
+                cuota("pinnacle", "GOLES", "MAS", "2.50", "2.20"), cuota("pinnacle", "GOLES", "MENOS", "2.50", "1.70"),
+                cuota("bet365", "1X2", "LOCAL", null, "1.40"), cuota("bet365", "1X2", "EMPATE", null, "4.50"),
+                cuota("bet365", "1X2", "VISITA", null, "7.00"),
+                cuota("bet365", "AMBOS_MARCAN", "SI", null, "2.60"), cuota("bet365", "AMBOS_MARCAN", "NO", null, "1.45"),
+                cuota("bet365", "CORNERS", "MAS", "9.50", "1.90"), cuota("bet365", "CORNERS", "MENOS", "9.50", "1.90"),
+                cuota("bet365", "CORNERS", "MAS", "10.50", "2.40")))
                 .when(cuotas).cuotas(1532L);
         doReturn(prediccion(1533L, 4, mercado("GOLES", "MAS", 2.5, 0.70))).when(predicciones).prediccion(1533L);
     }
@@ -181,7 +192,7 @@ class ApuestasTest {
 
     // ---------- Apuesta del día ----------
 
-    // RN-06 y RN-APU-03: gana la candidata de mayor EV; las demás se guardan y se cuentan; Pinnacle no se usa.
+    // RN-06 y RN-APU-03: gana la candidata de mayor EV, con la probabilidad mezclada; las demás se guardan y se cuentan.
     @Test
     void laApuestaDelDiaEsLaCandidataDeMayorValor() throws Exception {
         hoySeJuegan();
@@ -194,7 +205,8 @@ class ApuestasTest {
                 .andExpect(jsonPath("$.pick.linea").value(2.5))
                 .andExpect(jsonPath("$.pick.casa").value("bet365"))
                 .andExpect(jsonPath("$.pick.cuota").value(2.0))
-                .andExpect(jsonPath("$.pick.valorEsperado").value(0.062))
+                .andExpect(jsonPath("$.pick.probabilidad").value(0.587))
+                .andExpect(jsonPath("$.pick.valorEsperado").value(0.174))
                 .andExpect(jsonPath("$.otrasCandidatas").value(1))
                 .andExpect(jsonPath("$.mensaje").value(nullValue()));
         // El partido con 4 partidos de muestra no llega a pedir sus cuotas.

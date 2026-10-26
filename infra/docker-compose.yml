@@ -1,6 +1,33 @@
-# Infraestructura mínima para desarrollar desde el día 1: PostgreSQL con una base de datos por servicio.
-# El docker-compose completo (los 9 servicios + web-app) lo arma el Integrante 3 el domingo 25
-# siguiendo la sección 5.6 de docs/Documentacion.md.
+# Sistema completo (sección 5.6 de docs/Documentacion.md): PostgreSQL, Eureka, gateway, los 7 microservicios y la web,
+# todos en la red apuestas-net. Desde la raíz del repo, con el .env copiado de .env.example:
+#   Todo:          docker compose -f infra/docker-compose.yml --env-file .env up -d --build
+#   Solo la base:  docker compose -f infra/docker-compose.yml --env-file .env up -d postgres
+# La web queda en http://localhost:8090, el gateway en :8080 y el panel de Eureka en :8761.
+name: app-apuestas
+
+# Lo que comparten los servicios Java: se reinician si se caen y viven en la misma red.
+x-servicio: &servicio
+  restart: unless-stopped
+  networks: [apuestas-net]
+
+# Variables de los servicios con base de datos. Dentro de la red, PostgreSQL es postgres:5432.
+x-entorno-bd: &entorno-bd
+  EUREKA_URL: http://discovery-server:8761/eureka
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  POSTGRES_USER: ${POSTGRES_USER:-apuestas}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-apuestas_dev}
+  # Tope de memoria de cada JVM: 10 contenedores Java caben en unos 5 GB.
+  JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+
+# Los servicios con base de datos esperan a que PostgreSQL acepte conexiones. Eureka no hace falta esperarlo:
+# si aún no está, el cliente reintenta el registro solo.
+x-depende-de-bd: &depende-de-bd
+  postgres:
+    condition: service_healthy
+  discovery-server:
+    condition: service_started
+
 services:
   postgres:
     image: postgres:16
@@ -9,14 +36,111 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-apuestas}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-apuestas_dev}
     ports:
-      - "5441:5432"
+      - "5441:5432"   # solo para desarrollo (DBeaver y los servicios levantados desde el IDE)
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks: [apuestas-net]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-apuestas}"]
       interval: 5s
       retries: 10
+
+  discovery-server:
+    <<: *servicio
+    build: ../servicios/discovery-server
+    environment:
+      EUREKA_HOSTNAME: discovery-server
+      JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+    ports:
+      - "8761:8761"
+
+  api-gateway:
+    <<: *servicio
+    build: ../servicios/api-gateway
+    environment:
+      EUREKA_URL: http://discovery-server:8761/eureka
+      # La misma clave que ms-usuarios: con ella se firman y se validan los JWT.
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el .env (copia .env.example)}
+      # Origen que el navegador manda a la API (CORS, RN-GAT-05).
+      WEB_URL: http://localhost:8090
+      JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+    ports:
+      - "8080:8080"
+    depends_on:
+      discovery-server:
+        condition: service_started
+
+  ms-usuarios:
+    <<: *servicio
+    build: ../servicios/ms-usuarios
+    environment:
+      <<: *entorno-bd
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el .env (copia .env.example)}
+      # Sin ADMIN_PASSWORD (6 caracteres o más) no se crea el usuario admin.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    depends_on: *depende-de-bd
+
+  ms-catalogo:
+    <<: *servicio
+    build: ../servicios/ms-catalogo
+    environment: *entorno-bd
+    depends_on: *depende-de-bd
+
+  ms-ingesta:
+    <<: *servicio
+    build: ../servicios/ms-ingesta
+    environment:
+      <<: *entorno-bd
+      # true: lee las copias de src/main/resources/muestras/ en lugar de descargar de football-data.
+      INGESTA_USAR_MUESTRAS: ${INGESTA_USAR_MUESTRAS:-false}
+    depends_on: *depende-de-bd
+
+  ms-estadisticas:
+    <<: *servicio
+    build: ../servicios/ms-estadisticas
+    environment: *entorno-bd
+    depends_on: *depende-de-bd
+
+  ms-cuotas:
+    <<: *servicio
+    build: ../servicios/ms-cuotas
+    environment: *entorno-bd
+    depends_on: *depende-de-bd
+
+  # Sin base de datos: solo necesita Eureka para encontrar a ms-catalogo y ms-estadisticas.
+  ms-predicciones:
+    <<: *servicio
+    build: ../servicios/ms-predicciones
+    environment:
+      EUREKA_URL: http://discovery-server:8761/eureka
+      JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+    depends_on:
+      discovery-server:
+        condition: service_started
+
+  ms-apuestas:
+    <<: *servicio
+    build: ../servicios/ms-apuestas
+    environment: *entorno-bd
+    depends_on: *depende-de-bd
+
+  # La web solo habla con el gateway (RN-WEB-01), por su nombre dentro de la red.
+  web-app:
+    <<: *servicio
+    build: ../servicios/web-app
+    environment:
+      GATEWAY_URL: http://api-gateway:8080
+      JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+    ports:
+      - "8090:8090"
+    depends_on:
+      api-gateway:
+        condition: service_started
+
+networks:
+  apuestas-net:
+    name: apuestas-net
 
 volumes:
   pgdata:

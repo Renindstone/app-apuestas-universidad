@@ -52,7 +52,7 @@ Reglas generales que aplica: RN-12 (fechas), RN-15 (honestidad) y RN-16 (juego r
 - [x] Admin de la ingesta.
 - [x] Pie de página con el aviso «Solo para mayores de 18 años. Juega con responsabilidad.» (RN-WEB-07).
 - [x] Dockerfile.
-- [ ] Probarla contra el gateway real cuando estén los servicios.
+- [x] Probarla contra el gateway real cuando estén los servicios (25/10/2026: pasan las pruebas CN-01 a CN-09).
 
 ## Cómo está armada
 
@@ -80,4 +80,4 @@ cd servicios/web-app && ./mvnw spring-boot:run            # web en http://localh
 
 Cualquier usuario entra con una clave de 6 caracteres o más, y `admin` entra con rol ADMIN. El partido Liverpool – Brighton simula que `ms-cuotas` no responde.
 
-**Pendiente de confirmar con `ms-apuestas`:** el contrato no muestra el JSON de cada apuesta en `GET /mis-apuestas`. La web espera `id`, `partidoId`, `partido`, `mercado`, `seleccion`, `linea`, `casa`, `cuota`, `monto`, `fecha`, `resultado` y `ganancia` (`resultado` y `ganancia` en `null` mientras está pendiente), siguiendo la tabla `apuesta_usuario`.
+**Confirmado con `ms-apuestas`:** el contrato no muestra el JSON de cada apuesta en `GET /mis-apuestas`, pero `ms-apuestas` responde exactamente lo que la web espera: `id`, `partidoId`, `partido`, `mercado`, `seleccion`, `linea`, `casa`, `cuota`, `monto`, `fecha`, `resultado` y `ganancia` (`resultado` y `ganancia` en `null` mientras está pendiente), siguiendo la tabla `apuesta_usuario`.

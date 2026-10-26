@@ -52,7 +52,8 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 ## Arranque rápido
 
 ```bash
-cd infra && docker compose up -d     # PostgreSQL con las 6 bases de datos
+cp .env.example .env
+docker compose -f infra/docker-compose.yml --env-file .env up -d --build    # todo: web en http://localhost:8090
 ```
 
-Luego levanta `discovery-server` y los servicios desde el IDE o con `./mvnw spring-boot:run`. El detalle está en [docs/guia-inicio.md](docs/guia-inicio.md).
+Para desarrollar, levanta solo PostgreSQL (`... up -d postgres`) y luego `discovery-server` y los servicios desde el IDE o con `./mvnw spring-boot:run`. El detalle está en [docs/guia-inicio.md](docs/guia-inicio.md).
