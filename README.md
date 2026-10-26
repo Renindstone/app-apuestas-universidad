@@ -11,6 +11,7 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 | [docs/DocumentacionProyectoApuestas.docx](docs/DocumentacionProyectoApuestas.docx) | **Documento para entregar** (Word, con el diseño del plan de trabajo de PPP: portada con las franjas institucionales, títulos en Cambria y texto en Calibri; mantiene la estructura del proyecto MTC). |
 | [docs/Documentacion.md](docs/Documentacion.md) | Mismo contenido en Markdown (fuente para regenerar el Word) y documento del proyecto (perfil, análisis, reglas de negocio, arquitectura, BD, plan de la semana y pruebas), con la estructura del proyecto MTC |
 | [docs/guia-inicio.md](docs/guia-inicio.md) | Cómo crear cada servicio con Spring Initializr y cómo levantar todo |
+| [docs/guion-demo.md](docs/guion-demo.md) | Preparación y pasos de la demo del lunes 26, con los comandos y qué hacer si algo falla |
 | `servicios/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, reglas de negocio, tareas y pistas |
 
 ## Los 9 microservicios

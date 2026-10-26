@@ -662,7 +662,28 @@ Hay **una fila por equipo y partido**. Los promedios *a favor* de un equipo son 
 
 **Definición de terminado:** cada historia está terminada cuando su endpoint responde por el gateway, tiene al menos 2 pruebas unitarias, aparece en Swagger y está en la rama `universidad/microservicios`.
 
-_(Al final de la semana, completar con la retrospectiva: qué funcionó, qué se retrasó y por qué.)_
+### 7.1. Retrospectiva
+
+**Qué funcionó**
+
+- **Los contratos primero.** Cada servicio tenía su `README.md` con endpoints, JSON y reglas antes de escribir código. Así cada servicio se construyó y probó por separado, y al unirlos en el `docker-compose.yml` no hubo que cambiar ningún contrato.
+- **Un orden de construcción según las dependencias:** gateway, usuarios, catálogo, ingesta, estadísticas, cuotas, predicciones y apuestas. Cada servicio encontraba listos a los que llama por Feign, así que no hicieron falta los mocks de la «regla de oro».
+- **Pruebas en dos niveles.** Hay 96 pruebas unitarias y de integración en los 10 módulos, todas en verde, y las 9 pruebas de caja negra pasaron contra el sistema completo (sección 8).
+- **La resiliencia se cumplió:** si `ms-cuotas` cae, la web sigue mostrando las probabilidades con un aviso (CN-08), y la evaluación manual no depende de las cuotas (RN-APU-01).
+
+**Qué se retrasó y por qué**
+
+- **La implementación empezó el sábado 24 y no el martes 20.** Del lunes 19 al martes 20 se hicieron el replanteamiento, la documentación, los diagramas de flujo y la presentación. Los servicios y la web se programaron el sábado 24 y el domingo 25, por falta de tiempo del equipo entre semana. Para recuperar el retraso, el código se escribió con ayuda de un asistente de IA (Claude), servicio por servicio, y el equipo revisó cada entrega antes de pasar a la siguiente.
+- **Docker estuvo disponible recién el domingo 25 por la noche.** Hasta entonces, las pruebas de integración usaron un PostgreSQL temporal y los jar levantados a mano. Con Docker listo, el sistema completo se probó de punta a punta el mismo día.
+- **Cambios de diseño sobre la marcha:**
+  - Pinnacle dejó de publicar cuotas en enero de 2026. Por eso la apuesta del día compara contra el mercado sin margen de la misma casa (RN-06).
+  - Usado solo, el modelo daba apuestas del día con EV de 20–30 %, que no es valor real. Se mezcló al 50 % con el mercado (RN-15).
+  - Se quitaron los CSV de muestra: la ingesta ahora descarga los datos de football-data.co.uk.
+
+**Lecciones**
+
+- El usuario `admin` solo se crea si no existe (RN-USU-07). Si `ADMIN_PASSWORD` cambia en el `.env` después del primer arranque, el admin conserva la clave anterior. En ese caso hay que borrar el volumen (`down -v`) o cambiar la clave en la base de datos.
+- Con 10 JVM, el sistema necesita unos 5 GB de memoria. El tope de 384 MB por servicio (`JAVA_OPCIONES`) fue necesario para que todo cupiera en una laptop.
 
 ---
 
@@ -672,31 +693,35 @@ Cada integrante escribe las pruebas de caja blanca de sus servicios y ejecuta la
 
 ### 8.1. Caja blanca (cobertura de caminos)
 
-| ID | Método | Camino | Entrada | Salida esperada |
-|---|---|---|---|---|
-| CB-01 | `CsvFootballDataParser.parsear()` | A: fila completa | Fila E0 con fecha 24/10/2026 15:00 (hora de Londres) | `PartidoCsv` con hora UTC 14:00 y estadísticas llenas |
-| CB-02 | `CsvFootballDataParser.parsear()` | B: partido sin jugar (fixtures) | Fila sin FTHG/FTAG | Goles nulos y estado PROGRAMADO |
-| CB-03 | `PoissonService.matriz()` | A: λ válidos | λL = 1.5, λV = 1.1 | Las probabilidades de 1X2 suman 1 (± 0.001) |
-| CB-04 | `CuotaService.quitarMargen()` | B: cuota no válida | Cuotas [2.0, 0.9, 3.5] | `CuotaInvalidaException` |
-| CB-05 | `ValorService.evaluar()` | A: valor positivo | p = 0.50, cuota = 2.20 | Valor esperado 0.10 y stake ≤ 3 % |
-| CB-06 | `ValorService.evaluar()` | B: sin valor | p = 0.40, cuota = 2.20 | Valor esperado −0.12, stake 0 y veredicto SIN_VALOR |
-| CB-07 | `LiquidacionService.liquidar()` | A: más de 2.5 goles | Resultado 2-1, selección MAS, línea 2.5 | GANADA, ganancia = monto × (cuota − 1) |
-| CB-08 | `UsuarioService.registrar()` | B: correo duplicado | Correo ya existente | `UsuarioDuplicadoException`, sin guardar nada |
-| CB-09 | `JwtFilter` (gateway) | B: token vencido | JWT con `exp` en el pasado | 401 y la petición no llega al servicio |
+| ID | Método | Camino | Entrada | Salida esperada | Resultado (25/10/2026) |
+|---|---|---|---|---|---|
+| CB-01 | `CsvFootballDataParser.parsear()` | A: fila completa | Fila E0 con fecha 24/10/2026 15:00 (hora de Londres) | `PartidoCsv` con hora UTC 14:00 y estadísticas llenas | Pasa (`CsvFootballDataParserTest`) |
+| CB-02 | `CsvFootballDataParser.parsear()` | B: partido sin jugar (fixtures) | Fila sin FTHG/FTAG | Goles nulos y estado PROGRAMADO | Pasa (`CsvFootballDataParserTest` y `ProcesadorIngestaTest`) |
+| CB-03 | `PoissonService.matriz()` | A: λ válidos | λL = 1.5, λV = 1.1 | Las probabilidades de 1X2 suman 1 (± 0.001) | Pasa (`PoissonServiceTest`) |
+| CB-04 | `CuotaService.quitarMargen()` | B: cuota no válida | Cuotas [2.0, 0.9, 3.5] | `CuotaInvalidaException` | Pasa (`CuotaServiceTest`) |
+| CB-05 | `ValorService.evaluar()` | A: valor positivo | p = 0.50, cuota = 2.20 | Valor esperado 0.10 y stake ≤ 3 % | Pasa (`ValorServiceTest`) |
+| CB-06 | `ValorService.evaluar()` | B: sin valor | p = 0.40, cuota = 2.20 | Valor esperado −0.12, stake 0 y veredicto SIN_VALOR | Pasa (`ValorServiceTest`) |
+| CB-07 | `LiquidacionService.liquidar()` | A: más de 2.5 goles | Resultado 2-1, selección MAS, línea 2.5 | GANADA, ganancia = monto × (cuota − 1) | Pasa (`LiquidacionServiceTest`) |
+| CB-08 | `UsuarioService.registrar()` | B: correo duplicado | Correo ya existente | `UsuarioDuplicadoException`, sin guardar nada | Pasa (`UsuarioServiceTest` y `FlujoUsuarioTest`) |
+| CB-09 | `JwtAuthFilter` (gateway) | B: token vencido | JWT con `exp` en el pasado | 401 y la petición no llega al servicio | Pasa (`JwtAuthFilterTest`) |
+
+Corrida del 25/10/2026: `./mvnw test` en los 10 módulos, con 96 pruebas, 0 fallos y 0 errores.
 
 ### 8.2. Caja negra
 
-| ID | Funcionalidad | Pasos | Resultado esperado |
-|---|---|---|---|
-| CN-01 | Registro e inicio de sesión | Registrarse y luego iniciar sesión | Recibe un token y entra al panel |
-| CN-02 | Acceso sin token | Llamar a `GET /api/apuestas/mis-apuestas` sin token | 401 |
-| CN-03 | Rol insuficiente | Un APOSTADOR llama a `POST /api/ingesta/ejecutar` | 403 |
-| CN-04 | Ruta interna bloqueada | `POST /api/catalogo/interno/partidos` desde fuera | 403 o 404, sin datos creados |
-| CN-05 | Ingesta manual | El ADMIN ejecuta la ingesta HISTORICO | La ejecución termina en OK con más de 0 filas y aparecen partidos en el catálogo |
-| CN-06 | Análisis de partido | Abrir un partido de la Premier | Muestra promedios, árbitro y probabilidades en menos de 2 s |
-| CN-07 | Apuesta del día sin candidatos | Fecha sin partidos | Mensaje "Hoy no hay apuesta del día" |
-| CN-08 | Servicio caído | Detener `ms-cuotas` y abrir un análisis | Se ven las probabilidades y el aviso "cuotas no disponibles", sin error 500 |
-| CN-09 | Rendimiento | Registrar 3 apuestas de partidos ya jugados y liquidar | Ganadas, perdidas y ROI correctos |
+Se ejecutaron el 25/10/2026 contra el `docker-compose.yml` completo, por el gateway (:8080) y la web (:8090).
+
+| ID | Funcionalidad | Pasos | Resultado esperado | Resultado obtenido |
+|---|---|---|---|---|
+| CN-01 | Registro e inicio de sesión | Registrarse y luego iniciar sesión | Recibe un token y entra al panel | Pasa: registro 201 con rol APOSTADOR, login 200 con token y la web redirige al panel |
+| CN-02 | Acceso sin token | Llamar a `GET /api/apuestas/mis-apuestas` sin token | 401 | Pasa: 401 |
+| CN-03 | Rol insuficiente | Un APOSTADOR llama a `POST /api/ingesta/ejecutar` | 403 | Pasa: 403 |
+| CN-04 | Ruta interna bloqueada | `POST /api/catalogo/interno/partidos` desde fuera | 403 o 404, sin datos creados | Pasa: 403 con token y sin él; el catálogo siguió con 1308 partidos |
+| CN-05 | Ingesta manual | El ADMIN ejecuta la ingesta HISTORICO | La ejecución termina en OK con más de 0 filas y aparecen partidos en el catálogo | Pasa: 6 archivos (3 ligas × 2 temporadas) en OK, 1279 filas en 24 s y 1308 partidos en el catálogo |
+| CN-06 | Análisis de partido | Abrir un partido de la Premier | Muestra promedios, árbitro y probabilidades en menos de 2 s | Pasa: Ipswich vs Nott'm Forest con árbitro, goles esperados, matriz de marcadores y promedios, en 0.07 s |
+| CN-07 | Apuesta del día sin candidatos | Fecha sin partidos | Mensaje "Hoy no hay apuesta del día" | Pasa: con la fecha 15/07/2026 responde "Hoy no hay apuesta del día: ninguna apuesta supera los umbrales…" |
+| CN-08 | Servicio caído | Detener `ms-cuotas` y abrir un análisis | Se ven las probabilidades y el aviso "cuotas no disponibles", sin error 500 | Pasa: la página responde 200 con las probabilidades y el aviso "Cuotas no disponibles por ahora" |
+| CN-09 | Rendimiento | Registrar 3 apuestas de partidos ya jugados y liquidar | Ganadas, perdidas y ROI correctos | Pasa: 3 apuestas a LOCAL con cuota 2.00 y 10 de monto (1-1, 0-1 y 3-1) dan 1 ganada, 2 perdidas, beneficio −10 y ROI −33.3 % |
 
 ---
 
