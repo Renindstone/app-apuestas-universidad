@@ -4,12 +4,13 @@ Unos 12 minutos. Todos los comandos se corren desde la raíz del repositorio.
 
 ## Antes de la demo (la noche anterior o una hora antes)
 
+0. Usar la rama con el código completo: `git switch universidad/codigo-completo`. En `universidad/microservicios` los servicios están en esqueleto (ver [guia-paso-a-paso.md](guia-paso-a-paso.md)).
 1. Levantar todo:
    ```bash
    docker compose -f infra/docker-compose.yml --env-file .env up -d --build
    ```
 2. En el panel de Eureka (http://localhost:8761), revisar que aparezcan los 8 servicios en `UP`: el gateway y los 7 microservicios. Tardan medio minuto en registrarse.
-3. Entrar a la web (http://localhost:8090) como `admin`, con la clave `ADMIN_PASSWORD` del `.env`. Si dice «Usuario o contraseña incorrectos», el admin se creó con una clave anterior (ver la retrospectiva, sección 7.1). Hay dos salidas: usar la clave antigua, o hacer `down -v` y levantar todo de nuevo, lo que **borra los datos**.
+3. Entrar a la web (http://localhost:8090) como `admin`, con la clave `ADMIN_PASSWORD` del `.env`. Si dice «Usuario o contraseña incorrectos», el admin se creó con una clave anterior (ver la retrospectiva, sección 7.1). La salida que conserva los datos: borrar en DBeaver la fila `admin` de la tabla `usuario` (`usuarios_db`) y reiniciar `ms-usuarios`, que lo crea de nuevo con la clave del `.env`. También se puede usar la clave antigua, o hacer `down -v` y levantar todo de nuevo, lo que **borra los datos**.
 4. En **Ingesta**, ejecutar HISTORICO y luego PROXIMOS. Hace falta internet, porque los CSV se descargan de football-data.co.uk. Las 6 ejecuciones de HISTORICO deben quedar en OK.
 5. Elegir de antemano un partido **PROGRAMADO de la Premier** (es la única liga con árbitro) y anotar su URL `/partidos/{id}`.
 6. Crear un usuario apostador para la demo, por ejemplo `demo`, o crearlo en vivo en el paso 2.

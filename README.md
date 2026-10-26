@@ -2,7 +2,7 @@
 
 Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del proyecto de la rama `main` como **9 microservicios** con Spring Boot y Spring Cloud. Lo construye un equipo de 3 personas en una semana, del martes 20 al lunes 26 de octubre de 2026.
 
-> La rama `main` no se toca: allí sigue el sistema completo en Python. Esta rama arranca vacía y el código lo escribe el equipo. Este repositorio trae la documentación, los contratos de API y la infraestructura mínima para empezar.
+> La rama `main` no se toca: allí sigue el sistema completo en Python. En `universidad/microservicios` los servicios vienen en **esqueleto**, con una guía paso a paso para construirlos; en `universidad/codigo-completo` está el código completo y probado. Ver [docs/guia-paso-a-paso.md](docs/guia-paso-a-paso.md).
 
 ## Documentos
 
@@ -11,8 +11,10 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 | [docs/DocumentacionProyectoApuestas.docx](docs/DocumentacionProyectoApuestas.docx) | **Documento para entregar** (Word, con el diseño del plan de trabajo de PPP: portada con las franjas institucionales, títulos en Cambria y texto en Calibri; mantiene la estructura del proyecto MTC). |
 | [docs/Documentacion.md](docs/Documentacion.md) | Mismo contenido en Markdown (fuente para regenerar el Word) y documento del proyecto (perfil, análisis, reglas de negocio, arquitectura, BD, plan de la semana y pruebas), con la estructura del proyecto MTC |
 | [docs/guia-inicio.md](docs/guia-inicio.md) | Cómo crear cada servicio con Spring Initializr y cómo levantar todo |
+| [docs/guia-paso-a-paso.md](docs/guia-paso-a-paso.md) | Las dos ramas, el orden para construir los servicios, cómo comparar con la solución y qué hacer si no alcanza el tiempo |
 | [docs/guion-demo.md](docs/guion-demo.md) | Preparación y pasos de la demo del lunes 26, con los comandos y qué hacer si algo falla |
 | `servicios/<integrante>/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, reglas de negocio, tareas y pistas |
+| `servicios/<integrante>/<servicio>/GUIA.md` | Pasos para construir el servicio, con pistas y la ruta de cada archivo en la solución |
 
 ## Los 9 microservicios
 

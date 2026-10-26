@@ -14,6 +14,7 @@ Proyecto universitario de un equipo de 3 personas: 9 microservicios con Spring B
 - `docs/Documentacion.md`: requerimientos, arquitectura, BD, plan de la semana y pruebas.
 - `servicios/<integrante>/<servicio>/README.md`: **contrato** de cada servicio (endpoints y JSON). Si el código y el contrato no coinciden, gana el contrato, salvo que el equipo decida cambiarlo.
 - `README.md`: convenciones comunes (mercados, errores, fechas y paquetes).
+- `docs/guia-paso-a-paso.md` y `servicios/<integrante>/<servicio>/GUIA.md`: cómo construir cada servicio. En `universidad/microservicios` los servicios están en esqueleto; la solución completa está en la rama `universidad/codigo-completo`.
 
 ## Convenciones
 
