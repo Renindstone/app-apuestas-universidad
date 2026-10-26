@@ -97,12 +97,12 @@ Reglas generales que aplica: RN-08 (factor árbitro solo en la Premier), RN-09 (
 
 ## Tareas
 
-- [x] Mock del endpoint el día 1: ya no hace falta, el endpoint real está listo.
-- [x] `PoissonService`: `pmf`, matriz, 1X2, más/menos y ambos marcan (funciones estáticas, sin Spring).
-- [x] Función genérica `esperado(stat)` con suavizado, en `service/PrediccionService`.
-- [x] Clientes Feign (`client/CatalogoClient` y `client/EstadisticasClient`) y armado de la respuesta.
-- [x] Factor árbitro, córners y tarjetas.
-- [x] Pruebas: CB-03, λ = 1 → P(0) = 0.3679 y otras cuentas de Poisson (`PoissonServiceTest`). Además: equipos promedio, suavizado, equipo sin partidos, factor árbitro y errores 404/409/503 (`PrediccionTest`, con los servicios simulados).
+- [ ] Mock del endpoint el día 1: ya no hace falta, el endpoint real está listo.
+- [ ] `PoissonService`: `pmf`, matriz, 1X2, más/menos y ambos marcan (funciones estáticas, sin Spring).
+- [ ] Función genérica `esperado(stat)` con suavizado, en `service/PrediccionService`.
+- [ ] Clientes Feign (`client/CatalogoClient` y `client/EstadisticasClient`) y armado de la respuesta.
+- [ ] Factor árbitro, córners y tarjetas.
+- [ ] Pruebas: CB-03, λ = 1 → P(0) = 0.3679 y otras cuentas de Poisson (`PoissonServiceTest`). Además: equipos promedio, suavizado, equipo sin partidos, factor árbitro y errores 404/409/503 (`PrediccionTest`, con los servicios simulados).
 - [x] Dockerfile.
 
 **Detalles del contrato:**

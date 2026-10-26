@@ -117,12 +117,12 @@ Este servicio implementa las reglas generales RN-03 a RN-07 (valor esperado, ver
 
 ## Tareas
 
-- [x] Entidades `Pick` y `ApuestaUsuario` (sección 6.6).
-- [x] `ValorService.evaluar()` y `POST /evaluaciones`.
-- [x] Apuesta del día y su `@Scheduled` (`service/ApuestaDelDiaService`).
-- [x] Mis apuestas y rendimiento (`service/MisApuestasService`).
-- [x] Liquidación (`service/LiquidacionService`).
-- [x] Pruebas: CB-05 y CB-06 (`ValorServiceTest`), CB-07 y la tabla de liquidación completa (`LiquidacionServiceTest`). También la apuesta del día, el historial, la liquidación y que el rendimiento solo muestra las apuestas del usuario del token (`ApuestasTest`, con H2 y los 4 servicios simulados).
+- [ ] Entidades `Pick` y `ApuestaUsuario` (sección 6.6).
+- [ ] `ValorService.evaluar()` y `POST /evaluaciones`.
+- [ ] Apuesta del día y su `@Scheduled` (`service/ApuestaDelDiaService`).
+- [ ] Mis apuestas y rendimiento (`service/MisApuestasService`).
+- [ ] Liquidación (`service/LiquidacionService`).
+- [ ] Pruebas: CB-05 y CB-06 (`ValorServiceTest`), CB-07 y la tabla de liquidación completa (`LiquidacionServiceTest`). También la apuesta del día, el historial, la liquidación y que el rendimiento solo muestra las apuestas del usuario del token (`ApuestasTest`, con H2 y los 4 servicios simulados).
 - [x] Dockerfile.
 
 **Detalles del contrato:**

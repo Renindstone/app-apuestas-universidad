@@ -50,10 +50,10 @@ Reglas generales que aplica: RN-13 (roles) y RN-14 (privacidad).
 
 ## Tareas
 
-- [x] Rutas hacia los 7 servicios (`config/RutasConfig`).
-- [x] `JwtAuthFilter` con las 6 reglas (`seguridad/`). CORS en `config/CorsConfig`.
-- [x] Respuesta de error en JSON `{"error":"NO_AUTORIZADO","detalle":"..."}`, también cuando un servicio está caído (`error/ManejadorErroresGateway`: 503 `SERVICIO_NO_DISPONIBLE`).
-- [x] Pruebas: CB-09 (token vencido), CN-02, CN-03 y CN-04 (`JwtAuthFilterTest`).
+- [ ] Rutas hacia los 7 servicios (`config/RutasConfig`).
+- [ ] `JwtAuthFilter` con las 6 reglas (`seguridad/`). CORS en `config/CorsConfig`.
+- [ ] Respuesta de error en JSON `{"error":"NO_AUTORIZADO","detalle":"..."}`, también cuando un servicio está caído (`error/ManejadorErroresGateway`: 503 `SERVICIO_NO_DISPONIBLE`).
+- [ ] Pruebas: CB-09 (token vencido), CN-02, CN-03 y CN-04 (`JwtAuthFilterTest`).
 - [x] Dockerfile.
 
 **Variables de entorno:** `JWT_SECRET` (la misma de `ms-usuarios`, 32 caracteres o más; si es más corta, el gateway no arranca), `EUREKA_URL` y `WEB_URL` (por defecto `http://localhost:8090`). En local, sin `.env`, `JWT_SECRET` toma un valor de desarrollo que `ms-usuarios` también debe usar.

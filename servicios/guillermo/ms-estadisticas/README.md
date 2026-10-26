@@ -80,10 +80,10 @@ Reglas generales que aplica: RN-09 (tarjetas = amarillas + rojas) y RN-12 (fecha
 
 ## Tareas
 
-- [x] Entidad e índices (`entity/EstadisticaPartido`, con UNIQUE(EpaIdPartido, EpaIdEquipo)).
-- [x] Upsert interno (reenviar un partido actualiza sus 2 filas y no las duplica), en `service/EstadisticasService`.
-- [x] Promedios de equipo, liga y árbitro con consultas `AVG` en el repositorio (`repository/EstadisticaRepository`).
-- [x] Pruebas: los promedios en contra usan al rival, un equipo sin partidos devuelve `null`, últimos N por condición, liga por temporada, árbitro, 404 y validaciones (`EstadisticasTest`, con H2 en memoria).
+- [ ] Entidad e índices (`entity/EstadisticaPartido`, con UNIQUE(EpaIdPartido, EpaIdEquipo)).
+- [ ] Upsert interno (reenviar un partido actualiza sus 2 filas y no las duplica), en `service/EstadisticasService`.
+- [ ] Promedios de equipo, liga y árbitro con consultas `AVG` en el repositorio (`repository/EstadisticaRepository`).
+- [ ] Pruebas: los promedios en contra usan al rival, un equipo sin partidos devuelve `null`, últimos N por condición, liga por temporada, árbitro, 404 y validaciones (`EstadisticasTest`, con H2 en memoria).
 - [x] Dockerfile.
 
 **Detalles del contrato** (los usan `ms-predicciones` y `ms-apuestas`):

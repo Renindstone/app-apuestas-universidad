@@ -73,12 +73,12 @@ Este servicio implementa las reglas generales RN-01 (margen) y RN-02 (probabilid
 
 ## Tareas
 
-- [x] Entidad y repositorio (`entity/Cuota`, con `CHECK(CuoValor > 1)` e índice en `CuoIdPartido`). El mock del día 1 ya no hace falta: el endpoint real está listo.
-- [x] Upsert interno: se validan todas las cuotas antes de guardar, así una cuota mala no deja la mitad guardada.
-- [x] Consulta de la última cuota por selección.
-- [x] `CuotaService.quitarMargen()` y su endpoint. Los mercados válidos están en `service/Mercados`.
-- [x] Cuota manual con validación y Feign (`client/CatalogoClient`).
-- [x] Pruebas: CB-04 y el margen del ejemplo (`CuotaServiceTest`); upsert, filtro por casa, mercado incompleto, cuota manual (con ms-catalogo simulado) y validaciones (`CuotasTest`, con H2 en memoria).
+- [ ] Entidad y repositorio (`entity/Cuota`, con `CHECK(CuoValor > 1)` e índice en `CuoIdPartido`). El mock del día 1 ya no hace falta: el endpoint real está listo.
+- [ ] Upsert interno: se validan todas las cuotas antes de guardar, así una cuota mala no deja la mitad guardada.
+- [ ] Consulta de la última cuota por selección.
+- [ ] `CuotaService.quitarMargen()` y su endpoint. Los mercados válidos están en `service/Mercados`.
+- [ ] Cuota manual con validación y Feign (`client/CatalogoClient`).
+- [ ] Pruebas: CB-04 y el margen del ejemplo (`CuotaServiceTest`); upsert, filtro por casa, mercado incompleto, cuota manual (con ms-catalogo simulado) y validaciones (`CuotasTest`, con H2 en memoria).
 - [x] Dockerfile.
 
 **Detalles del contrato:**

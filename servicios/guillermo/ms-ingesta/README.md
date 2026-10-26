@@ -73,12 +73,12 @@ Reglas generales que aplica: RN-10 (ligas, temporadas y casas), RN-11 (origen de
 
 ## Tareas
 
-- [x] Cliente HTTP que descarga el CSV como texto (`service/DescargadorCsv`).
-- [x] `CsvFootballDataParser` que convierte una fila en un `PartidoCsv` (record con todo lo de la tabla).
-- [x] Clientes Feign hacia los 3 servicios.
-- [x] Orquestador con registro en `ejecucion_ingesta` (`service/ProcesadorIngesta`).
-- [x] Endpoints y `@Scheduled`.
-- [x] Pruebas: CB-01 (fila completa y hora de Londres a UTC) y CB-02 (fila sin jugar), con CSV pequeños en `src/test/resources/csv`.
+- [ ] Cliente HTTP que descarga el CSV como texto (`service/DescargadorCsv`).
+- [ ] `CsvFootballDataParser` que convierte una fila en un `PartidoCsv` (record con todo lo de la tabla).
+- [ ] Clientes Feign hacia los 3 servicios.
+- [ ] Orquestador con registro en `ejecucion_ingesta` (`service/ProcesadorIngesta`).
+- [ ] Endpoints y `@Scheduled`.
+- [ ] Pruebas: CB-01 (fila completa y hora de Londres a UTC) y CB-02 (fila sin jugar), con CSV pequeños en `src/test/resources/csv`.
 - [x] Dockerfile.
 
 **Pinnacle:** football-data dejó de publicar `PSH`/`PSD`/`PSA` y `P>2.5`/`P<2.5` en enero de 2026, a mitad de la temporada 2526. Solo los traen 549 de sus 1066 partidos, y ninguno de la 2627 ni de `fixtures.csv`. El parser se salta las celdas vacías, así que de la temporada actual solo se cargan cuotas de bet365.
