@@ -1,0 +1,5 @@
+# Configuración solo para las pruebas: sin Eureka (ms-catalogo y ms-estadisticas se simulan con Mockito).
+# Está en config/ para sumarse al application.yml principal (y ganarle) en lugar de reemplazarlo.
+eureka:
+  client:
+    enabled: false

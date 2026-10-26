@@ -87,7 +87,7 @@ Este servicio implementa las reglas generales RN-01 (margen) y RN-02 (probabilid
 - `POST /interno/cuotas` solo acepta `bet365` y `pinnacle`, y nunca el tipo `MANUAL`. `POST /cuotas/manual` solo acepta `betano` (RN-CUO-02).
 - `POST /cuotas/manual` responde 201 con la cuota guardada, en el mismo formato que `GET /partidos/{id}/cuotas`. Sin la cabecera `X-Usuario-Id`, responde 401 `NO_AUTORIZADO`. Si ms-catalogo no responde, 503 `SERVICIO_NO_DISPONIBLE`.
 - Una cuota manual de la misma selección y línea reemplaza a la anterior, aunque la cargue otro usuario.
-- **Pinnacle:** desde la temporada 2627, football-data ya no trae cuotas de Pinnacle (ver el README de `ms-ingesta`). Para los partidos actuales, `probabilidades-mercado?casa=pinnacle` responde 409.
+- **Pinnacle:** football-data dejó de publicar cuotas de Pinnacle en enero de 2026 (ver el README de `ms-ingesta`). Para los partidos actuales, `probabilidades-mercado?casa=pinnacle` responde 409.
 
 **Variables de entorno:** `DB_HOST`, `DB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD` y `EUREKA_URL`.
 

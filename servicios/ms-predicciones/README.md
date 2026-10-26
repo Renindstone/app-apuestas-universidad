@@ -97,13 +97,27 @@ Reglas generales que aplica: RN-08 (factor árbitro solo en la Premier), RN-09 (
 
 ## Tareas
 
-- [ ] Mock del endpoint el día 1, para que `ms-apuestas` y la web puedan avanzar.
-- [ ] `PoissonService`: `pmf`, matriz, 1X2, más/menos y ambos marcan.
-- [ ] Función genérica `esperado(stat)` con suavizado.
-- [ ] Clientes Feign y armado de la respuesta.
-- [ ] Factor árbitro, córners y tarjetas.
-- [ ] Pruebas: CB-03 (el 1X2 suma 1) y un caso con λ conocidos (λ = 1 → P(0) = 0.3679).
-- [ ] Dockerfile.
+- [x] Mock del endpoint el día 1: ya no hace falta, el endpoint real está listo.
+- [x] `PoissonService`: `pmf`, matriz, 1X2, más/menos y ambos marcan (funciones estáticas, sin Spring).
+- [x] Función genérica `esperado(stat)` con suavizado, en `service/PrediccionService`.
+- [x] Clientes Feign (`client/CatalogoClient` y `client/EstadisticasClient`) y armado de la respuesta.
+- [x] Factor árbitro, córners y tarjetas.
+- [x] Pruebas: CB-03, λ = 1 → P(0) = 0.3679 y otras cuentas de Poisson (`PoissonServiceTest`). Además: equipos promedio, suavizado, equipo sin partidos, factor árbitro y errores 404/409/503 (`PrediccionTest`, con los servicios simulados).
+- [x] Dockerfile.
+
+**Detalles del contrato:**
+
+- `probabilidad` va con 3 decimales, `cuotaJusta` con 2, y los `esperados` y `factorArbitro` también con 2. `corners`, `tarjetas` y `tiros` son el total de los dos equipos, y `tarjetas` ya incluye el factor árbitro.
+- Errores:
+  - 404 `PARTIDO_NO_ENCONTRADO` si el partido no existe.
+  - 503 `SERVICIO_NO_DISPONIBLE` si ms-catalogo o ms-estadisticas no responden.
+  - 409 `SIN_DATOS` si la liga aún no tiene partidos jugados (sin datos no hay μ).
+- Un equipo sin partidos se toma como la media de la liga (todos sus factores valen 1). Un árbitro sin partidos en los datos tiene factor 1.
+- `explicacion` trae, en este orden:
+  - una frase por equipo y una del árbitro;
+  - un aviso si un equipo tiene menos de 5 partidos de muestra;
+  - al final, el recordatorio de que el modelo es didáctico (RN-15).
+- El modelo no filtra por fecha: para un partido ya jugado, sus propios datos entran en los promedios. Sirve para mirar, no para medir el acierto del modelo.
 
 ## Pistas
 
