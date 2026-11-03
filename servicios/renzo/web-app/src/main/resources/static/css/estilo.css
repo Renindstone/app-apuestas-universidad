@@ -23,9 +23,10 @@
 /* Pestañas de login y registro */
 .nav-tabs {
   gap: .75rem;
+  border-bottom: 1px solid var(--linea);
 }
 .nav-tabs .nav-link {
-  padding: .5rem 1rem !important;
+  padding: .5rem 1.25rem !important;
 }
 
 /* Menú */
