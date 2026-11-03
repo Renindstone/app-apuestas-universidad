@@ -45,6 +45,8 @@ Reglas específicas de este servicio, con el mismo código que en la [sección 4
 | RN-GAT-03 | Ninguna ruta `/interno/**` se atiende desde fuera: responde 403 sin reenviar la petición. | RNF-03 · CN-04 |
 | RN-GAT-04 | Las cabeceras `X-Usuario-Id` y `X-Usuario-Rol` que mande el cliente se borran y se reemplazan por las del token, para que nadie pueda suplantar a otro usuario. | RN-14 |
 | RN-GAT-05 | Solo la web (`http://localhost:8090`) puede llamar a la API desde un navegador (CORS). | RNF-03 |
+| RN-GAT-06 | `GET /estado` (lo atiende el gateway, sin token) devuelve cuántas instancias de cada servicio hay en Eureka: `[{"servicio":"ms-cuotas","instancias":2}]`. La web lo usa para avisar qué servicio está apagado. | RNF-04 |
+| RN-GAT-07 | Los GET se reintentan 2 veces si una instancia no responde, y el balanceador los manda a otra instancia. Los POST, PUT y DELETE no se reintentan. | RNF-04 |
 
 Reglas generales que aplica: RN-13 (roles) y RN-14 (privacidad).
 

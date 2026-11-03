@@ -8,6 +8,13 @@ spring:
     gateway:
       server:
         webflux:
+          # Si una instancia de un servicio está caída (conexión rechazada), el GET se reintenta y el balanceador
+          # lo manda a otra instancia. Con una sola instancia, el reintento falla igual y llega el 503.
+          default-filters:
+            - name: Retry
+              args:
+                retries: 2
+                methods: GET
           httpclient:
             # Si un servicio no acepta la conexión en 2 s o no responde en 10 s, se corta (RNF-04).
             connect-timeout: 2000

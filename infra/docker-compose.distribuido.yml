@@ -1,0 +1,124 @@
+# Los mismos servicios repartidos en varias computadoras (prueba de tolerancia a fallos). Guía: infra/DISTRIBUIDO.md.
+# En cada máquina se levantan solo los servicios que le tocan, por ejemplo:
+#   docker compose -f infra/docker-compose.distribuido.yml --env-file .env up -d --build ms-cuotas ms-predicciones
+# Diferencias con docker-compose.yml: Eureka, PostgreSQL y el gateway se buscan por la IP de su máquina (variables del .env),
+# cada servicio publica su puerto y se registra en Eureka con la IP de SU máquina, para que los de otras máquinas lo encuentren.
+# Un mismo servicio puede correr en dos máquinas a la vez: Eureka registra las dos instancias y el gateway reparte entre ellas.
+name: app-apuestas
+
+x-servicio: &servicio
+  restart: unless-stopped
+
+x-entorno: &entorno
+  EUREKA_URL: http://${IP_EUREKA:?Falta IP_EUREKA en el .env}:8761/eureka
+  # La dirección que se anuncia en Eureka: la de ESTA máquina, no la interna de Docker.
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+  EUREKA_INSTANCE_IP_ADDRESS: ${IP_ESTA_MAQUINA:?Falta IP_ESTA_MAQUINA en el .env}
+  EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: "5"
+  EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS: "10"
+  JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+
+x-entorno-bd: &entorno-bd
+  <<: *entorno
+  DB_HOST: ${IP_POSTGRES:?Falta IP_POSTGRES en el .env}
+  DB_PORT: "5441"
+  POSTGRES_USER: ${POSTGRES_USER:-apuestas}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-apuestas_dev}
+
+services:
+  # Máquina que tenga la base de datos (normalmente la A).
+  postgres:
+    <<: *servicio
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-apuestas}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-apuestas_dev}
+    ports:
+      - "5441:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+
+  # Solo una máquina, la que tenga IP_EUREKA.
+  discovery-server:
+    <<: *servicio
+    build: ../servicios/renzo/discovery-server
+    environment:
+      EUREKA_HOSTNAME: ${IP_EUREKA}
+      JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+    ports:
+      - "8761:8761"
+
+  api-gateway:
+    <<: *servicio
+    build: ../servicios/renzo/api-gateway
+    environment:
+      <<: *entorno
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el .env (copia .env.example)}
+      WEB_URL: http://${IP_WEB:-localhost}:8090
+    ports:
+      - "8080:8080"
+
+  ms-usuarios:
+    <<: *servicio
+    build: ../servicios/renzo/ms-usuarios
+    environment:
+      <<: *entorno-bd
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en el .env (copia .env.example)}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    ports:
+      - "8081:8081"
+
+  ms-catalogo:
+    <<: *servicio
+    build: ../servicios/guillermo/ms-catalogo
+    environment: *entorno-bd
+    ports:
+      - "8082:8082"
+
+  ms-ingesta:
+    <<: *servicio
+    build: ../servicios/guillermo/ms-ingesta
+    environment: *entorno-bd
+    ports:
+      - "8083:8083"
+
+  ms-estadisticas:
+    <<: *servicio
+    build: ../servicios/guillermo/ms-estadisticas
+    environment: *entorno-bd
+    ports:
+      - "8084:8084"
+
+  ms-cuotas:
+    <<: *servicio
+    build: ../servicios/joseph/ms-cuotas
+    environment: *entorno-bd
+    ports:
+      - "8085:8085"
+
+  ms-predicciones:
+    <<: *servicio
+    build: ../servicios/joseph/ms-predicciones
+    environment: *entorno
+    ports:
+      - "8086:8086"
+
+  ms-apuestas:
+    <<: *servicio
+    build: ../servicios/joseph/ms-apuestas
+    environment: *entorno-bd
+    ports:
+      - "8087:8087"
+
+  web-app:
+    <<: *servicio
+    build: ../servicios/renzo/web-app
+    environment:
+      GATEWAY_URL: http://${IP_GATEWAY:?Falta IP_GATEWAY en el .env}:8080
+      JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+    ports:
+      - "8090:8090"
+
+volumes:
+  pgdata:

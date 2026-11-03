@@ -1,6 +1,7 @@
 package pe.edu.unu.apuestas.gateway.config;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -26,6 +27,11 @@ public class RutasConfig {
         SERVICIOS.put("cuotas", "ms-cuotas");
         SERVICIOS.put("predicciones", "ms-predicciones");
         SERVICIOS.put("apuestas", "ms-apuestas");
+    }
+
+    // Los nombres de los 7 servicios en Eureka. Los usa también el endpoint /estado.
+    public static List<String> servicios() {
+        return List.copyOf(SERVICIOS.values());
     }
 
     // lb://ms-catalogo: Eureka da la dirección del servicio y el balanceador elige una instancia.

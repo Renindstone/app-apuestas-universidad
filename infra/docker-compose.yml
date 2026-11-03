@@ -19,6 +19,9 @@ x-entorno-bd: &entorno-bd
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-apuestas_dev}
   # Tope de memoria de cada JVM: 10 contenedores Java caben en unos 5 GB.
   JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+  # Latido cada 5 s y se da por caído a los 10 s (por defecto serían 30 s y 90 s): si se apaga una instancia, Eureka la saca pronto.
+  EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: "5"
+  EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS: "10"
 
 # Los servicios con base de datos esperan a que PostgreSQL acepte conexiones. Eureka no hace falta esperarlo:
 # si aún no está, el cliente reintenta el registro solo.
@@ -112,6 +115,8 @@ services:
     environment:
       EUREKA_URL: http://discovery-server:8761/eureka
       JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
+      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: "5"
+      EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS: "10"
     depends_on:
       discovery-server:
         condition: service_started

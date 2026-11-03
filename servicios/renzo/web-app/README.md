@@ -43,6 +43,7 @@ Reglas específicas de este servicio, con el mismo código que en la [sección 4
 | RN-WEB-07 | El pie de cada página dice: «Solo para mayores de 18 años. Juega con responsabilidad.» | RN-16 |
 | RN-WEB-08 | En Hoy, la franja `desde`–`hasta` se mide en hora de Lima y sus dos extremos cuentan; un valor mal escrito en la dirección se ignora. El botón «Sincronizar datos» (ingesta PROXIMOS) solo lo ve el ADMIN. | RN-12 · RN-13 · RN-ING-02 |
 | RN-WEB-09 | La tabla de cuotas del Análisis solo muestra las casas que tienen cuotas para ese partido; el formulario «evaluar cuota» ofrece las tres. | RN-10 |
+| RN-WEB-10 | El pie de todas las páginas muestra cuántas instancias hay de cada servicio (`GET /estado` del gateway, guardado 3 s) y un aviso sencillo por cada servicio con 0 instancias. Si el gateway no responde, avisa eso y la página sigue. | RNF-04 |
 
 Reglas generales que aplica: RN-12 (fechas), RN-15 (honestidad) y RN-16 (juego responsable).
 
