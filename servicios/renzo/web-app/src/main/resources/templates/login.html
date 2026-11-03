@@ -4,26 +4,28 @@
 <head th:replace="~{fragmentos :: head('Iniciar sesión')}"></head>
 <body>
 <div th:replace="~{fragmentos :: avisos}"></div>
-<main class="container py-5" style="max-width: 440px">
-  <h1 class="h3 mb-1">Apuestas</h1>
-  <p class="text-secondary">Cada probabilidad viene con su cuenta, para que sepas de dónde sale antes de decidir.</p>
-  <ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
-      <a class="nav-link active d-inline-flex align-items-center" th:href="@{/login}" aria-current="page">
-        <img th:src="@{/img/logo.png}" alt="Logo" width="24" height="24" class="me-2" style="object-fit: contain;">
-        <span>Iniciar sesión</span>
-      </a>
-    </li>
-    <li class="nav-item"><a class="nav-link" th:href="@{/registro}">Crear cuenta</a></li>
-  </ul>
-  <form th:action="@{/login}" th:object="${form}" method="post" novalidate>
-    <div class="mb-3"><label class="form-label" for="nombreUsuario">Usuario</label>
-      <input class="form-control" id="nombreUsuario" th:field="*{nombreUsuario}" autocomplete="username" autofocus></div>
-    <div class="mb-3"><label class="form-label" for="clave">Contraseña</label>
-      <input class="form-control" id="clave" type="password" th:field="*{clave}" autocomplete="current-password"></div>
-    <p class="alert alert-danger py-2" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
-    <button class="btn btn-primary w-100" type="submit">Entrar</button>
-  </form>
+<main class="container py-5" style="max-width: 820px">
+  <div class="row align-items-center justify-content-center g-5">
+    <div class="col-12 col-md-auto text-center">
+      <img th:src="@{/img/logo.png}" alt="Logo Apuestas" class="img-fluid" style="width: 260px; max-width: 100%; height: auto;">
+    </div>
+    <div class="col-12 col-md" style="max-width: 440px">
+      <h1 class="h3 mb-1">Apuestas</h1>
+      <p class="text-secondary">Cada probabilidad viene con su cuenta, para que sepas de dónde sale antes de decidir.</p>
+      <ul class="nav nav-tabs mb-3 gap-2">
+        <li class="nav-item"><a class="nav-link px-3 active" th:href="@{/login}" aria-current="page">Iniciar sesión</a></li>
+        <li class="nav-item"><a class="nav-link px-3" th:href="@{/registro}">Crear cuenta</a></li>
+      </ul>
+      <form th:action="@{/login}" th:object="${form}" method="post" novalidate>
+        <div class="mb-3"><label class="form-label" for="nombreUsuario">Usuario</label>
+          <input class="form-control" id="nombreUsuario" th:field="*{nombreUsuario}" autocomplete="username" autofocus></div>
+        <div class="mb-3"><label class="form-label" for="clave">Contraseña</label>
+          <input class="form-control" id="clave" type="password" th:field="*{clave}" autocomplete="current-password"></div>
+        <p class="alert alert-danger py-2" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+        <button class="btn btn-primary w-100" type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
 </main>
 <footer th:replace="~{fragmentos :: pie}"></footer>
 </body>

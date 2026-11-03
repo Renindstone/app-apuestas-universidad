@@ -22,10 +22,10 @@
 
 /* Pestañas de login y registro */
 .nav-tabs {
-  gap: .5rem;
+  gap: .75rem;
 }
 .nav-tabs .nav-link {
-  padding: .5rem 1rem;
+  padding: .5rem 1rem !important;
 }
 
 /* Menú */
