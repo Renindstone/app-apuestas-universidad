@@ -481,7 +481,7 @@ Son cuatro capas, y cada una solo llama a la siguiente:
 Aparte, tres piezas atraviesan las capas: `SesionInterceptor` y `SesionUsuario` (sin sesión se va a `/login`, y `/admin/**` es solo para el ADMIN), `GatewayConfig` (un solo `RestClient` hacia el gateway, que pone el token, los tiempos de espera y traduce los errores) y `ManejadorErrores`.
 
 **Decisiones de diseño:**
-- **Todo simple.** HTML en el servidor, Bootstrap y una hoja propia de unas 85 líneas. Una sola tinta oscura y dos colores con significado: verde para lo que tiene valor o ganancia, y rojo para pérdidas y avisos.
+- **Todo simple.** HTML en el servidor, Bootstrap y una hoja propia de unas 80 líneas. Una sola tinta oscura y dos colores con significado: verde para lo que tiene valor o ganancia, y rojo para pérdidas y avisos.
 - **El JWT vive en el servidor.** Se guarda en la `HttpSession`, no en el navegador (RN-WEB-02).
 - **Horas de Lima.** El servidor las convierte desde UTC (RN-WEB-03).
 
