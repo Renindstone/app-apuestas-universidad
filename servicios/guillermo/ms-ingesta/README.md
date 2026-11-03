@@ -13,8 +13,11 @@
 |---|---|
 | Temporada completa de una liga (resultados, estadísticas, árbitro y cuotas) | `https://www.football-data.co.uk/mmz4281/{temporada}/{liga}.csv`, por ejemplo `.../mmz4281/2627/E0.csv` |
 | Próximos partidos de todas las ligas, con cuotas | `https://www.football-data.co.uk/fixtures.csv` (filtrar `Div` en E0, SP1 y D1) |
+| Serie A de Brasil: todas las temporadas, con resultados | `https://www.football-data.co.uk/new/BRA.csv` (columna `Season`; solo goles, sin estadísticas) |
+| Próximos partidos de las ligas "nuevas", con cuotas | `https://www.football-data.co.uk/new_league_fixtures.csv` (filtrar `Country` = Brazil y `League` = Serie A) |
 
-- **Temporadas:** la actual (`2627`) y la anterior (`2526`). Se cargan las 3 ligas: `E0`, `SP1` y `D1`.
+- **Temporadas:** la actual (`2627`) y la anterior (`2526`). Se cargan las 3 ligas europeas: `E0`, `SP1` y `D1`.
+- **Brasil (`BRA`):** juega en año calendario, así que su temporada es el año (`2026`, y la anterior `2025`). Sus archivos usan `Home`, `Away`, `HG` y `AG` en lugar de `HomeTeam`, `AwayTeam`, `FTHG` y `FTAG`, y no traen estadísticas: el modelo no tiene datos para predecir sus partidos, pero se muestran, se puede apostar en ellos y se liquidan con el marcador.
 - **Cortesía con la fuente:** descargar como mucho una vez por ejecución y nunca en un bucle. Si responde un error, registrar la ejecución con estado `ERROR` y seguir.
 
 ## Columnas que se usan
@@ -46,7 +49,7 @@ Cuidado con los nombres: los encabezados exactos varían un poco entre archivos.
 | Método | Ruta | Respuesta |
 |---|---|---|
 | POST | `/ejecutar?tipo=HISTORICO` | `202 { "id": 7, "estado": "EN_CURSO" }`. Corre en segundo plano (`@Async`). |
-| POST | `/ejecutar?tipo=PROXIMOS` | Igual, pero solo con `fixtures.csv` |
+| POST | `/ejecutar?tipo=PROXIMOS` | Igual, pero solo con `fixtures.csv` y `new_league_fixtures.csv` |
 | GET | `/ejecuciones?limite=20` | `[{ "id": 7, "tipo": "HISTORICO", "fuente": "...E0.csv", "inicio": "...", "fin": "...", "estado": "OK", "filas": 1140, "error": null }]` |
 
 ## Tareas programadas (`@Scheduled`, zona `America/Lima`)
@@ -54,7 +57,10 @@ Cuidado con los nombres: los encabezados exactos varían un poco entre archivos.
 | Hora | Tarea |
 |---|---|
 | 05:00 todos los días | HISTORICO, solo de la temporada actual |
-| 08:00 y 16:00 | PROXIMOS |
+| Cada 3 horas (02:00, 05:00, 08:00, ..., 23:00) | PROXIMOS, para tener los partidos de toda la semana que publique la fuente |
+| 2 minutos después de arrancar | HISTORICO (las 2 temporadas si la base está vacía) y luego PROXIMOS |
+
+`POST /interno/resultados` (solo dentro de la red Docker): vuelve a leer los resultados de la temporada actual. Lo llama `ms-apuestas` cuando hay apuestas de partidos que ya terminaron. `202` o `409` si ya hay una ingesta en curso.
 
 ## Reglas de negocio
 

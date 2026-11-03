@@ -51,14 +51,15 @@ class CatalogoTest {
         return ((Number) JsonPath.read(r.andReturn().getResponse().getContentAsString(), "$.id")).longValue();
     }
 
-    // RN-CAT-01: al arrancar existen las 3 ligas.
+    // RN-CAT-01: al arrancar existen las 4 ligas.
     @Test
-    void lasTresLigasExistenAlArrancar() throws Exception {
+    void lasLigasExistenAlArrancar() throws Exception {
         mvc.perform(get("/ligas")).andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].codigo").value("E0"))
                 .andExpect(jsonPath("$[1].codigo").value("SP1"))
-                .andExpect(jsonPath("$[2].codigo").value("D1"));
+                .andExpect(jsonPath("$[2].codigo").value("D1"))
+                .andExpect(jsonPath("$[3].codigo").value("BRA"));
     }
 
     // RN-CAT-02 y RN-CAT-03: enviar la misma fila dos veces no duplica el partido, ni los equipos, ni el árbitro.
@@ -132,7 +133,7 @@ class CatalogoTest {
         mvc.perform(get("/partidos/999999")).andExpect(status().isNotFound()).andExpect(jsonPath("$.error").value("PARTIDO_NO_ENCONTRADO"));
         mvc.perform(get("/equipos/999999/partidos")).andExpect(status().isNotFound());
         fila("XX", "2026-10-24T14:00:00Z", "A", "B", null, null, null).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detalle").value("La liga XX no existe. Solo hay E0, SP1 y D1."));
+                .andExpect(jsonPath("$.detalle").value("La liga XX no existe. Solo hay E0, SP1, D1 y BRA."));
         fila("E0", "2026-10-24T14:00:00Z", "A", "B", null, 2, null).andExpect(status().isBadRequest());
         fila("E0", "2026-10-24T14:00:00Z", "A", "a", null, null, null).andExpect(status().isBadRequest());
         mvc.perform(get("/partidos").param("fecha", "24-10-2026")).andExpect(status().isBadRequest())

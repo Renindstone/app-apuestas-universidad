@@ -61,7 +61,7 @@ public class HoyService {
             Map<String, List<FilaPartido>> partidosPorLiga) {
     }
 
-    // Arma la vista. Los tres filtros son opcionales: la liga ("E0", "SP1" o "D1"), la franja desde–hasta
+    // Arma la vista. Los tres filtros son opcionales: la liga ("E0", "SP1", "D1" o "BRA"), la franja desde–hasta
     // (hora de Lima) y el día, que por defecto es hoy.
     public VistaHoy armar(String codigoLiga, LocalDate dia, LocalTime desde, LocalTime hasta) {
         LocalDate fecha = dia == null ? fmt.hoy() : dia;
@@ -125,9 +125,15 @@ public class HoyService {
         return new FilaPartido(partido, modelo, celdas);
     }
 
-    // Las ligas para el filtro. Si el catálogo no las devolvió, se usan las 3 fijas de RN-CAT-01.
+    // Las ligas para el filtro. Si el catálogo no las devolvió, se usan las 4 fijas de RN-CAT-01.
     public static List<LigaDTO> ligasPorDefecto() {
         return List.of(new LigaDTO(1L, "E0", "Premier League", "Inglaterra"), new LigaDTO(2L, "SP1", "LaLiga", "España"),
-                new LigaDTO(3L, "D1", "Bundesliga", "Alemania"));
+                new LigaDTO(3L, "D1", "Bundesliga", "Alemania"), new LigaDTO(4L, "BRA", "Serie A de Brasil", "Brasil"));
+    }
+
+    // Hoy y los 6 días siguientes (hora de Lima), para los accesos rápidos de la semana.
+    public List<LocalDate> semana() {
+        LocalDate hoy = fmt.hoy();
+        return java.util.stream.IntStream.range(0, 7).mapToObj(hoy::plusDays).toList();
     }
 }

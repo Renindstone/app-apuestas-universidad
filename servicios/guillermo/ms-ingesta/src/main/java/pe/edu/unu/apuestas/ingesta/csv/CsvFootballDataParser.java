@@ -29,8 +29,11 @@ import pe.edu.unu.apuestas.ingesta.dto.CuotaDTO;
 @Component
 public class CsvFootballDataParser {
 
-    // Las 3 ligas del proyecto (RN-CAT-01). fixtures.csv trae muchas más.
-    public static final Set<String> LIGAS = Set.of("E0", "SP1", "D1");
+    // Las ligas del proyecto (RN-CAT-01). fixtures.csv y new_league_fixtures.csv traen muchas más.
+    public static final Set<String> LIGAS = Set.of("E0", "SP1", "D1", "BRA");
+    // Código propio de la Serie A de Brasil. Sus archivos (new/BRA.csv y new_league_fixtures.csv) no traen la columna Div,
+    // sino Country y League, y llaman Home, Away, HG y AG a lo que en las ligas europeas es HomeTeam, AwayTeam, FTHG y FTAG.
+    public static final String BRASIL = "BRA";
 
     private static final ZoneId LONDRES = ZoneId.of("Europe/London");
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -54,8 +57,16 @@ public class CsvFootballDataParser {
     private record ColumnaCuota(String columna, String casa, String mercado, String seleccion, BigDecimal linea) {
     }
 
-    // Lee el CSV completo y devuelve solo las filas de E0, SP1 y D1. Sin quitar el BOM, la primera columna se llamaría "﻿Div".
+    // Lee el CSV completo y devuelve solo las filas de las ligas del proyecto. Sin quitar el BOM, la primera columna se llamaría "﻿Div".
     public List<CSVRecord> leer(String texto) throws IOException {
+        return leer(texto, null);
+    }
+
+    /**
+     * Igual que leer(texto), pero si el archivo trae la columna Season (new/BRA.csv tiene todas las temporadas juntas)
+     * solo devuelve las filas de esa temporada. Con temporada en null no filtra.
+     */
+    public List<CSVRecord> leer(String texto, String temporada) throws IOException {
         String limpio = texto.startsWith("﻿") ? texto.substring(1) : texto;
         CSVFormat formato = CSVFormat.DEFAULT.builder()
                 .setHeader().setSkipHeaderRecord(true)
@@ -63,8 +74,9 @@ public class CsvFootballDataParser {
                 .get();
         try (CSVParser csv = formato.parse(new StringReader(limpio))) {
             return csv.stream().filter(fila -> {
-                String liga = valor(fila, "Div");
-                return liga != null && LIGAS.contains(liga);
+                String liga = liga(fila);
+                String season = valor(fila, "Season");
+                return liga != null && LIGAS.contains(liga) && (temporada == null || season == null || season.equals(temporada));
             }).toList();
         }
     }
@@ -78,9 +90,35 @@ public class CsvFootballDataParser {
         LocalDate fecha = LocalDate.parse(dia, dia.length() == 8 ? FECHA_CORTA : FECHA);
         LocalTime hora = LocalTime.parse(obligatorio(fila, "Time"));
         Instant fechaHora = LocalDateTime.of(fecha, hora).atZone(LONDRES).toInstant();
-        return new PartidoCsv(obligatorio(fila, "Div"), fechaHora, obligatorio(fila, "HomeTeam"), obligatorio(fila, "AwayTeam"),
-                valor(fila, "Referee"), entero(fila, "FTHG"), entero(fila, "FTAG"),
-                estadisticas(fila, "H"), estadisticas(fila, "A"), cuotas(fila));
+        String liga = liga(fila);
+        if (liga == null) {
+            throw new IllegalArgumentException("Falta la columna Div.");
+        }
+        // Las ligas europeas toman la temporada del archivo. Brasil juega en año calendario: la de la columna Season
+        // o, en los próximos partidos (que no la traen), el año del partido.
+        String temporada = BRASIL.equals(liga) ? primero(valor(fila, "Season"), String.valueOf(fecha.getYear())) : null;
+        return new PartidoCsv(liga, fechaHora, obligatorio(fila, "HomeTeam", "Home"), obligatorio(fila, "AwayTeam", "Away"),
+                valor(fila, "Referee"), primero(entero(fila, "FTHG"), entero(fila, "HG")), primero(entero(fila, "FTAG"), entero(fila, "AG")),
+                estadisticas(fila, "H"), estadisticas(fila, "A"), cuotas(fila), temporada);
+    }
+
+    /**
+     * El código de liga de una fila: la columna Div en los archivos europeos y BRA en los de Brasil
+     * (Country = Brazil y League = Serie A). null si la fila es de otra liga sin código.
+     */
+    static String liga(CSVRecord fila) {
+        String div = valor(fila, "Div");
+        if (div != null) {
+            return div;
+        }
+        if ("Brazil".equals(valor(fila, "Country")) && "Serie A".equals(valor(fila, "League"))) {
+            return BRASIL;
+        }
+        return null;
+    }
+
+    private static <T> T primero(T valor, T otro) {
+        return valor != null ? valor : otro;
     }
 
     // Estadísticas de un lado ("H" local, "A" visitante): HS, HST, HC, HF, HY y HR. null si falta alguna.
@@ -128,6 +166,12 @@ public class CsvFootballDataParser {
             throw new IllegalArgumentException("Falta la columna " + columna + ".");
         }
         return texto;
+    }
+
+    // La primera de las dos columnas que venga con valor (HomeTeam en las ligas europeas, Home en Brasil).
+    private static String obligatorio(CSVRecord fila, String columna, String alternativa) {
+        String texto = valor(fila, columna);
+        return texto != null ? texto : obligatorio(fila, alternativa);
     }
 
     private static Integer entero(CSVRecord fila, String columna) {

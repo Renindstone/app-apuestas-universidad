@@ -37,6 +37,7 @@ public class HoyController {
         model.addAttribute("desde", horaDesde == null ? "" : horaDesde.toString());
         model.addAttribute("hasta", horaHasta == null ? "" : horaHasta.toString());
         model.addAttribute("ligas", vista.ligas() != null ? vista.ligas() : HoyService.ligasPorDefecto());
+        model.addAttribute("semana", hoyService.semana());
         return "hoy";
     }
 
