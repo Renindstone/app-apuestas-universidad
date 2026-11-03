@@ -21,14 +21,14 @@ Unos 12 minutos. Todos los comandos se corren desde la raíz del repositorio.
 | # | Tiempo | Qué mostrar | Qué decir |
 |---|---|---|---|
 | 1 | 1 min | Panel de Eureka (:8761) y la diapositiva de arquitectura (sección 5.2) | 9 microservicios, cada uno con su base de datos. La web solo habla con el gateway, y el gateway encuentra a los servicios por Eureka. |
-| 2 | 1 min | `/registro` y `/login` | El rol siempre es APOSTADOR (nunca se toma del formulario). El JWT se guarda en la sesión del servidor, no en el navegador (RN-WEB-02). |
-| 3 | 2 min | **Hoy** (`/`) | La apuesta del día solo sale si una cuota de bet365 o Betano supera los umbrales (RN-06): probabilidad que mezcla modelo y mercado, EV ≥ 3 %. El lunes 26 solo hay un partido (Sevilla–Osasuna), así que lo más probable es que diga «Hoy no hay apuesta del día». Es el comportamiento esperado: no apostar también es una decisión. Mostrar también el filtro por liga, día y franja (el atajo «de 04:30 a 08:00», hora de Lima) y, como admin, el botón **Sincronizar datos**. |
-| 4 | 3 min | **Análisis** del partido elegido | Goles esperados (λ), la matriz de marcadores de Poisson, «Comparar con las casas» (cuota justa frente a la cuota de la casa) y «De dónde salen los números». Evaluar una cuota en el formulario: EV, stake sugerido y veredicto. |
+| 2 | 1 min | `/registro` y `/login` | El rol siempre es APOSTADOR (nunca se toma del formulario). El JWT se guarda en la sesión del servidor, no en el navegador (RN-WEB-02). Interfaz centrada con el logo oficial del balón y pestañas separadas. |
+| 3 | 2 min | **Hoy** (`/`) | La apuesta del día solo sale si una cuota de bet365 o Betano supera los umbrales (RN-06): probabilidad que mezcla modelo y mercado, EV ≥ 3 %. Mostrar el filtro por liga (incluyendo la Serie A de Brasil `BRA`), los accesos rápidos a los próximos 7 a 10 días, el filtro por franja horaria y, como admin, el botón **Sincronizar datos**. |
+| 4 | 3 min | **Análisis** del partido elegido | Goles esperados (λ), la matriz de marcadores de Poisson, «Comparar con las casas» (cuota justa frente a la cuota de la casa o cuotas estimadas en tarjetas/córners) y «De dónde salen los números». Evaluar una cuota en el formulario: EV, stake sugerido y veredicto. |
 | 5 | 1 min | **Cuota de Betano** del mismo partido | No hay una fuente gratuita de cuotas de Betano, así que el usuario la carga a mano y el sistema la compara igual. |
-| 6 | 1 min | **Mis apuestas** | Registrar una apuesta y mostrar el rendimiento: ganadas, perdidas y ROI. La liquidación corre sola a las 06:00 de Lima. |
+| 6 | 1 min | **Mis apuestas** | Registrar una apuesta y mostrar el rendimiento: ganadas, perdidas y ROI. La liquidación corre sola a las 06:00 de Lima y también cada 10 minutos de forma automática. |
 | 7 | 1 min | Salir y entrar como `admin`. **Ingesta** | Solo el ADMIN la ve. Tabla de ejecuciones: archivo, filas y estado. |
 | 8 | 1 min | Terminal: seguridad | Ver los comandos de abajo: sin token responde 401, y una ruta interna responde 403 aunque se tenga token. |
-| 9 | 1 min | Terminal: resiliencia | Detener `ms-cuotas` y recargar el análisis: las probabilidades siguen y aparece «Cuotas no disponibles por ahora» (CN-08). Volver a encenderlo. |
+| 9 | 1 min | Terminal: resiliencia | Detener `ms-cuotas` y recargar: la web muestra un banner superior avisando que `ms-cuotas` está apagado, las probabilidades siguen calculándose y sale «Cuotas no disponibles por ahora» (CN-08). Volver a encenderlo. |
 | 10 | 30 s | Terminal: pruebas, y la sección 8 del documento | 96 pruebas en verde en los 10 módulos y las 9 de caja negra aprobadas. |
 | 11 | 30 s | Cierre | El modelo de Poisson es didáctico: no le gana a las casas de apuestas. El sistema solo recomienda: no apuesta ni maneja dinero (RN-08). |
 

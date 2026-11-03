@@ -34,11 +34,13 @@ Construir una plataforma web que reúna esos datos, estime la probabilidad de ca
 ### 1.4. Alcance
 
 **Incluye:**
-- Ligas: Premier League (E0), LaLiga (SP1) y Bundesliga (D1).
-- Temporadas: la actual y la anterior.
-- Apuestas: solo antes del partido.
-- Mercados: 1X2, más/menos goles, ambos marcan, más/menos tarjetas (con factor árbitro) y más/menos córners.
-- Cuotas: bet365 tomadas de football-data, y Pinnacle solo hasta enero de 2026, cuando football-data dejó de publicarlas; las de Betano las ingresa el usuario a mano.
+- Ligas: Premier League (E0), LaLiga (SP1), Bundesliga (D1) y Serie A de Brasil (BRA).
+- Temporadas: la actual y la anterior, más calendario de próximos partidos (7 a 10 días).
+- Apuestas: antes del partido. Liquidación automática periódica (cada 10 minutos) y diaria (06:00).
+- Mercados: 1X2, más/menos goles, ambos marcan, más/menos tarjetas (con factor árbitro en Premier y cuota estimada) y más/menos córners (con cuota estimada).
+- Cuotas: bet365 tomadas de football-data, Pinnacle históricas hasta enero de 2026, cuotas estimadas para tarjetas/córners cuando no hay cuota de casa directa, y cuotas de Betano ingresadas a mano.
+- Resiliencia y observabilidad: monitoreo en vivo del estado de los microservicios con alerta visual en el encabezado si alguno está apagado.
+- Despliegue: opción de despliegue en un solo nodo con Docker Compose y opción de despliegue distribuido en 3 máquinas físicas o virtuales.
 
 **No incluye** (queda en la rama `main` o como trabajo futuro):
 - Champions League (football-data no la publica).
@@ -221,10 +223,10 @@ Cada `servicios/<integrante>/<servicio>/README.md` repite sus reglas específica
 | RN-04 Veredicto | Una cuota es CON_VALOR si su EV es de 3 % o más, MARGINAL si su EV está entre 0 y 3 %, y SIN_VALOR si su EV es 0 o negativo. | RF-11 · CB-06 · ms-apuestas |
 | RN-05 Stake sugerido | Se apuesta un cuarto de lo que indica el criterio de Kelly, con un tope de 3 % de la banca: `stake = min(0.25 × EV / (cuota − 1), 0.03)`. Si el EV es 0 o negativo, el stake es 0. | RF-11 · CB-05 · ms-apuestas |
 | RN-06 Apuesta del día | Son candidatas las cuotas de bet365 o Betano entre 1.50 y 2.60, con probabilidad de 42 % o más, EV de 3 % o más y al menos 5 partidos de muestra por equipo. La probabilidad mezcla al 50 % el modelo y el mercado sin margen de la misma casa (RN-02), para que una racha corta no infle el valor. Gana la de mayor EV, y hay como mucho una por día. Si ninguna cumple, el sistema dice «Hoy no hay apuesta del día». | RF-12 · CU-06 · CN-07 · ms-apuestas |
-| RN-07 Liquidación | Una apuesta ganada deja `monto × (cuota − 1)` de beneficio y una perdida resta el monto. Todas las líneas terminan en .5, así que nunca hay empate (*push*). Solo se liquidan partidos FINALIZADO. | RF-14 · CB-07 · ms-apuestas |
+| RN-07 Liquidación | Una apuesta ganada deja `monto × (cuota − 1)` de beneficio y una perdida resta el monto. Todas las líneas terminan en .5, así que nunca hay empate (*push*). Solo se liquidan partidos FINALIZADO. Se ejecuta una liquidación diaria a las 06:00 y un proceso automático periódico cada 10 minutos que consulta resultados a `ms-ingesta`. | RF-14 · CB-07 · ms-apuestas |
 | RN-08 Límites del sistema | El sistema solo recomienda. No se conecta a ninguna casa de apuestas, no apuesta por el usuario y no maneja dinero real. El usuario apuesta por su cuenta y, si quiere, registra la apuesta para medir su rendimiento. Solo se analizan mercados previos al partido, sin apuestas en vivo. El factor árbitro solo existe en la Premier League. | Secciones 1.4 y 1.5 |
-| RN-09 Mercados válidos | Solo existen los mercados, selecciones y líneas de la tabla del README raíz: 1X2, GOLES (1.5, 2.5 y 3.5), AMBOS_MARCAN, TARJETAS (3.5, 4.5 y 5.5) y CORNERS (8.5, 9.5 y 10.5). Cualquier otra combinación se rechaza con 400. Las tarjetas suman amarillas y rojas de ambos equipos. | README raíz · todos los servicios |
-| RN-10 Ligas, temporadas y casas | Se trabaja con la Premier League (E0), LaLiga (SP1) y la Bundesliga (D1). Se cargan la temporada actual y la anterior. La anterior solo sirve de historia para los promedios, porque al empezar una temporada cada equipo tiene pocos partidos: las recomendaciones siempre son sobre partidos por jugar. Las casas son bet365 y Pinnacle, que vienen de football-data, y Betano, que se ingresa a mano. football-data dejó de publicar las cuotas de Pinnacle en enero de 2026: solo las tienen los partidos anteriores, y de la temporada actual solo llegan las de bet365. | Sección 1.4 · RF-03 |
+| RN-09 Mercados válidos | Solo existen los mercados, selecciones y líneas de la tabla del README raíz: 1X2, GOLES (1.5, 2.5 y 3.5), AMBOS_MARCAN, TARJETAS (3.5, 4.5 y 5.5) y CORNERS (8.5, 9.5 y 10.5). Cualquier otra combinación se rechaza con 400. Las tarjetas suman amarillas y rojas de ambos equipos. Para tarjetas y córners, si la casa no publica cuota, la interfaz web calcula una cuota estimada basada en probabilidad sin margen. | README raíz · todos los servicios |
+| RN-10 Ligas, temporadas y casas | Se trabaja con la Premier League (E0), LaLiga (SP1), Bundesliga (D1) y Serie A de Brasil (BRA). Se cargan la temporada actual, la anterior y el calendario de partidos futuros (próximos 7 a 10 días). La temporada anterior solo sirve de historia para los promedios. Las casas son bet365 y Pinnacle (football-data), y Betano (manual). football-data dejó de publicar las cuotas de Pinnacle en enero de 2026: solo las tienen los partidos anteriores, y de la temporada actual solo llegan las de bet365. | Sección 1.4 · RF-03 |
 | RN-11 Origen de los datos | Los partidos, las estadísticas y las cuotas solo entran por `ms-ingesta`, desde football-data.co.uk. La única excepción son las cuotas de Betano, que ingresa el usuario. `ms-catalogo` es el dueño de los IDs de liga, equipo, árbitro y partido. | RF-03, RF-04 y RF-10 · Sección 5.2 |
 | RN-12 Fechas | Todas las fechas se guardan en UTC. «Un día» siempre es un día de Lima, de 05:00 a 05:00 UTC. La web muestra las horas en hora de Lima, y las tareas programadas usan la zona America/Lima. | README raíz |
 | RN-13 Cuentas y roles | Hay dos roles. APOSTADOR es el que el servidor asigna a toda cuenta nueva. ADMIN corresponde a un único usuario que se crea al arrancar. Solo el ADMIN lanza la ingesta y ve su historial. | RF-01, RF-02 y RF-16 · CN-03 |
@@ -385,6 +387,16 @@ flowchart TB
 
 Los puertos de PostgreSQL (5441) y de la web (8090) se eligieron para no chocar con el proyecto MTC (5440 y 8082) ni con la rama `main` (5433).
 
+#### 5.6.1. Despliegue distribuido en 3 máquinas
+
+Para la sustentación y escenarios con restricción de memoria RAM (evitando que una sola máquina cargue los 9 servicios de Spring Boot y PostgreSQL, que requieren ~8 GB), el proyecto incluye `infra/docker-compose.distribuido.yml` y su guía [infra/DISTRIBUIDO.md](../infra/DISTRIBUIDO.md):
+
+- **Máquina 1 (Núcleo):** PostgreSQL, `discovery-server` y `api-gateway` (puertos 5441, 8761 y 8080).
+- **Máquina 2 (Ingesta y Datos):** `ms-catalogo`, `ms-ingesta` y `ms-estadisticas`.
+- **Máquina 3 (Predicciones y Web):** `ms-cuotas`, `ms-predicciones`, `ms-apuestas` y `web-app` (puerto 8090).
+
+Cada máquina corre un subconjunto con tope de memoria JVM ajustado (`JAVA_OPCIONES=-Xmx256m`), comunicándose por la red local a través de la IP de la Máquina 1.
+
 ### 5.7. Diagramas de flujo de los microservicios
 
 Los diagramas de esta sección muestran, paso a paso, qué hace cada microservicio y en qué momento llama a otro. Complementan la arquitectura lógica (5.2) y la secuencia de la apuesta del día (5.3). Siguen los contratos de `servicios/<integrante>/<servicio>/README.md`: si un contrato cambia, también hay que actualizar su diagrama. Las fuentes Graphviz están en [`docs/diagramas/flujo/`](diagramas/flujo/). Para regenerar una imagen: `dot -Tpng -Gdpi=220 archivo.dot -o archivo.png`.
@@ -475,20 +487,22 @@ Son cuatro capas, y cada una solo llama a la siguiente:
 
 1. **Vista** (`templates/` y `static/`): 12 plantillas Thymeleaf. `fragmentos.html` tiene el encabezado, el pie y los avisos que comparten todas, y `estilo.css` es la única hoja propia, sobre Bootstrap 5 (CDN).
 2. **Controladores** (`controller/`): uno por pantalla (Acceso, Hoy, Partido, MisApuestas, Historial, Perfil e Ingesta). Validan los formularios y eligen la plantilla.
-3. **Servicios** (`service/`): `HoyService` y `AnalisisService` arman cada pantalla. `EjecutorParalelo` hace varias llamadas a la vez y, si una falla, la página se muestra igual con un aviso (RN-WEB-04).
+3. **Servicios** (`service/`): `HoyService` y `AnalisisService` arman cada pantalla. `EstadoServicios` consulta periódicamente la salud de los microservicios en `/api/estado` a través del gateway y levanta alertas visuales si alguno está fuera de línea. `EjecutorParalelo` hace varias llamadas a la vez y, si una falla, la página se muestra igual con un aviso (RN-WEB-04).
 4. **Clientes** (`client/`): un `RestClient` por microservicio (Usuarios, Catalogo, Predicciones, Cuotas, Apuestas e Ingesta), con los DTO de `dto/`.
 
-Aparte, tres piezas atraviesan las capas: `SesionInterceptor` y `SesionUsuario` (sin sesión se va a `/login`, y `/admin/**` es solo para el ADMIN), `GatewayConfig` (un solo `RestClient` hacia el gateway, que pone el token, los tiempos de espera y traduce los errores) y `ManejadorErrores`.
+Aparte, tres piezas atraviesan las capas: `SesionInterceptor` y `SesionUsuario` (sin sesión se va a `/login`, excluyendo rutas públicas como `/img/**`, `/css/**`, `/js/**`, y `/admin/**` es solo para el ADMIN), `GatewayConfig` (un solo `RestClient` hacia el gateway, que pone el token, los tiempos de espera y traduce los errores) y `ManejadorErrores`.
 
 **Decisiones de diseño:**
-- **Todo simple.** HTML en el servidor, Bootstrap y una hoja propia de unas 80 líneas. Una sola tinta oscura y dos colores con significado: verde para lo que tiene valor o ganancia, y rojo para pérdidas y avisos.
+- **Todo simple y responsivo.** HTML en el servidor, Bootstrap 5 y hoja propia `estilo.css`. Una sola tinta oscura y colores semánticos (verde para valor/ganancia, rojo para pérdidas o caídas de servicio).
+- **Diseño centrado de acceso.** Las vistas `/login` y `/registro` presentan el logo oficial de la plataforma (balón con fuego) centrado sobre el formulario en un bloque responsivo (`max-width: 440px`), con pestañas de navegación con padding generoso (`padding: .5rem 1.25rem !important`) y espacio de separación (`gap: .75rem`), manteniendo consistencia visual.
+- **Monitoreo de microservicios en vivo.** En `fragmentos.html`, un banner superior advierte inmediatamente al usuario si algún microservicio de negocio (`ms-cuotas`, `ms-predicciones`, etc.) se encuentra caído, permitiendo degradación elegante en lugar de una pantalla en blanco.
 - **El JWT vive en el servidor.** Se guarda en la `HttpSession`, no en el navegador (RN-WEB-02).
 - **Horas de Lima.** El servidor las convierte desde UTC (RN-WEB-03).
 
 **Pantallas** (cada una llama solo al gateway):
-- `/login` y `/registro`: acceso, con `ms-usuarios`.
-- `/` **Hoy**: la apuesta del día y los partidos de un día, con filtros por liga, día y franja horaria, y el botón **Sincronizar datos** para el ADMIN.
-- `/partidos/{id}`: la comparación con las casas (solo las que tienen cuotas) y evaluar una cuota, con el cálculo del modelo (goles esperados, marcadores y notas) plegado, y `/partidos/{id}/cuota-betano`.
+- `/login` y `/registro`: acceso centrado con logo y pestañas separadas, con `ms-usuarios`.
+- `/` **Hoy**: la apuesta del día, partidos por día con accesos rápidos para los próximos 7 a 10 días, filtros por liga (incluyendo la Serie A de Brasil `BRA`) y franja horaria, y el botón **Sincronizar datos** para el ADMIN.
+- `/partidos/{id}`: la comparación con las casas (con cuotas estimadas en tarjetas y córners cuando no hay cuota directa) y evaluación de cuotas, con el cálculo del modelo (goles esperados, marcadores y notas) plegado, y `/partidos/{id}/cuota-betano`.
 - `/mis-apuestas`, `/historial` y `/perfil`: apuestas con su rendimiento, historial de la apuesta del día y banca.
 - `/admin/ingesta` (solo ADMIN): cargas del histórico y de los próximos partidos, con la tabla de ejecuciones.
 

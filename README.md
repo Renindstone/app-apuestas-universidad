@@ -14,6 +14,7 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 | [docs/guia-inicio.md](docs/guia-inicio.md) | Cómo crear cada servicio con Spring Initializr y cómo levantar todo |
 | [docs/guia-paso-a-paso.md](docs/guia-paso-a-paso.md) | Las dos ramas, el orden para construir los servicios, cómo comparar con la solución y qué hacer si no alcanza el tiempo |
 | [docs/guion-demo.md](docs/guion-demo.md) | Preparación y pasos de la demo del lunes 26, con los comandos y qué hacer si algo falla |
+| [infra/DISTRIBUIDO.md](infra/DISTRIBUIDO.md) | Guía para correr el sistema distribuido en 3 máquinas con Docker Compose |
 | `servicios/<integrante>/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, reglas de negocio, tareas y pistas |
 | `servicios/<integrante>/<servicio>/GUIA.md` | Pasos para construir el servicio, con pistas y la ruta de cada archivo en la solución |
 
@@ -49,7 +50,8 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 | `TARJETAS` | `MAS`, `MENOS` | 3.5, 4.5 o 5.5 | Amarillas + rojas de ambos equipos |
 | `CORNERS` | `MAS`, `MENOS` | 8.5, 9.5 o 10.5 | Córners totales del partido |
 
-- **Casas de apuestas:** `bet365`, `pinnacle` y `betano` (en minúsculas).
+- **Ligas soportadas:** Premier League (`E0`), LaLiga (`SP1`), Bundesliga (`D1`) y Serie A de Brasil (`BRA`), con calendario de próximos 7 a 10 días.
+- **Casas de apuestas:** `bet365`, `pinnacle` y `betano` (en minúsculas), más cuotas estimadas para córners y tarjetas.
 - **Reglas de negocio:** las generales (RN-01 a RN-16) están en la [sección 4.5 de la documentación](docs/Documentacion.md#45-reglas-de-negocio), y las específicas, en el README de cada servicio. Si una regla cambia, se avisa en el daily, igual que un cambio de contrato.
 - **Commits:** en español y en presente ("Agrega endpoint de promedios"). Cada integrante trabaja en su rama `feature/<servicio>-<tema>` y abre un PR hacia `universidad/microservicios`, que revisa otro integrante.
 
@@ -57,7 +59,7 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 
 ```bash
 cp .env.example .env
-docker compose -f infra/docker-compose.yml --env-file .env up -d --build    # todo: web en http://localhost:8090
+cd infra && docker compose up -d --build    # levanta todo; web en http://localhost:8090
 ```
 
 Para desarrollar, levanta solo PostgreSQL (`... up -d postgres`) y luego `discovery-server` y los servicios desde el IDE o con `./mvnw spring-boot:run`. El detalle está en [docs/guia-inicio.md](docs/guia-inicio.md).
