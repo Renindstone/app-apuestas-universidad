@@ -20,6 +20,14 @@
   --bs-btn-active-bg: #000; --bs-btn-active-border-color: #000;
 }
 
+/* Pestañas de login y registro */
+.nav-tabs {
+  gap: .5rem;
+}
+.nav-tabs .nav-link {
+  padding: .5rem 1rem;
+}
+
 /* Menú */
 .nav-link { padding: .25rem 0; color: var(--bs-secondary-color); }
 .nav-link:hover { color: var(--tinta); }

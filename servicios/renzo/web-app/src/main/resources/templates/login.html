@@ -8,7 +8,12 @@
   <h1 class="h3 mb-1">Apuestas</h1>
   <p class="text-secondary">Cada probabilidad viene con su cuenta, para que sepas de dónde sale antes de decidir.</p>
   <ul class="nav nav-tabs mb-3">
-    <li class="nav-item"><a class="nav-link active" th:href="@{/login}" aria-current="page">Iniciar sesión</a></li>
+    <li class="nav-item">
+      <a class="nav-link active d-inline-flex align-items-center" th:href="@{/login}" aria-current="page">
+        <img th:src="@{/img/logo.png}" alt="Logo" width="24" height="24" class="me-2" style="object-fit: contain;">
+        <span>Iniciar sesión</span>
+      </a>
+    </li>
     <li class="nav-item"><a class="nav-link" th:href="@{/registro}">Crear cuenta</a></li>
   </ul>
   <form th:action="@{/login}" th:object="${form}" method="post" novalidate>
