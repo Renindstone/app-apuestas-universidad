@@ -25,15 +25,15 @@ public class EstadoServicios {
         }
     }
 
-    // Qué deja de funcionar cuando un servicio está apagado, dicho en palabras sencillas.
+    // Qué no se puede hacer cuando un servicio está apagado.
     private static final Map<String, String> CONSECUENCIAS = Map.of(
-            "ms-usuarios", "no se puede iniciar sesión ni crear cuentas",
-            "ms-catalogo", "no se ven los partidos",
-            "ms-ingesta", "no se pueden cargar datos nuevos",
-            "ms-estadisticas", "no hay promedios de goles, tarjetas ni córners",
-            "ms-cuotas", "no se ven las cuotas de las casas",
-            "ms-predicciones", "no se ven las probabilidades del modelo",
-            "ms-apuestas", "no se pueden registrar ni liquidar apuestas");
+            "ms-usuarios", "No se puede iniciar sesión ni crear cuentas.",
+            "ms-catalogo", "No se ven los partidos ni las ligas.",
+            "ms-ingesta", "No se cargan partidos nuevos y las apuestas pendientes no se liquidan.",
+            "ms-estadisticas", "No hay promedios de goles, tarjetas ni córners, y el modelo no puede calcular.",
+            "ms-cuotas", "No se ven las cuotas de las casas. Solo puedes escribir la cuota a mano.",
+            "ms-predicciones", "No se ven las probabilidades, no se puede evaluar una cuota y no hay apuesta del día.",
+            "ms-apuestas", "No se pueden registrar apuestas ni ver Mis apuestas, el historial o la apuesta del día.");
 
     private static final long VIGENCIA_MS = 3000;
 
@@ -75,7 +75,7 @@ public class EstadoServicios {
                     .body(new ParameterizedTypeReference<List<EstadoServicioDTO>>() {
                     });
             ultimas = estado == null ? null : estado.stream()
-                    .map(e -> new Linea(e.servicio(), e.instancias(), CONSECUENCIAS.getOrDefault(e.servicio(), "una parte de la app")))
+                    .map(e -> new Linea(e.servicio(), e.instancias(), CONSECUENCIAS.getOrDefault(e.servicio(), "Una parte de la app no funciona.")))
                     .toList();
         } catch (RuntimeException e) {
             // El gateway está apagado o dio error: se muestra el aviso del gateway y la web sigue funcionando.

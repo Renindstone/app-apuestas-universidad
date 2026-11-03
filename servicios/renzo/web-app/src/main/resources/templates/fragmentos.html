@@ -49,8 +49,7 @@
     <p class="alert alert-danger py-2 mb-2" role="alert" th:if="${est.gatewayCaido()}">
       El gateway no responde, así que la web no puede hablar con ningún servicio. Se está esperando a que vuelva.</p>
     <p class="alert alert-warning py-2 mb-2" role="alert" th:each="s : ${est.apagados()}">
-      <strong th:text="${s.servicio()}">ms-cuotas</strong> no está encendido: <span th:text="${s.consecuencia()}">no se ven las cuotas</span>.
-      El resto de la app sigue funcionando.</p>
+      <strong th:text="${s.servicio()}">ms-cuotas</strong> está apagado. <span th:text="${s.consecuencia()}">No se ven las cuotas.</span></p>
     <p class="mb-0" th:unless="${est.gatewayCaido()}">
       <span class="text-body">Servicios:</span>
       <span th:each="s : ${est.lineas()}" class="badge me-1" th:classappend="${s.encendido()} ? 'text-bg-success' : 'text-bg-danger'"
