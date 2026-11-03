@@ -49,7 +49,7 @@ public class UpsertPartidoService {
         }
         String codigo = fila.ligaCodigo().trim().toUpperCase(Locale.ROOT);
         Liga liga = ligas.findByCodigo(codigo)
-                .orElseThrow(() -> new ValidacionException("La liga " + codigo + " no existe. Solo hay E0, SP1 y D1."));
+                .orElseThrow(() -> new ValidacionException("La liga " + codigo + " no existe. Solo hay E0, SP1, D1 y BRA."));
 
         Equipo local = equipo(nombreLocal, liga);
         Equipo visitante = equipo(nombreVisitante, liga);

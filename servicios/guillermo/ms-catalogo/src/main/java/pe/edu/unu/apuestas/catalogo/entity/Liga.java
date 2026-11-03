@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 /**
- * Tabla liga. Solo existen E0, SP1 y D1, y se insertan al arrancar (RN-CAT-01).
+ * Tabla liga. Solo existen E0, SP1, D1 y BRA, y se insertan al arrancar (RN-CAT-01).
  */
 @Entity
 @Table(name = "liga", uniqueConstraints = @UniqueConstraint(name = "UQ_LigCodigo", columnNames = "LigCodigo"))
@@ -20,7 +20,7 @@ public class Liga {
     @Column(name = "LigIdLiga")
     private Long id;
 
-    // Código de football-data: E0, SP1 o D1.
+    // Código de football-data: E0, SP1 o D1. BRA para la Serie A de Brasil.
     @Column(name = "LigCodigo", length = 5, nullable = false)
     private String codigo;
 

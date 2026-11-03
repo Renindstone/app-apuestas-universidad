@@ -9,10 +9,11 @@ import pe.edu.unu.apuestas.ingesta.dto.CuotaDTO;
 /**
  * Una fila de football-data ya traducida: la hora en UTC, los goles y el árbitro en null si no vienen,
  * las estadísticas en null si falta alguna columna y las cuotas agrupadas por casa (bet365, pinnacle).
+ * temporada solo viene en las filas de Brasil ("2026"); en las demás es null y se usa la del archivo.
  */
 public record PartidoCsv(String liga, Instant fechaHora, String local, String visitante, String arbitro, Integer golesLocal,
         Integer golesVisitante, EstadisticasCsv estadisticasLocal, EstadisticasCsv estadisticasVisitante,
-        Map<String, List<CuotaDTO>> cuotas) {
+        Map<String, List<CuotaDTO>> cuotas, String temporada) {
 
     // Ya se jugó si trae los dos goles. Sin goles, ms-catalogo lo deja PROGRAMADO.
     public boolean jugado() {

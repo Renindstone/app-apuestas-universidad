@@ -65,7 +65,7 @@ public class ProcesadorIngesta {
         ejecucion.iniciar();
         ejecucion = ejecuciones.save(ejecucion);
         try {
-            List<CSVRecord> filas = parser.leer(descargador.descargar(archivo.url()));
+            List<CSVRecord> filas = parser.leer(descargador.descargar(archivo.url()), archivo.temporada());
             int procesadas = 0;
             for (CSVRecord fila : filas) {
                 // Una fila con error se anota en el log y se sigue con la siguiente (RN-ING-05).
@@ -88,7 +88,8 @@ public class ProcesadorIngesta {
     }
 
     // Una fila, en el orden de RN-ING-04: el catálogo (que devuelve los IDs), las estadísticas si ya se jugó y las cuotas si las trae.
-    void procesarFila(PartidoCsv fila, String temporada) {
+    void procesarFila(PartidoCsv fila, String temporadaArchivo) {
+        String temporada = fila.temporada() != null ? fila.temporada() : temporadaArchivo;
         PartidoDTO partido = catalogo.upsert(new PartidoUpsertRequest(fila.liga(), temporada, fila.fechaHora(), fila.local(),
                 fila.visitante(), fila.arbitro(), fila.golesLocal(), fila.golesVisitante()));
         if (fila.tieneEstadisticas()) {

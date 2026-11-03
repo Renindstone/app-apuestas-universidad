@@ -97,6 +97,7 @@ Recorre los picks y las apuestas pendientes. Para cada uno pide el partido a `ms
 - Si gana: `ganancia = monto × (cuota − 1)`. Si pierde: `ganancia = −monto`.
 - Todas las líneas terminan en .5, así que no hay empate (*push*).
 - Si las estadísticas aún no están, la apuesta queda pendiente para el día siguiente.
+- **Liquidación automática:** además de la de las 06:00, cada 10 minutos se liquida lo que ya tiene resultado. Si queda alguna apuesta de un partido que empezó hace más de 2 horas y aún no está `FINALIZADO`, se llama a `POST ms-ingesta /interno/resultados` (como mucho una vez cada 30 minutos) y se liquida en la vuelta siguiente. Si football-data todavía no publicó el resultado, la apuesta sigue pendiente hasta que lo haga.
 
 ## Reglas de negocio
 
