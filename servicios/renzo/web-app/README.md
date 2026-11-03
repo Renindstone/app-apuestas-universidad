@@ -41,6 +41,7 @@ Reglas específicas de este servicio, con el mismo código que en la [sección 4
 | RN-WEB-05 | Una cuota se pinta de verde cuando supera a la cuota justa, es decir, cuando su valor esperado es positivo. | RN-03 |
 | RN-WEB-06 | La pantalla de ingesta solo aparece para el ADMIN. | RN-13 |
 | RN-WEB-07 | El pie de cada página dice: «Solo para mayores de 18 años. Juega con responsabilidad.» | RN-16 |
+| RN-WEB-08 | En Hoy, la franja `desde`–`hasta` se mide en hora de Lima y sus dos extremos cuentan; un valor mal escrito en la dirección se ignora. El botón «Sincronizar datos» (ingesta PROXIMOS) solo lo ve el ADMIN. | RN-12 · RN-13 · RN-ING-02 |
 
 Reglas generales que aplica: RN-12 (fechas), RN-15 (honestidad) y RN-16 (juego responsable).
 
