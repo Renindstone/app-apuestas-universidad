@@ -1,6 +1,7 @@
 package pe.edu.unu.apuestas.web.service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,8 +25,8 @@ import pe.edu.unu.apuestas.web.vista.FilaPartido;
 import pe.edu.unu.apuestas.web.vista.Formatos;
 
 /**
- * Arma la pantalla Hoy: la apuesta del día y los partidos del día agrupados por liga.
- * Cada parte se pide por separado; si una falla, el resto se muestra igual (RN-WEB-04).
+ * Arma la pantalla Hoy: la apuesta del día y los partidos de un día agrupados por liga, con filtro
+ * por liga y por franja horaria. Cada parte se pide por separado; si una falla, el resto se muestra igual (RN-WEB-04).
  */
 @Service
 public class HoyService {
@@ -52,6 +53,7 @@ public class HoyService {
     /**
      * Todo lo que necesita la plantilla hoy.html. Un campo en null significa que su servicio no respondió.
      *
+     * @param fecha          el día de los partidos que se muestran
      * @param partidoPick    el partido de la apuesta del día (para mostrar su hora)
      * @param prediccionPick su predicción (para mostrar los goles esperados)
      * @param partidosPorLiga nombre de la liga → renglones de sus partidos
@@ -60,16 +62,16 @@ public class HoyService {
             List<LigaDTO> ligas, Map<String, List<FilaPartido>> partidosPorLiga) {
     }
 
-    // Arma la vista. codigoLiga filtra los partidos ("E0", "SP1" o "D1"); null o vacío muestra todas.
-    public VistaHoy armar(String codigoLiga) {
-        LocalDate hoy = fmt.hoy();
-        CompletableFuture<ApuestaDelDiaDTO> dia = paralelo.intentar(apuestas::apuestaDelDia);
+    // Arma la vista. Los tres filtros son opcionales: la liga ("E0", "SP1" o "D1"), la franja desde–hasta
+    // (hora de Lima) y el día, que por defecto es hoy.
+    public VistaHoy armar(String codigoLiga, LocalDate dia, LocalTime desde, LocalTime hasta) {
+        LocalDate fecha = dia == null ? fmt.hoy() : dia;
+        CompletableFuture<ApuestaDelDiaDTO> pickDelDia = paralelo.intentar(apuestas::apuestaDelDia);
         CompletableFuture<List<LigaDTO>> ligas = paralelo.intentar(catalogo::ligas);
-        List<PartidoDTO> partidos = paralelo.intentar(() -> catalogo.partidosDelDia(hoy)).join();
+        List<PartidoDTO> partidos = paralelo.intentar(() -> catalogo.partidosDelDia(fecha)).join();
 
         // Por cada partido visible se piden la predicción y las cuotas, todas a la vez.
-        List<PartidoDTO> visibles = partidos == null ? List.of()
-                : partidos.stream().filter(p -> codigoLiga == null || codigoLiga.isBlank() || p.liga().codigo().equals(codigoLiga)).toList();
+        List<PartidoDTO> visibles = partidos == null ? List.of() : filtrar(partidos, codigoLiga, desde, hasta);
         Map<Long, CompletableFuture<PrediccionDTO>> prediccionDe = new LinkedHashMap<>();
         Map<Long, CompletableFuture<List<CuotaDTO>>> cuotasDe = new LinkedHashMap<>();
         for (PartidoDTO p : visibles) {
@@ -87,7 +89,7 @@ public class HoyService {
         }
 
         // Datos extra del partido de la apuesta del día: su hora y sus goles esperados.
-        ApuestaDelDiaDTO apuesta = dia.join();
+        ApuestaDelDiaDTO apuesta = pickDelDia.join();
         PartidoDTO partidoPick = null;
         PrediccionDTO prediccionPick = null;
         if (apuesta != null && apuesta.pick() != null) {
@@ -96,7 +98,18 @@ public class HoyService {
             prediccionPick = prediccionDe.containsKey(id) ? prediccionDe.get(id).join()
                     : paralelo.intentar(() -> predicciones.prediccion(id)).join();
         }
-        return new VistaHoy(hoy, apuesta, partidoPick, prediccionPick, ligas.join(), porLiga);
+        return new VistaHoy(fecha, apuesta, partidoPick, prediccionPick, ligas.join(), porLiga);
+    }
+
+    // Deja los partidos de la liga pedida cuyo inicio, en hora de Lima, cae entre desde y hasta (ambos incluidos).
+    // Un filtro vacío (null o en blanco) no restringe nada.
+    static List<PartidoDTO> filtrar(List<PartidoDTO> partidos, String codigoLiga, LocalTime desde, LocalTime hasta) {
+        return partidos.stream().filter(p -> {
+            LocalTime hora = p.fechaHora().atZone(Formatos.LIMA).toLocalTime();
+            return (codigoLiga == null || codigoLiga.isBlank() || p.liga().codigo().equals(codigoLiga))
+                    && (desde == null || !hora.isBefore(desde))
+                    && (hasta == null || !hora.isAfter(hasta));
+        }).toList();
     }
 
     // Un renglón: probabilidades 1X2 del modelo y cuotas 1X2 de bet365, marcando las que tienen valor.

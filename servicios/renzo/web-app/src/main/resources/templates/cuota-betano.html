@@ -3,54 +3,45 @@
 <!-- /partidos/{id}/cuota-betano: apuntar a mano una cuota de Betano. -->
 <head th:replace="~{fragmentos :: head('Cuota de Betano')}"></head>
 <body>
-<div class="escritorio">
-  <div class="hoja">
-    <header th:replace="~{fragmentos :: cabecera('hoy')}"></header>
-    <main class="vt-contenido" th:with="local=${partido.local().nombre()}, visita=${partido.visitante().nombre()}">
-      <section class="bloque">
-        <div class="margen"><p class="mano"><a th:href="@{/partidos/{id}(id=${partido.id()})}">Volver al análisis</a></p></div>
-        <div class="cuerpo">
-          <h1>Cuota de Betano</h1>
-          <p class="pick-detalle" th:text="|${local} – ${visita}. Betano no publica sus cuotas en una fuente gratuita, así que se apuntan a mano y quedan con tu usuario.|">Partido</p>
-        </div>
-      </section>
+<header th:replace="~{fragmentos :: cabecera('hoy')}"></header>
+<main class="container" th:with="local=${partido.local().nombre()}, visita=${partido.visitante().nombre()}">
+  <section class="mb-4">
+    <p class="small mb-1"><a th:href="@{/partidos/{id}(id=${partido.id()})}">← Volver al análisis</a></p>
+    <h1 class="h3">Cuota de Betano</h1>
+    <p class="text-secondary" th:text="|${local} – ${visita}. Betano no publica sus cuotas en una fuente gratuita, así que se apuntan a mano y quedan con tu usuario.|">Partido</p>
+  </section>
 
-      <!-- La frase del formulario. La validación de la cuota es la de RN-CUO-01. -->
-      <section class="bloque">
-        <div class="margen"><p class="mano">Debe ser mayor que 1.01</p></div>
-        <div class="cuerpo">
-          <form class="frase" th:action="@{/partidos/{id}/cuota-betano(id=${partido.id()})}" th:object="${betanoForm}" method="post" novalidate>
-            <p>Betano paga <input class="blanco" th:field="*{cuota}" size="4" inputmode="decimal" placeholder="1.85" aria-label="Cuota">
-              por <select class="blanco" th:field="*{seleccion}" aria-label="Selección"><th:block th:replace="~{fragmentos :: opciones(${local}, ${visita})}"></th:block></select>.
-              <button class="boton" type="submit">Guardar cuota</button></p>
-            <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
-          </form>
-        </div>
-      </section>
+  <!-- La validación de la cuota es la de RN-CUO-01: debe ser mayor que 1.01. -->
+  <section class="mb-4">
+    <form class="row g-2 align-items-end" th:action="@{/partidos/{id}/cuota-betano(id=${partido.id()})}" th:object="${betanoForm}" method="post" novalidate>
+      <div class="col-4 col-md-2"><label class="form-label small mb-1" for="cuota">Cuota (mayor que 1.01)</label>
+        <input class="form-control" id="cuota" th:field="*{cuota}" inputmode="decimal" placeholder="1.85"></div>
+      <div class="col-8 col-md-5"><label class="form-label small mb-1" for="seleccion">Selección</label>
+        <select class="form-select" id="seleccion" th:field="*{seleccion}"><th:block th:replace="~{fragmentos :: opciones(${local}, ${visita})}"></th:block></select></div>
+      <div class="col-12 col-md-3"><button class="btn btn-primary w-100" type="submit">Guardar cuota</button></div>
+      <p class="alert alert-danger py-2 mb-0 col-12" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+    </form>
+  </section>
 
-      <!-- Las cuotas de Betano que ya se apuntaron para este partido. -->
-      <section class="bloque">
-        <div class="margen"><p class="mano">Ya apuntadas</p></div>
-        <div class="cuerpo">
-          <p class="aviso-seccion" role="status" th:if="${cuotasBetano == null}">Cuotas no disponibles por ahora.</p>
-          <p class="nota" th:if="${cuotasBetano != null and cuotasBetano.isEmpty()}">Todavía nadie apuntó cuotas de Betano para este partido.</p>
-          <div class="table-responsive" th:if="${cuotasBetano != null and !cuotasBetano.isEmpty()}">
-            <table class="tabla tabla-corta">
-              <thead><tr><th scope="col">Selección</th><th scope="col">Cuota</th><th scope="col">Apuntada</th></tr></thead>
-              <tbody>
-                <tr th:each="c : ${cuotasBetano}">
-                  <th scope="row" th:text="${@fmt.etiqueta(c, local, visita)}">Más de 4.5 tarjetas</th>
-                  <td th:text="${@fmt.cuota(c.valor())}">1.95</td>
-                  <td th:text="${@fmt.fechaHora(c.capturadaEn())}">24/10 07:40</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
-    <section th:replace="~{fragmentos :: pie}"></section>
-  </div>
-</div>
+  <!-- Las cuotas de Betano que ya se apuntaron para este partido. -->
+  <section class="mb-4">
+    <h2 class="h5">Ya apuntadas</h2>
+    <p class="alert alert-warning py-2" role="status" th:if="${cuotasBetano == null}">Cuotas no disponibles por ahora.</p>
+    <p class="text-secondary" th:if="${cuotasBetano != null and cuotasBetano.isEmpty()}">Todavía nadie apuntó cuotas de Betano para este partido.</p>
+    <div class="table-responsive" th:if="${cuotasBetano != null and !cuotasBetano.isEmpty()}">
+      <table class="tabla tabla-corta">
+        <thead><tr><th scope="col">Selección</th><th scope="col">Cuota</th><th scope="col">Apuntada</th></tr></thead>
+        <tbody>
+          <tr th:each="c : ${cuotasBetano}">
+            <th scope="row" th:text="${@fmt.etiqueta(c, local, visita)}">Más de 4.5 tarjetas</th>
+            <td th:text="${@fmt.cuota(c.valor())}">1.95</td>
+            <td th:text="${@fmt.fechaHora(c.capturadaEn())}">24/10 07:40</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
 </body>
 </html>

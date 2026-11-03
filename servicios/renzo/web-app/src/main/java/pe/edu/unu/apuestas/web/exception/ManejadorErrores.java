@@ -29,7 +29,7 @@ public class ManejadorErrores {
         return "redirect:/login";
     }
 
-    // Un servicio no respondió y la pantalla no tenía cómo seguir: se muestra un aviso dentro del cuaderno.
+    // Un servicio no respondió y la pantalla no tenía cómo seguir: se muestra un aviso.
     @ExceptionHandler(ServicioNoDisponibleException.class)
     public String servicioNoDisponible(Model model) {
         model.addAttribute("titulo", "Servicio no disponible");

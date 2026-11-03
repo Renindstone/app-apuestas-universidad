@@ -1,0 +1,78 @@
+/* Estilo de la web-app. Bootstrap 5 (CDN) pone la base: rejilla, formularios, botones y alertas.
+   Aquí va solo lo que Bootstrap no trae. Una tinta oscura para texto y botones, y dos colores con
+   significado: verde = tiene valor o ganancia (RN-WEB-05), rojo = pérdida o aviso. */
+
+:root {
+  --tinta: #1f2937;
+  --valor: #1b7f4b;
+  --perdida: #b42318;
+  --linea: #e5e7eb;
+  --bs-body-bg: #f8f8f6;
+  --bs-body-color: var(--tinta);
+  --bs-link-color-rgb: 31, 41, 55;
+  --bs-link-hover-color-rgb: 0, 0, 0;
+}
+
+.container { max-width: 960px; }
+.btn-primary {
+  --bs-btn-bg: var(--tinta); --bs-btn-border-color: var(--tinta);
+  --bs-btn-hover-bg: #000; --bs-btn-hover-border-color: #000;
+  --bs-btn-active-bg: #000; --bs-btn-active-border-color: #000;
+}
+
+/* Menú */
+.nav-link { padding: .25rem 0; color: var(--bs-secondary-color); }
+.nav-link:hover { color: var(--tinta); }
+.nav-link.active { color: var(--tinta); font-weight: 600; border-bottom: 2px solid var(--tinta); }
+
+/* Cifras: etiqueta a la izquierda, valor a la derecha */
+.cuentas { display: grid; grid-template-columns: minmax(140px, max-content) 1fr; gap: .25rem 1.5rem; margin: 0; }
+.cuentas dt { font-weight: 400; color: var(--bs-secondary-color); }
+.cuentas dd { margin: 0; }
+.cuentas .fuerte, .cuentas .fuerte + dd { font-weight: 700; color: var(--tinta); }
+mark { padding: 0 .3em; background: #e6f2ea; color: inherit; }
+
+.positivo, .estado-ok { color: var(--valor); }
+.negativo, .estado-error { color: var(--perdida); }
+.estado-en_curso { color: #8a6100; }
+.con-valor { color: var(--valor); background: rgba(27, 127, 75, .12); font-weight: 600; }
+
+/* Tablas: la primera columna a la izquierda y el resto a la derecha */
+.tabla { width: 100%; background: #fff; border-collapse: collapse; }
+.tabla th, .tabla td { padding: .45rem .6rem; border-bottom: 1px solid var(--linea); text-align: right; font-weight: 400; }
+.tabla th:first-child, .tabla td:first-child, .tabla th[scope="row"] { text-align: left; }
+.tabla td, .tabla thead th { white-space: nowrap; }
+.tabla th[scope="row"] { font-weight: 500; }
+.tabla thead th { font-size: .85rem; font-weight: 600; color: var(--bs-secondary-color); border-bottom: 2px solid var(--tinta); }
+.tabla small { display: block; font-weight: 400; color: var(--bs-secondary-color); }
+.tabla .grupo th { padding-top: 1rem; font-size: 1rem; font-weight: 700; color: var(--tinta); text-align: left; }
+.tabla td.con-valor { font-weight: 700; }
+.tabla .vacio { color: var(--bs-secondary-color); text-align: left; }
+.tabla-corta { max-width: 620px; }
+.cuota { display: inline-block; min-width: 3.4rem; padding: 0 .4rem; text-align: right; font-weight: 600; }
+
+/* Matriz de marcadores: cuanto más probable, más oscura la casilla */
+.matriz { border-collapse: collapse; margin-bottom: .75rem; }
+.matriz caption { caption-side: bottom; padding-top: .5rem; font-size: .85rem; color: var(--bs-secondary-color); }
+.matriz th { width: 30px; font-size: .85rem; font-weight: 600; color: var(--bs-secondary-color); text-align: center; }
+.matriz td {
+  width: 56px; height: 40px; text-align: center; font-size: .85rem;
+  background: color-mix(in oklab, var(--tinta) calc(var(--t) * 80%), #fff);
+  border: 1px solid #fff;
+}
+.matriz td.oscura { color: #fff; font-weight: 600; }
+.matriz td.diagonal { outline: 1.5px dashed var(--perdida); outline-offset: -4px; }
+
+/* Resultado de evaluar una cuota */
+.veredicto { font-weight: 700; }
+.resultado-con_valor .veredicto { color: var(--valor); }
+.resultado-marginal .veredicto { color: #8a6100; }
+.resultado-sin_valor .veredicto { color: var(--perdida); }
+
+/* Gráfico del historial (SVG dibujado en el servidor) */
+.grafico { display: block; width: 100%; height: auto; }
+.g-cero { stroke: var(--perdida); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.g-linea { fill: none; stroke: var(--tinta); stroke-width: 2; }
+.g-area { fill: rgba(31, 41, 55, .06); }
+.g-gana { fill: var(--valor); }
+.g-pierde { fill: var(--perdida); }

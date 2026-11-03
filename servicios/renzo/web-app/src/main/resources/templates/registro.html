@@ -3,27 +3,26 @@
 <!-- /registro: crear una cuenta. El rol lo asigna el servidor (siempre APOSTADOR). -->
 <head th:replace="~{fragmentos :: head('Crear cuenta')}"></head>
 <body>
-<div class="escritorio">
-  <div class="hoja hoja-publica">
-    <main class="vt-contenido">
-      <section class="bloque">
-        <div class="margen"><p class="mano">Tus apuestas solo las ves tú</p></div>
-        <div class="cuerpo acceso">
-          <p class="marca-grande">Cuaderno de apuestas</p>
-          <form class="acceso-form" th:action="@{/registro}" th:object="${form}" method="post" novalidate>
-            <nav class="pestanas"><a th:href="@{/login}">Iniciar sesión</a><a th:href="@{/registro}" aria-current="page">Crear cuenta</a></nav>
-            <label class="campo"><span>Usuario</span><input th:field="*{nombreUsuario}" maxlength="30" autocomplete="username"></label>
-            <label class="campo"><span>Correo</span><input type="email" th:field="*{email}" autocomplete="email"></label>
-            <label class="campo"><span>Contraseña</span><input type="password" th:field="*{clave}" autocomplete="new-password"></label>
-            <label class="campo"><span>Repite la contraseña</span><input type="password" th:field="*{claveConfirmacion}" autocomplete="new-password"></label>
-            <p class="error" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
-            <button class="boton" type="submit">Crear cuenta</button>
-          </form>
-        </div>
-      </section>
-    </main>
-    <section th:replace="~{fragmentos :: pie}"></section>
-  </div>
-</div>
+<main class="container py-5" style="max-width: 440px">
+  <h1 class="h3 mb-1">Apuestas</h1>
+  <p class="text-secondary">Tus apuestas solo las ves tú.</p>
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item"><a class="nav-link" th:href="@{/login}">Iniciar sesión</a></li>
+    <li class="nav-item"><a class="nav-link active" th:href="@{/registro}" aria-current="page">Crear cuenta</a></li>
+  </ul>
+  <form th:action="@{/registro}" th:object="${form}" method="post" novalidate>
+    <div class="mb-3"><label class="form-label" for="nombreUsuario">Usuario</label>
+      <input class="form-control" id="nombreUsuario" th:field="*{nombreUsuario}" maxlength="30" autocomplete="username"></div>
+    <div class="mb-3"><label class="form-label" for="email">Correo</label>
+      <input class="form-control" id="email" type="email" th:field="*{email}" autocomplete="email"></div>
+    <div class="mb-3"><label class="form-label" for="clave">Contraseña</label>
+      <input class="form-control" id="clave" type="password" th:field="*{clave}" autocomplete="new-password"></div>
+    <div class="mb-3"><label class="form-label" for="claveConfirmacion">Repite la contraseña</label>
+      <input class="form-control" id="claveConfirmacion" type="password" th:field="*{claveConfirmacion}" autocomplete="new-password"></div>
+    <p class="alert alert-danger py-2" role="alert" th:if="${#fields.hasAnyErrors()}" th:text="${#fields.allErrors()[0]}">Error</p>
+    <button class="btn btn-primary w-100" type="submit">Crear cuenta</button>
+  </form>
+</main>
+<footer th:replace="~{fragmentos :: pie}"></footer>
 </body>
 </html>

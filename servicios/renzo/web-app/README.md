@@ -4,7 +4,7 @@
 
 ## Spring Initializr
 
-- Dependencias: **Spring Web**, **Thymeleaf**, **Validation** y **Actuator** (Spring Boot 4.1.2). Bootstrap 5 desde CDN como base, y encima la hoja propia `static/css/cuaderno.css` con el diseño «Cuaderno».
+- Dependencias: **Spring Web**, **Thymeleaf**, **Validation** y **Actuator** (Spring Boot 4.1.2). Bootstrap 5 desde CDN como base, y encima una hoja propia corta, `static/css/estilo.css` (tinta oscura; verde para lo que tiene valor y rojo para pérdidas y avisos).
 - El cliente HTTP es `RestClient` (incluido en Spring Web). La URL base sale de la variable `GATEWAY_URL`.
 
 ## Sesión
@@ -16,7 +16,7 @@ Tras el login, guarda el JWT en la `HttpSession` del servidor (no en `localStora
 | Ruta | Pantalla | Llama a |
 |---|---|---|
 | `/login`, `/registro` | Inicio de sesión y registro | `/api/usuarios/auth/login` y `/api/usuarios/auth/registro` |
-| `/` | **Hoy**: la apuesta del día y los partidos del día, filtrables por liga | `/api/apuestas/apuesta-del-dia` y `/api/catalogo/partidos?fecha=`. Por cada partido, además, `/api/predicciones/partidos/{id}` y `/api/cuotas/partidos/{id}/cuotas` (en paralelo) para mostrar el 1X2 del modelo y de bet365 |
+| `/` | **Hoy**: la apuesta del día y los partidos de un día, filtrables por liga, día y franja horaria (`?liga=E0&fecha=2026-11-07&desde=04:30&hasta=08:00`, hora de Lima; el atajo «de 04:30 a 08:00» está en la página). El ADMIN ve además el botón **Sincronizar datos** | `/api/apuestas/apuesta-del-dia` y `/api/catalogo/partidos?fecha=`; el botón llama a `POST /api/ingesta/ejecutar?tipo=PROXIMOS`. Por cada partido, además, `/api/predicciones/partidos/{id}` y `/api/cuotas/partidos/{id}/cuotas` (en paralelo) para mostrar el 1X2 del modelo y de bet365 |
 | `/partidos/{id}` | **Análisis**: promedios, árbitro, probabilidades y cuotas lado a lado (cuota justa frente a cuota de la casa, en verde si tiene valor), más un formulario "evaluar cuota" | `/api/catalogo/partidos/{id}`, `/api/predicciones/partidos/{id}`, `/api/cuotas/partidos/{id}/cuotas` y `/api/apuestas/evaluaciones` |
 | `/partidos/{id}/cuota-betano` | Formulario para ingresar una cuota de Betano | `/api/cuotas/cuotas/manual` |
 | `/mis-apuestas` | Registrar una apuesta, ver la lista y el rendimiento | `/api/apuestas/mis-apuestas` y `/api/apuestas/mis-apuestas/rendimiento` |
@@ -67,9 +67,8 @@ Reglas generales que aplica: RN-12 (fechas), RN-15 (honestidad) y RN-16 (juego r
 | `form` | Formularios con sus validaciones. Las cuotas y montos aceptan coma o punto decimal. |
 | `vista` | Formatos para las plantillas (`@fmt`, horas de Lima), catálogo de mercados, matriz de Poisson y gráfico del historial. |
 | `exception` | Errores del gateway: 401 cierra la sesión, 5xx o sin conexión se muestra como aviso y 4xx llega al formulario. |
-| `templates/`, `static/` | Plantillas Thymeleaf, `cuaderno.css` y `transiciones.js` (animaciones entre páginas con View Transitions). |
+| `templates/`, `static/` | Plantillas Thymeleaf (`fragmentos.html` tiene el encabezado, el pie y los avisos que comparten todas) y `estilo.css`. Sin JavaScript propio. |
 | `simulador/` | Gateway simulado en Node para probar la web sin los microservicios. |
-| `prototipos/` | Las 3 propuestas de diseño en HTML estático (se eligió la C, «Cuaderno»). |
 
 ## Probarla sin los microservicios
 
