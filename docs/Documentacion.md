@@ -650,39 +650,63 @@ Se ejecutaron el 25/10/2026 contra el `docker-compose.yml` completo, por el gate
 
 ### 8.3. Evidencias del sistema en ejecución
 
-Capturas del 02/11/2026 con el `docker-compose.yml` completo y datos reales de football-data.co.uk: 1 335 filas de histórico y 29 próximos partidos, cargadas desde la web con **Cargar histórico** y **Sincronizar datos**. Se muestran los tres servicios de Joseph (Integrante 2). Cada uno aparece con su Swagger y con una respuesta real, vista en el navegador.
+Capturas del 02/11/2026 con el `docker-compose.yml` completo y datos reales de football-data.co.uk: 1 335 filas de histórico y 29 próximos partidos, cargadas desde la web con **Cargar histórico** y **Sincronizar datos**. Se agrupan por integrante, según la tabla de la sección 3. Cada servicio aparece con su Swagger y, en Modelo y valor, también con una respuesta real vista en el navegador.
 
-![Eureka con los servicios registrados](capturas/microservicios/eureka.png)
+**Datos · Joseph Marquina** (`ms-catalogo`, `ms-ingesta` y `ms-estadisticas`)
 
-*Figura 20. Eureka: los 8 servicios con ruta registrados y en UP (el `discovery-server` es Eureka mismo).*
+![Swagger de ms-catalogo](capturas/microservicios/ms-catalogo-swagger.png)
 
-![Swagger de ms-cuotas](capturas/microservicios/ms-cuotas-swagger.png)
+*Figura 20. ms-catalogo (puerto 8082): sus endpoints.*
 
-*Figura 21. ms-cuotas (puerto 8085): sus endpoints.*
+![Swagger de ms-ingesta](capturas/microservicios/ms-ingesta-swagger.png)
 
-![Respuesta de ms-cuotas](capturas/microservicios/ms-cuotas-respuesta.png)
+*Figura 21. ms-ingesta (puerto 8083): sus endpoints.*
 
-*Figura 22. ms-cuotas: `GET /partidos/1147/cuotas`, las cuotas de Chelsea – Man United.*
+![Swagger de ms-estadisticas](capturas/microservicios/ms-estadisticas-swagger.png)
 
-![Swagger de ms-predicciones](capturas/microservicios/ms-predicciones-swagger.png)
-
-*Figura 23. ms-predicciones (puerto 8086): su endpoint.*
-
-![Respuesta de ms-predicciones](capturas/microservicios/ms-predicciones-respuesta.png)
-
-*Figura 24. ms-predicciones: `GET /partidos/1147`, goles esperados, probabilidad y cuota justa de cada mercado.*
-
-![Swagger de ms-apuestas](capturas/microservicios/ms-apuestas-swagger.png)
-
-*Figura 25. ms-apuestas (puerto 8087): sus endpoints.*
-
-![Respuesta de ms-apuestas](capturas/microservicios/ms-apuestas-respuesta.png)
-
-*Figura 26. ms-apuestas: `GET /apuesta-del-dia`, la apuesta del día del 02/11/2026.*
+*Figura 22. ms-estadisticas (puerto 8084): sus endpoints.*
 
 ![Pantalla de ingesta tras Sincronizar datos](capturas/web/ingesta-sincronizar.png)
 
-*Figura 27. `/admin/ingesta` después de pulsar **Sincronizar datos**: la ejecución de próximos partidos (29 filas) aparece como correcta.*
+*Figura 23. `/admin/ingesta` después de **Sincronizar datos**: 7 ejecuciones correctas (6 de histórico y 1 de próximos partidos, con 29 filas).*
+
+**Modelo y valor · Guillermo Lima** (`ms-cuotas`, `ms-predicciones` y `ms-apuestas`)
+
+![Swagger de ms-cuotas](capturas/microservicios/ms-cuotas-swagger.png)
+
+*Figura 24. ms-cuotas (puerto 8085): sus endpoints.*
+
+![Respuesta de ms-cuotas](capturas/microservicios/ms-cuotas-respuesta.png)
+
+*Figura 25. ms-cuotas: `GET /partidos/1147/cuotas`, las cuotas de Chelsea – Man United.*
+
+![Swagger de ms-predicciones](capturas/microservicios/ms-predicciones-swagger.png)
+
+*Figura 26. ms-predicciones (puerto 8086): su endpoint.*
+
+![Respuesta de ms-predicciones](capturas/microservicios/ms-predicciones-respuesta.png)
+
+*Figura 27. ms-predicciones: `GET /partidos/1147`, goles esperados, probabilidad y cuota justa de cada mercado.*
+
+![Swagger de ms-apuestas](capturas/microservicios/ms-apuestas-swagger.png)
+
+*Figura 28. ms-apuestas (puerto 8087): sus endpoints.*
+
+![Respuesta de ms-apuestas](capturas/microservicios/ms-apuestas-respuesta.png)
+
+*Figura 29. ms-apuestas: `GET /apuesta-del-dia`, la apuesta del día del 02/11/2026.*
+
+**Plataforma · Renzo Tenazoa** (`discovery-server`, `api-gateway`, `ms-usuarios` y `web-app`)
+
+![Eureka con los servicios registrados](capturas/microservicios/eureka.png)
+
+*Figura 30. Eureka: los 8 servicios con ruta registrados y en UP (el `discovery-server` es Eureka mismo).*
+
+![Swagger de ms-usuarios](capturas/microservicios/ms-usuarios-swagger.png)
+
+*Figura 31. ms-usuarios (puerto 8081): registro, login con JWT y banca.*
+
+El `api-gateway` responde 401 a una petición sin token, y la `web-app` se recorrió completa con el sistema real: 13 rutas, ninguna cayó en la página de error. Sus pantallas están en la sección 5.8 (Figuras 17 y 18).
 
 ---
 
