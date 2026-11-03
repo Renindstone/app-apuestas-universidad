@@ -1,6 +1,7 @@
 package pe.edu.unu.apuestas.web.controller;
 
 import java.math.RoundingMode;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +20,7 @@ import pe.edu.unu.apuestas.web.dto.UsuarioDTO;
 import pe.edu.unu.apuestas.web.exception.ApiException;
 import pe.edu.unu.apuestas.web.exception.ServicioNoDisponibleException;
 import pe.edu.unu.apuestas.web.form.BancaForm;
+import pe.edu.unu.apuestas.web.service.EjecutorParalelo;
 import pe.edu.unu.apuestas.web.sesion.SesionUsuario;
 
 /**
@@ -29,11 +31,13 @@ public class PerfilController {
 
     private final UsuariosClient usuarios;
     private final ApuestasClient apuestas;
+    private final EjecutorParalelo paralelo;
     private final SesionUsuario sesion;
 
-    public PerfilController(UsuariosClient usuarios, ApuestasClient apuestas, SesionUsuario sesion) {
+    public PerfilController(UsuariosClient usuarios, ApuestasClient apuestas, EjecutorParalelo paralelo, SesionUsuario sesion) {
         this.usuarios = usuarios;
         this.apuestas = apuestas;
+        this.paralelo = paralelo;
         this.sesion = sesion;
     }
 
@@ -63,18 +67,12 @@ public class PerfilController {
 
     // Pide el perfil y la apuesta del día (para mostrar el stake de hoy en soles). Lo que falle queda en null.
     private String pintar(Model model, BancaForm formConErrores) {
-        UsuarioDTO usuario;
-        try {
-            usuario = usuarios.perfil();
+        CompletableFuture<UsuarioDTO> perfil = paralelo.intentar(usuarios::perfil);
+        CompletableFuture<ApuestaDelDiaDTO> hoy = paralelo.intentar(apuestas::apuestaDelDia);
+        UsuarioDTO usuario = perfil.join();
+        ApuestaDelDiaDTO dia = hoy.join();
+        if (usuario != null) {
             sesion.setBanca(usuario.banca());
-        } catch (ServicioNoDisponibleException | ApiException e) {
-            usuario = null;
-        }
-        ApuestaDelDiaDTO dia;
-        try {
-            dia = apuestas.apuestaDelDia();
-        } catch (ServicioNoDisponibleException | ApiException e) {
-            dia = null;
         }
         BancaForm form = formConErrores;
         if (form == null) {

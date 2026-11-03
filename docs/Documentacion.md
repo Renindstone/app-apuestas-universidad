@@ -488,7 +488,7 @@ Aparte, tres piezas atraviesan las capas: `SesionInterceptor` y `SesionUsuario` 
 **Pantallas** (cada una llama solo al gateway):
 - `/login` y `/registro`: acceso, con `ms-usuarios`.
 - `/` **Hoy**: la apuesta del día y los partidos de un día, con filtros por liga, día y franja horaria, y el botón **Sincronizar datos** para el ADMIN.
-- `/partidos/{id}`: análisis en cuatro pasos (goles esperados, marcadores, comparación con las casas y evaluar una cuota) y `/partidos/{id}/cuota-betano`.
+- `/partidos/{id}`: la comparación con las casas (solo las que tienen cuotas) y evaluar una cuota, con el cálculo del modelo (goles esperados, marcadores y notas) plegado, y `/partidos/{id}/cuota-betano`.
 - `/mis-apuestas`, `/historial` y `/perfil`: apuestas con su rendimiento, historial de la apuesta del día y banca.
 - `/admin/ingesta` (solo ADMIN): cargas del histórico y de los próximos partidos, con la tabla de ejecuciones.
 

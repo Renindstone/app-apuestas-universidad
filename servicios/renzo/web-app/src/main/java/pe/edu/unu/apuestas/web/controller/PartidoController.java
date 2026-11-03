@@ -24,6 +24,7 @@ import pe.edu.unu.apuestas.web.exception.ServicioNoDisponibleException;
 import pe.edu.unu.apuestas.web.form.CuotaBetanoForm;
 import pe.edu.unu.apuestas.web.form.EvaluacionForm;
 import pe.edu.unu.apuestas.web.service.AnalisisService;
+import pe.edu.unu.apuestas.web.service.EjecutorParalelo;
 import pe.edu.unu.apuestas.web.vista.Mercados;
 import pe.edu.unu.apuestas.web.vista.Mercados.Opcion;
 
@@ -37,12 +38,15 @@ public class PartidoController {
     private final ApuestasClient apuestas;
     private final CatalogoClient catalogo;
     private final CuotasClient cuotas;
+    private final EjecutorParalelo paralelo;
 
-    public PartidoController(AnalisisService analisis, ApuestasClient apuestas, CatalogoClient catalogo, CuotasClient cuotas) {
+    public PartidoController(AnalisisService analisis, ApuestasClient apuestas, CatalogoClient catalogo, CuotasClient cuotas,
+            EjecutorParalelo paralelo) {
         this.analisis = analisis;
         this.apuestas = apuestas;
         this.catalogo = catalogo;
         this.cuotas = cuotas;
+        this.paralelo = paralelo;
     }
 
     // Pantalla de análisis. Si viene de evaluar una cuota, el resultado llega como atributo flash.
@@ -115,13 +119,8 @@ public class PartidoController {
     // Datos de la pantalla de Betano: el partido y las cuotas de Betano que ya se cargaron (null si ms-cuotas no responde).
     private String pintarBetano(long id, Model model) {
         model.addAttribute("partido", catalogo.partido(id));
-        List<CuotaDTO> deBetano;
-        try {
-            deBetano = cuotas.cuotas(id).stream().filter(c -> "betano".equals(c.casa())).toList();
-        } catch (ServicioNoDisponibleException | ApiException e) {
-            deBetano = null;
-        }
-        model.addAttribute("cuotasBetano", deBetano);
+        List<CuotaDTO> todas = paralelo.intentar(() -> cuotas.cuotas(id)).join();
+        model.addAttribute("cuotasBetano", todas == null ? null : todas.stream().filter(c -> "betano".equals(c.casa())).toList());
         model.addAttribute("opciones", Mercados.porMercado());
         return "cuota-betano";
     }

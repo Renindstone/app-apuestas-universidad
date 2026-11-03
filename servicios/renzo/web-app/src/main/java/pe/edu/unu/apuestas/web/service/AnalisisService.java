@@ -69,6 +69,11 @@ public class AnalisisService {
         public List<CuotaDTO> cuotasDe(String casa) {
             return cuotas == null ? List.of() : cuotas.stream().filter(c -> casa.equals(c.casa())).toList();
         }
+
+        // Las casas que tienen al menos una cuota para este partido: la tabla no muestra columnas vacías.
+        public List<String> casasConCuotas() {
+            return CASAS.stream().filter(casa -> !cuotasDe(casa).isEmpty()).toList();
+        }
     }
 
     // Pide predicción y cuotas a la vez. Si el partido no existe, el catálogo responde 404 y la excepción sube al controlador.

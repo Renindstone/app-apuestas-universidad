@@ -17,7 +17,7 @@ Tras el login, guarda el JWT en la `HttpSession` del servidor (no en `localStora
 |---|---|---|
 | `/login`, `/registro` | Inicio de sesión y registro | `/api/usuarios/auth/login` y `/api/usuarios/auth/registro` |
 | `/` | **Hoy**: la apuesta del día y los partidos de un día, filtrables por liga, día y franja horaria (`?liga=E0&fecha=2026-11-07&desde=04:30&hasta=08:00`, hora de Lima; el atajo «de 04:30 a 08:00» está en la página). El ADMIN ve además el botón **Sincronizar datos** | `/api/apuestas/apuesta-del-dia` y `/api/catalogo/partidos?fecha=`; el botón llama a `POST /api/ingesta/ejecutar?tipo=PROXIMOS`. Por cada partido, además, `/api/predicciones/partidos/{id}` y `/api/cuotas/partidos/{id}/cuotas` (en paralelo) para mostrar el 1X2 del modelo y de bet365 |
-| `/partidos/{id}` | **Análisis**: promedios, árbitro, probabilidades y cuotas lado a lado (cuota justa frente a cuota de la casa, en verde si tiene valor), más un formulario "evaluar cuota" | `/api/catalogo/partidos/{id}`, `/api/predicciones/partidos/{id}`, `/api/cuotas/partidos/{id}/cuotas` y `/api/apuestas/evaluaciones` |
+| `/partidos/{id}` | **Análisis**: probabilidades y cuotas lado a lado (cuota justa frente a cuota de la casa, en verde si tiene valor; solo las casas con cuotas), más un formulario "evaluar cuota". El cálculo del modelo (goles esperados, marcadores, árbitro y notas) va plegado en «Cómo calcula el modelo» | `/api/catalogo/partidos/{id}`, `/api/predicciones/partidos/{id}`, `/api/cuotas/partidos/{id}/cuotas` y `/api/apuestas/evaluaciones` |
 | `/partidos/{id}/cuota-betano` | Formulario para ingresar una cuota de Betano | `/api/cuotas/cuotas/manual` |
 | `/mis-apuestas` | Registrar una apuesta, ver la lista y el rendimiento | `/api/apuestas/mis-apuestas` y `/api/apuestas/mis-apuestas/rendimiento` |
 | `/historial` | Historial de la apuesta del día | `/api/apuestas/picks/historial` |
@@ -42,6 +42,7 @@ Reglas específicas de este servicio, con el mismo código que en la [sección 4
 | RN-WEB-06 | La pantalla de ingesta solo aparece para el ADMIN. | RN-13 |
 | RN-WEB-07 | El pie de cada página dice: «Solo para mayores de 18 años. Juega con responsabilidad.» | RN-16 |
 | RN-WEB-08 | En Hoy, la franja `desde`–`hasta` se mide en hora de Lima y sus dos extremos cuentan; un valor mal escrito en la dirección se ignora. El botón «Sincronizar datos» (ingesta PROXIMOS) solo lo ve el ADMIN. | RN-12 · RN-13 · RN-ING-02 |
+| RN-WEB-09 | La tabla de cuotas del Análisis solo muestra las casas que tienen cuotas para ese partido; el formulario «evaluar cuota» ofrece las tres. | RN-10 |
 
 Reglas generales que aplica: RN-12 (fechas), RN-15 (honestidad) y RN-16 (juego responsable).
 

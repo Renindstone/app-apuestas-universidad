@@ -54,12 +54,11 @@ public class HoyService {
      * Todo lo que necesita la plantilla hoy.html. Un campo en null significa que su servicio no respondió.
      *
      * @param fecha          el día de los partidos que se muestran
-     * @param partidoPick    el partido de la apuesta del día (para mostrar su hora)
-     * @param prediccionPick su predicción (para mostrar los goles esperados)
+     * @param partidoPick     el partido de la apuesta del día (para mostrar su hora)
      * @param partidosPorLiga nombre de la liga → renglones de sus partidos
      */
-    public record VistaHoy(LocalDate fecha, ApuestaDelDiaDTO dia, PartidoDTO partidoPick, PrediccionDTO prediccionPick,
-            List<LigaDTO> ligas, Map<String, List<FilaPartido>> partidosPorLiga) {
+    public record VistaHoy(LocalDate fecha, ApuestaDelDiaDTO dia, PartidoDTO partidoPick, List<LigaDTO> ligas,
+            Map<String, List<FilaPartido>> partidosPorLiga) {
     }
 
     // Arma la vista. Los tres filtros son opcionales: la liga ("E0", "SP1" o "D1"), la franja desde–hasta
@@ -88,17 +87,14 @@ public class HoyService {
             }
         }
 
-        // Datos extra del partido de la apuesta del día: su hora y sus goles esperados.
+        // Dato extra del partido de la apuesta del día: su hora (si el partido está en la lista del día que se muestra).
         ApuestaDelDiaDTO apuesta = pickDelDia.join();
         PartidoDTO partidoPick = null;
-        PrediccionDTO prediccionPick = null;
-        if (apuesta != null && apuesta.pick() != null) {
+        if (apuesta != null && apuesta.pick() != null && partidos != null) {
             Long id = apuesta.pick().partidoId();
-            partidoPick = partidos == null ? null : partidos.stream().filter(p -> p.id().equals(id)).findFirst().orElse(null);
-            prediccionPick = prediccionDe.containsKey(id) ? prediccionDe.get(id).join()
-                    : paralelo.intentar(() -> predicciones.prediccion(id)).join();
+            partidoPick = partidos.stream().filter(p -> p.id().equals(id)).findFirst().orElse(null);
         }
-        return new VistaHoy(fecha, apuesta, partidoPick, prediccionPick, ligas.join(), porLiga);
+        return new VistaHoy(fecha, apuesta, partidoPick, ligas.join(), porLiga);
     }
 
     // Deja los partidos de la liga pedida cuyo inicio, en hora de Lima, cae entre desde y hasta (ambos incluidos).

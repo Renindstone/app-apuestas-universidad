@@ -13,6 +13,7 @@ import pe.edu.unu.apuestas.web.client.IngestaClient;
 import pe.edu.unu.apuestas.web.dto.EjecucionDTO;
 import pe.edu.unu.apuestas.web.exception.ApiException;
 import pe.edu.unu.apuestas.web.exception.ServicioNoDisponibleException;
+import pe.edu.unu.apuestas.web.service.EjecutorParalelo;
 
 /**
  * /admin/ingesta (solo ADMIN, lo controla SesionInterceptor): lanzar la ingesta a mano y ver las ejecuciones.
@@ -21,20 +22,17 @@ import pe.edu.unu.apuestas.web.exception.ServicioNoDisponibleException;
 public class IngestaController {
 
     private final IngestaClient ingesta;
+    private final EjecutorParalelo paralelo;
 
-    public IngestaController(IngestaClient ingesta) {
+    public IngestaController(IngestaClient ingesta, EjecutorParalelo paralelo) {
         this.ingesta = ingesta;
+        this.paralelo = paralelo;
     }
 
-    // Tabla de ejecuciones. Si alguna sigue EN_CURSO, la página se recarga sola cada 5 segundos.
+    // Tabla de ejecuciones (null si ms-ingesta no responde). Si alguna sigue EN_CURSO, la página se recarga sola cada 5 segundos.
     @GetMapping("/admin/ingesta")
     public String ejecuciones(Model model) {
-        List<EjecucionDTO> lista;
-        try {
-            lista = ingesta.ejecuciones(20);
-        } catch (ServicioNoDisponibleException | ApiException e) {
-            lista = null;
-        }
+        List<EjecucionDTO> lista = paralelo.intentar(() -> ingesta.ejecuciones(20)).join();
         model.addAttribute("ejecuciones", lista);
         model.addAttribute("enCurso", lista != null && lista.stream().anyMatch(e -> "EN_CURSO".equals(e.estado())));
         return "admin-ingesta";
