@@ -15,6 +15,7 @@
 | Próximos partidos de todas las ligas, con cuotas | `https://www.football-data.co.uk/fixtures.csv` (filtrar `Div` en E0, SP1 y D1) |
 | Serie A de Brasil: todas las temporadas, con resultados | `https://www.football-data.co.uk/new/BRA.csv` (columna `Season`; solo goles, sin estadísticas) |
 | Próximos partidos de las ligas "nuevas", con cuotas | `https://www.football-data.co.uk/new_league_fixtures.csv` (filtrar `Country` = Brazil y `League` = Serie A) |
+| Calendario de toda la temporada (sin cuotas), para ver los partidos de los próximos días aunque football-data aún no los publique | `https://fixturedownload.com/download/{epl,la-liga,bundesliga}-2026-UTC.csv` (hora en UTC; se envían los partidos de hace 3 días a dentro de 10 días, con los nombres traducidos a los de football-data en `CalendarioParser`) |
 
 - **Temporadas:** la actual (`2627`) y la anterior (`2526`). Se cargan las 3 ligas europeas: `E0`, `SP1` y `D1`.
 - **Brasil (`BRA`):** juega en año calendario, así que su temporada es el año (`2026`, y la anterior `2025`). Sus archivos usan `Home`, `Away`, `HG` y `AG` en lugar de `HomeTeam`, `AwayTeam`, `FTHG` y `FTAG`, y no traen estadísticas: el modelo no tiene datos para predecir sus partidos, pero se muestran, se puede apostar en ellos y se liquidan con el marcador.
@@ -49,7 +50,7 @@ Cuidado con los nombres: los encabezados exactos varían un poco entre archivos.
 | Método | Ruta | Respuesta |
 |---|---|---|
 | POST | `/ejecutar?tipo=HISTORICO` | `202 { "id": 7, "estado": "EN_CURSO" }`. Corre en segundo plano (`@Async`). |
-| POST | `/ejecutar?tipo=PROXIMOS` | Igual, pero solo con `fixtures.csv` y `new_league_fixtures.csv` |
+| POST | `/ejecutar?tipo=PROXIMOS` | Igual, pero con el calendario de fixturedownload, `fixtures.csv` y `new_league_fixtures.csv` |
 | GET | `/ejecuciones?limite=20` | `[{ "id": 7, "tipo": "HISTORICO", "fuente": "...E0.csv", "inicio": "...", "fin": "...", "estado": "OK", "filas": 1140, "error": null }]` |
 
 ## Tareas programadas (`@Scheduled`, zona `America/Lima`)

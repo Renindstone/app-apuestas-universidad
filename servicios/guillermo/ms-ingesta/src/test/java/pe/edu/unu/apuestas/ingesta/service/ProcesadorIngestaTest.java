@@ -29,6 +29,7 @@ import org.springframework.core.io.ClassPathResource;
 import pe.edu.unu.apuestas.ingesta.client.CatalogoClient;
 import pe.edu.unu.apuestas.ingesta.client.CuotasClient;
 import pe.edu.unu.apuestas.ingesta.client.EstadisticasClient;
+import pe.edu.unu.apuestas.ingesta.csv.CalendarioParser;
 import pe.edu.unu.apuestas.ingesta.csv.CsvFootballDataParser;
 import pe.edu.unu.apuestas.ingesta.dto.EstadisticasRequest;
 import pe.edu.unu.apuestas.ingesta.dto.PartidoDTO;
@@ -63,7 +64,7 @@ class ProcesadorIngestaTest {
 
     @BeforeEach
     void preparar() {
-        procesador = new ProcesadorIngesta(ejecuciones, descargador, new CsvFootballDataParser(), catalogo, estadisticas, cuotas);
+        procesador = new ProcesadorIngesta(ejecuciones, descargador, new CsvFootballDataParser(), new CalendarioParser(), catalogo, estadisticas, cuotas);
         ejecucion = new Ejecucion(TipoIngesta.HISTORICO, URL);
         when(ejecuciones.findById(1L)).thenReturn(Optional.of(ejecucion));
         when(ejecuciones.save(any())).thenAnswer(llamada -> llamada.getArgument(0));

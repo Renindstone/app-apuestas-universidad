@@ -1,5 +1,6 @@
 package pe.edu.unu.apuestas.ingesta.service;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.apache.commons.csv.CSVRecord;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import pe.edu.unu.apuestas.ingesta.client.CatalogoClient;
 import pe.edu.unu.apuestas.ingesta.client.CuotasClient;
 import pe.edu.unu.apuestas.ingesta.client.EstadisticasClient;
+import pe.edu.unu.apuestas.ingesta.csv.CalendarioParser;
 import pe.edu.unu.apuestas.ingesta.csv.CsvFootballDataParser;
 import pe.edu.unu.apuestas.ingesta.csv.EstadisticasCsv;
 import pe.edu.unu.apuestas.ingesta.csv.PartidoCsv;
@@ -32,22 +34,31 @@ public class ProcesadorIngesta {
     // Las cuotas de football-data que se usan son las previas al partido (las de cierre, B365CH y demás, no se leen).
     private static final String TIPO_CUOTA = "APERTURA";
 
-    /** Un archivo por procesar: el ID de su ejecución, ya registrada EN_CURSO, la URL y la temporada de sus partidos. */
-    public record Archivo(Long ejecucionId, String url, String temporada) {
+    /**
+     * Un archivo por procesar: el ID de su ejecución, ya registrada EN_CURSO, la URL y la temporada de sus partidos.
+     * ligaCalendario solo viene en los calendarios de fixturedownload (E0, SP1 o D1); en los CSV de football-data es null.
+     */
+    public record Archivo(Long ejecucionId, String url, String temporada, String ligaCalendario) {
+
+        public Archivo(Long ejecucionId, String url, String temporada) {
+            this(ejecucionId, url, temporada, null);
+        }
     }
 
     private final EjecucionRepository ejecuciones;
     private final DescargadorCsv descargador;
     private final CsvFootballDataParser parser;
+    private final CalendarioParser calendario;
     private final CatalogoClient catalogo;
     private final EstadisticasClient estadisticas;
     private final CuotasClient cuotas;
 
     public ProcesadorIngesta(EjecucionRepository ejecuciones, DescargadorCsv descargador, CsvFootballDataParser parser,
-            CatalogoClient catalogo, EstadisticasClient estadisticas, CuotasClient cuotas) {
+            CalendarioParser calendario, CatalogoClient catalogo, EstadisticasClient estadisticas, CuotasClient cuotas) {
         this.ejecuciones = ejecuciones;
         this.descargador = descargador;
         this.parser = parser;
+        this.calendario = calendario;
         this.catalogo = catalogo;
         this.estadisticas = estadisticas;
         this.cuotas = cuotas;
@@ -65,12 +76,16 @@ public class ProcesadorIngesta {
         ejecucion.iniciar();
         ejecucion = ejecuciones.save(ejecucion);
         try {
-            List<CSVRecord> filas = parser.leer(descargador.descargar(archivo.url()), archivo.temporada());
+            String texto = descargador.descargar(archivo.url());
+            String ligaCalendario = archivo.ligaCalendario();
+            List<CSVRecord> filas = ligaCalendario == null ? parser.leer(texto, archivo.temporada())
+                    : calendario.leer(texto, Instant.now());
             int procesadas = 0;
             for (CSVRecord fila : filas) {
                 // Una fila con error se anota en el log y se sigue con la siguiente (RN-ING-05).
                 try {
-                    procesarFila(parser.parsear(fila), archivo.temporada());
+                    PartidoCsv partido = ligaCalendario == null ? parser.parsear(fila) : calendario.parsear(fila, ligaCalendario);
+                    procesarFila(partido, archivo.temporada());
                     procesadas++;
                 } catch (Exception e) {
                     log.warn("Fila {} de {}: {}", fila.getRecordNumber(), archivo.url(), mensaje(e));

@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import pe.edu.unu.apuestas.ingesta.config.IngestaProperties;
+import pe.edu.unu.apuestas.ingesta.csv.CalendarioParser;
 import pe.edu.unu.apuestas.ingesta.dto.EjecucionDTO;
 import pe.edu.unu.apuestas.ingesta.dto.EjecucionIniciadaDTO;
 import pe.edu.unu.apuestas.ingesta.entity.Ejecucion;
@@ -38,8 +39,12 @@ public class IngestaService {
     private static final List<String> LIGAS = List.of("E0", "SP1", "D1");
     private static final ZoneId LIMA = ZoneId.of("America/Lima");
 
-    /** Un archivo por descargar y la temporada de sus partidos. */
-    private record Fuente(String url, String temporada) {
+    /** Un archivo por descargar y la temporada de sus partidos. ligaCalendario solo en los calendarios de fixturedownload. */
+    private record Fuente(String url, String temporada, String ligaCalendario) {
+
+        Fuente(String url, String temporada) {
+            this(url, temporada, null);
+        }
     }
 
     private final EjecucionRepository ejecuciones;
@@ -55,7 +60,8 @@ public class IngestaService {
     /**
      * Registra una ejecución EN_CURSO por archivo y los procesa en segundo plano. Devuelve la primera.
      * HISTORICO: un CSV por liga y temporada (la anterior y la actual, o solo la actual) y new/BRA.csv para Brasil.
-     * PROXIMOS: fixtures.csv (ligas europeas) y new_league_fixtures.csv (Brasil).
+     * PROXIMOS: el calendario de fixturedownload (ligas europeas, 10 días), fixtures.csv (ligas europeas, con cuotas)
+     * y new_league_fixtures.csv (Brasil).
      */
     public EjecucionIniciadaDTO lanzar(TipoIngesta tipo, boolean soloTemporadaActual) {
         return lanzarVarias(List.of(tipo), soloTemporadaActual);
@@ -73,7 +79,8 @@ public class IngestaService {
         List<ProcesadorIngesta.Archivo> archivos = new ArrayList<>();
         for (TipoIngesta tipo : tipos) {
             for (Fuente f : fuentes(tipo, soloTemporadaActual)) {
-                archivos.add(new ProcesadorIngesta.Archivo(ejecuciones.save(new Ejecucion(tipo, f.url())).getId(), f.url(), f.temporada()));
+                archivos.add(new ProcesadorIngesta.Archivo(ejecuciones.save(new Ejecucion(tipo, f.url())).getId(), f.url(), f.temporada(),
+                        f.ligaCalendario()));
             }
         }
         procesador.procesar(archivos);
@@ -89,6 +96,13 @@ public class IngestaService {
         String brasilActual = String.valueOf(anio);
         List<Fuente> fuentes = new ArrayList<>();
         if (tipo == TipoIngesta.PROXIMOS) {
+            // Primero el calendario de fixturedownload: trae los partidos de los próximos 10 días de Premier, LaLiga y
+            // Bundesliga (y los resultados de los últimos 3), aunque football-data todavía no haya publicado su fixtures.csv.
+            String anioTemporada = "20" + actual.substring(0, 2);
+            for (String liga : LIGAS) {
+                String nombre = CalendarioParser.ARCHIVOS.get(liga);
+                fuentes.add(new Fuente(propiedades.urlCalendario() + "/download/" + nombre + "-" + anioTemporada + "-UTC.csv", actual, liga));
+            }
             // fixtures.csv no dice la temporada: todos sus partidos son de la actual.
             fuentes.add(new Fuente(base + "/fixtures.csv", actual));
             // Los próximos partidos de las ligas "nuevas" de football-data, entre ellas la Serie A de Brasil.
@@ -147,10 +161,11 @@ public class IngestaService {
 
     /**
      * POST /interno/resultados: lo llama ms-apuestas cuando hay apuestas de partidos que ya debieron terminar.
-     * Vuelve a leer los resultados de la temporada actual. 409 si ya hay una ingesta en curso.
+     * Vuelve a leer los resultados de la temporada actual y el calendario. 409 si ya hay una ingesta en curso.
      */
     public EjecucionIniciadaDTO actualizarResultados() {
-        return lanzar(TipoIngesta.HISTORICO, true);
+        // El calendario (PROXIMOS) suele tener el marcador antes que football-data; el histórico trae tarjetas y córners.
+        return lanzarVarias(List.of(TipoIngesta.HISTORICO, TipoIngesta.PROXIMOS), true);
     }
 
     private void programada(TipoIngesta tipo) {

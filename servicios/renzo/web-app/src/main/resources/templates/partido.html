@@ -25,21 +25,23 @@
   <!-- Probabilidad y cuota justa frente a la cuota de cada casa. En verde, las que tienen valor (RN-WEB-05). -->
   <section class="mb-4">
     <h2 class="h5">Comparar con las casas</h2>
-    <p class="small text-secondary">Cuota justa = 1 / probabilidad. Solo se muestran las casas que tienen cuotas para este partido.</p>
+    <p class="small text-secondary">Cuota justa = 1 / probabilidad. Estimada = lo que pagaría una casa que cobra un margen típico del 7 %
+      (sirve de referencia en tarjetas y córners, que las casas no publican gratis). Solo se muestran las casas que tienen cuotas para este partido.</p>
     <p class="alert alert-warning py-2" role="status" th:if="${v.sinCuotas()}">Cuotas no disponibles por ahora. Las probabilidades del modelo siguen disponibles.</p>
     <p class="text-secondary" th:if="${!v.sinCuotas() and v.casasConCuotas().isEmpty()}">Todavía no hay cuotas de las casas para este partido.</p>
     <div class="table-responsive">
       <table class="tabla">
         <thead>
-          <tr><th scope="col">Selección</th><th scope="col">Modelo</th><th scope="col">Justa</th>
+          <tr><th scope="col">Selección</th><th scope="col">Modelo</th><th scope="col">Justa</th><th scope="col" title="Cuota justa con un margen de casa del 7 %. No es la cuota de ninguna casa.">Estimada</th>
             <th:block th:unless="${v.sinCuotas()}"><th scope="col" th:each="casa : ${v.casasConCuotas()}" th:text="${casa}">bet365</th></th:block></tr>
         </thead>
         <tbody th:each="g : ${v.grupos()}">
-          <tr class="grupo"><th scope="rowgroup" th:colspan="${v.sinCuotas() ? 3 : 3 + v.casasConCuotas().size()}" th:text="${g.nombre()}">Goles</th></tr>
+          <tr class="grupo"><th scope="rowgroup" th:colspan="${v.sinCuotas() ? 4 : 4 + v.casasConCuotas().size()}" th:text="${g.nombre()}">Goles</th></tr>
           <tr th:each="fila : ${g.filas()}">
             <th scope="row" th:text="${fila.etiqueta()}">Más de 2.5 goles</th>
             <td th:text="${@fmt.numero(fila.probabilidad(), 3)}">0.528</td>
             <td class="text-secondary" th:text="${@fmt.cuota(fila.cuotaJusta())}">1.89</td>
+            <td class="text-secondary" th:text="${@fmt.cuota(fila.cuotaEstimada())}">1.77</td>
             <th:block th:unless="${v.sinCuotas()}">
               <td th:each="casa : ${v.casasConCuotas()}" th:with="c=${fila.casas().get(casa)}"
                   th:classappend="${c.conValor()} ? 'con-valor'"
@@ -50,7 +52,7 @@
         </tbody>
       </table>
     </div>
-    <p class="small text-secondary mt-2">bet365 y Pinnacle solo publican 1X2 y más/menos 2.5 goles.
+    <p class="small text-secondary mt-2">bet365 y Pinnacle solo publican 1X2 y más/menos 2.5 goles. Para tarjetas y córners usa la estimada o la cuota real de Betano.
       <a th:href="@{/partidos/{id}/cuota-betano(id=${p.id()})}">Ingresar una cuota de Betano</a></p>
   </section>
 

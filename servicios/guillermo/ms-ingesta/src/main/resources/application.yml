@@ -26,6 +26,8 @@ ingesta:
   url-base: ${INGESTA_URL_BASE:https://football-data.co.uk}
   temporada-actual: "2627"
   temporada-anterior: "2526"
+  # Calendario de toda la temporada (partidos de los próximos días aunque football-data aún no los publique).
+  url-calendario: ${INGESTA_URL_CALENDARIO:https://fixturedownload.com}
 
 eureka:
   client:
