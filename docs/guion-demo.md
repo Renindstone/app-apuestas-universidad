@@ -11,7 +11,7 @@ Unos 12 minutos. Todos los comandos se corren desde la raíz del repositorio.
    ```
 2. En el panel de Eureka (http://localhost:8761), revisar que aparezcan los 8 servicios en `UP`: el gateway y los 7 microservicios. Tardan medio minuto en registrarse.
 3. Entrar a la web (http://localhost:8090) como `admin`, con la clave `ADMIN_PASSWORD` del `.env`. Si dice «Usuario o contraseña incorrectos», el admin se creó con una clave anterior (ver la retrospectiva, sección 7.1). La salida que conserva los datos: borrar en DBeaver la fila `admin` de la tabla `usuario` (`usuarios_db`) y reiniciar `ms-usuarios`, que lo crea de nuevo con la clave del `.env`. También se puede usar la clave antigua, o hacer `down -v` y levantar todo de nuevo, lo que **borra los datos**.
-4. En **Ingesta**, ejecutar HISTORICO y luego PROXIMOS. Hace falta internet, porque los CSV se descargan de football-data.co.uk. Las 6 ejecuciones de HISTORICO deben quedar en OK.
+4. En **Ingesta**, ejecutar HISTORICO y luego PROXIMOS. Hace falta internet, porque los CSV se descargan de football-data.co.uk. Las 6 ejecuciones de HISTORICO deben quedar en OK. Para actualizar solo los próximos partidos, basta el botón **Sincronizar datos** de la pantalla Hoy.
 5. Elegir de antemano un partido **PROGRAMADO de la Premier** (es la única liga con árbitro) y anotar su URL `/partidos/{id}`.
 6. Crear un usuario apostador para la demo, por ejemplo `demo`, o crearlo en vivo en el paso 2.
 7. **No** correr `down -v` el día de la demo: los datos de la ingesta viven en el volumen de PostgreSQL.
@@ -22,7 +22,7 @@ Unos 12 minutos. Todos los comandos se corren desde la raíz del repositorio.
 |---|---|---|---|
 | 1 | 1 min | Panel de Eureka (:8761) y la diapositiva de arquitectura (sección 5.2) | 9 microservicios, cada uno con su base de datos. La web solo habla con el gateway, y el gateway encuentra a los servicios por Eureka. |
 | 2 | 1 min | `/registro` y `/login` | El rol siempre es APOSTADOR (nunca se toma del formulario). El JWT se guarda en la sesión del servidor, no en el navegador (RN-WEB-02). |
-| 3 | 2 min | **Hoy** (`/`) | La apuesta del día solo sale si una cuota de bet365 o Betano supera los umbrales (RN-06): probabilidad que mezcla modelo y mercado, EV ≥ 3 %. El lunes 26 solo hay un partido (Sevilla–Osasuna), así que lo más probable es que diga «Hoy no hay apuesta del día». Es el comportamiento esperado: no apostar también es una decisión. |
+| 3 | 2 min | **Hoy** (`/`) | La apuesta del día solo sale si una cuota de bet365 o Betano supera los umbrales (RN-06): probabilidad que mezcla modelo y mercado, EV ≥ 3 %. El lunes 26 solo hay un partido (Sevilla–Osasuna), así que lo más probable es que diga «Hoy no hay apuesta del día». Es el comportamiento esperado: no apostar también es una decisión. Mostrar también el filtro por liga, día y franja (el atajo «de 04:30 a 08:00», hora de Lima) y, como admin, el botón **Sincronizar datos**. |
 | 4 | 3 min | **Análisis** del partido elegido | Goles esperados (λ), la matriz de marcadores de Poisson, «Comparar con las casas» (cuota justa frente a la cuota de la casa) y «De dónde salen los números». Evaluar una cuota en el formulario: EV, stake sugerido y veredicto. |
 | 5 | 1 min | **Cuota de Betano** del mismo partido | No hay una fuente gratuita de cuotas de Betano, así que el usuario la carga a mano y el sistema la compara igual. |
 | 6 | 1 min | **Mis apuestas** | Registrar una apuesta y mostrar el rendimiento: ganadas, perdidas y ROI. La liquidación corre sola a las 06:00 de Lima. |
