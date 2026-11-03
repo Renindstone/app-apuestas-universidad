@@ -10,7 +10,7 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 |---|---|
 | [docs/DocumentacionProyectoApuestas.docx](docs/DocumentacionProyectoApuestas.docx) | **Documento para entregar** (Word, con el diseño del plan de trabajo de PPP: portada con las franjas institucionales, títulos en Cambria y texto en Calibri; mantiene la estructura del proyecto MTC). |
 | [docs/Documentacion.md](docs/Documentacion.md) | Mismo contenido en Markdown (fuente para regenerar el Word) y documento del proyecto (perfil, análisis, reglas de negocio, arquitectura, BD, plan de la semana y pruebas), con la estructura del proyecto MTC |
-| [docs/PresentacionApuestas_2nov2026.pptx](docs/PresentacionApuestas_2nov2026.pptx) | Presentación de 9 diapositivas (arquitectura, front, filtro y sincronización, evidencias y criterios de trabajo). Las capturas están en [docs/capturas/](docs/capturas/). |
+| [docs/PresentacionApuestas_2nov2026.pptx](docs/PresentacionApuestas_2nov2026.pptx) | Presentación de 11 diapositivas con el tema de la UNU (logos de la universidad, la facultad y la escuela, íconos, transiciones y animaciones): arquitectura, front, filtro y sincronización, evidencias, pruebas y criterios de trabajo. Las notas del orador van en cada diapositiva. Las capturas están en [docs/capturas/](docs/capturas/). |
 | [docs/guia-inicio.md](docs/guia-inicio.md) | Cómo crear cada servicio con Spring Initializr y cómo levantar todo |
 | [docs/guia-paso-a-paso.md](docs/guia-paso-a-paso.md) | Las dos ramas, el orden para construir los servicios, cómo comparar con la solución y qué hacer si no alcanza el tiempo |
 | [docs/guion-demo.md](docs/guion-demo.md) | Preparación y pasos de la demo del lunes 26, con los comandos y qué hacer si algo falla |

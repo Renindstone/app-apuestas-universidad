@@ -630,7 +630,7 @@ Cada integrante escribe las pruebas de caja blanca de sus servicios y ejecuta la
 
 Corrida del 25/10/2026: `./mvnw test` en los 10 módulos, con 96 pruebas, 0 fallos y 0 errores.
 
-Corrida del 02/11/2026: `./mvnw test` en los 10 módulos, con 101 pruebas, 0 fallos y 0 errores (las 96 anteriores y 5 nuevas, `FiltroPartidosTest`, del filtro por liga y franja horaria de Hoy).
+Corrida del 02/11/2026: `./mvnw test` en los 10 módulos, con 103 pruebas, 0 fallos y 0 errores (las 96 anteriores y 7 nuevas de la web: 5 de `FiltroPartidosTest`, del filtro por liga y franja horaria de Hoy, y 2 de `VistaAnalisisTest`, de la tabla de cuotas).
 
 ### 8.2. Caja negra
 
