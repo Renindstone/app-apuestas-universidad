@@ -2,7 +2,7 @@
 
 Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del proyecto de la rama `main` como **9 microservicios** con Spring Boot y Spring Cloud. Lo construye un equipo de 3 personas en una semana, del martes 20 al lunes 26 de octubre de 2026.
 
-> La rama `main` no se toca: allí sigue el sistema completo en Python. En `universidad/microservicios` los servicios vienen en **esqueleto**, con una guía paso a paso para construirlos; en `universidad/codigo-completo` está el código completo y probado. Ver [docs/guia-paso-a-paso.md](docs/guia-paso-a-paso.md).
+> La rama `main` no se toca: allí sigue el sistema completo en Python. Aquí está el código completo y probado de los 9 microservicios y la web. Los `GUIA.md` de cada servicio cuentan cómo se construyó paso a paso ([docs/guia-paso-a-paso.md](docs/guia-paso-a-paso.md)).
 
 ## Documentos
 
@@ -14,7 +14,7 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 | [docs/guia-inicio.md](docs/guia-inicio.md) | Cómo crear cada servicio con Spring Initializr y cómo levantar todo |
 | [docs/guia-paso-a-paso.md](docs/guia-paso-a-paso.md) | Las dos ramas, el orden para construir los servicios, cómo comparar con la solución y qué hacer si no alcanza el tiempo |
 | [docs/guion-demo.md](docs/guion-demo.md) | Preparación y pasos de la demo del lunes 26, con los comandos y qué hacer si algo falla |
-| [infra/DISTRIBUIDO.md](infra/DISTRIBUIDO.md) | Guía para correr el sistema distribuido en 3 máquinas con Docker Compose |
+| [infra/DISTRIBUIDO.md](infra/DISTRIBUIDO.md) | Una, dos o tres máquinas con cualquier sistema operativo: el lanzador `iniciar` y el panel oculto de máquinas |
 | `servicios/<integrante>/<servicio>/README.md` | **Contrato** del servicio: endpoints, JSON de ejemplo, reglas de negocio, tareas y pistas |
 | `servicios/<integrante>/<servicio>/GUIA.md` | Pasos para construir el servicio, con pistas y la ruta de cada archivo en la solución |
 
@@ -25,12 +25,12 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 | 1 | [discovery-server](servicios/renzo/discovery-server/README.md) | 8761 | — | Renzo (Integrante 3) |
 | 2 | [api-gateway](servicios/renzo/api-gateway/README.md) | 8080 | — | Renzo (Integrante 3) |
 | 3 | [ms-usuarios](servicios/renzo/ms-usuarios/README.md) | 8081 | usuarios_db | Renzo (Integrante 3) |
-| 4 | [ms-catalogo](servicios/guillermo/ms-catalogo/README.md) | 8082 | catalogo_db | Guillermo (Integrante 1) |
-| 5 | [ms-ingesta](servicios/guillermo/ms-ingesta/README.md) | 8083 | ingesta_db | Guillermo (Integrante 1) |
-| 6 | [ms-estadisticas](servicios/guillermo/ms-estadisticas/README.md) | 8084 | estadisticas_db | Guillermo (Integrante 1) |
-| 7 | [ms-cuotas](servicios/joseph/ms-cuotas/README.md) | 8085 | cuotas_db | Joseph (Integrante 2) |
-| 8 | [ms-predicciones](servicios/joseph/ms-predicciones/README.md) | 8086 | — | Joseph (Integrante 2) |
-| 9 | [ms-apuestas](servicios/joseph/ms-apuestas/README.md) | 8087 | apuestas_db | Joseph (Integrante 2) |
+| 4 | [ms-catalogo](servicios/joseph/ms-catalogo/README.md) | 8082 | catalogo_db | Joseph (Integrante 1) |
+| 5 | [ms-ingesta](servicios/joseph/ms-ingesta/README.md) | 8083 | ingesta_db | Joseph (Integrante 1) |
+| 6 | [ms-estadisticas](servicios/joseph/ms-estadisticas/README.md) | 8084 | estadisticas_db | Joseph (Integrante 1) |
+| 7 | [ms-cuotas](servicios/guillermo/ms-cuotas/README.md) | 8085 | cuotas_db | Guillermo (Integrante 2) |
+| 8 | [ms-predicciones](servicios/guillermo/ms-predicciones/README.md) | 8086 | — | Guillermo (Integrante 2) |
+| 9 | [ms-apuestas](servicios/guillermo/ms-apuestas/README.md) | 8087 | apuestas_db | Guillermo (Integrante 2) |
 | — | [web-app](servicios/renzo/web-app/README.md) (cliente, no cuenta como microservicio) | 8090 | — | Renzo (Integrante 3) |
 
 ## Convenciones comunes (todos los servicios)
@@ -59,7 +59,11 @@ Rama `universidad/microservicios`. Es un replanteamiento **simplificado** del pr
 
 ```bash
 cp .env.example .env
-cd infra && docker compose up -d --build    # levanta todo; web en http://localhost:8090
+docker compose -f infra/docker-compose.yml --env-file .env up -d --build    # levanta todo; web en http://localhost:8090
 ```
+
+Para una, dos o tres máquinas (Windows, Mac o Linux) sin tocar IP ni puertos: `iniciar.cmd` (Windows) o `./iniciar.sh` (Mac y Linux).
+Detecta la red, busca la máquina del núcleo y pregunta qué levantar. El panel oculto de máquinas queda en http://localhost:8099
+y en la esquina inferior derecha de la web. Detalle en [infra/DISTRIBUIDO.md](infra/DISTRIBUIDO.md).
 
 Para desarrollar, levanta solo PostgreSQL (`... up -d postgres`) y luego `discovery-server` y los servicios desde el IDE o con `./mvnw spring-boot:run`. El detalle está en [docs/guia-inicio.md](docs/guia-inicio.md).

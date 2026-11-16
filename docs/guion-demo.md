@@ -4,11 +4,11 @@ Unos 12 minutos. Todos los comandos se corren desde la raíz del repositorio.
 
 ## Antes de la demo (la noche anterior o una hora antes)
 
-0. Usar la rama con el código completo: `git switch universidad/codigo-completo`. En `universidad/microservicios` los servicios están en esqueleto (ver [guia-paso-a-paso.md](guia-paso-a-paso.md)).
-1. Levantar todo:
-   ```bash
-   docker compose -f infra/docker-compose.yml --env-file .env up -d --build
-   ```
+0. Usar la rama con el código completo, `universidad/simplificacion`, la misma en todas las máquinas.
+1. Levantar todo con el lanzador: `iniciar.cmd` (Windows) o `./iniciar.sh` (Mac y Linux). En una sola máquina, Enter (**Todo**).
+   Con dos (Joseph y Guillermo): en la primera **Núcleo + Datos**, y en la otra Enter (**Lo que falta en la red**). Ver
+   [infra/DISTRIBUIDO.md](../infra/DISTRIBUIDO.md). Sin lanzador sigue valiendo `docker compose -f infra/docker-compose.yml --env-file .env up -d --build`.
+   Antes de empezar, abrir el panel oculto (http://localhost:8099 o la esquina inferior derecha de la web) y revisar que todo esté **encendido**.
 2. En el panel de Eureka (http://localhost:8761), revisar que aparezcan los 8 servicios en `UP`: el gateway y los 7 microservicios. Tardan medio minuto en registrarse.
 3. Entrar a la web (http://localhost:8090) como `admin`, con la clave `ADMIN_PASSWORD` del `.env`. Si dice «Usuario o contraseña incorrectos», el admin se creó con una clave anterior (ver la retrospectiva, sección 7.1). La salida que conserva los datos: borrar en DBeaver la fila `admin` de la tabla `usuario` (`usuarios_db`) y reiniciar `ms-usuarios`, que lo crea de nuevo con la clave del `.env`. También se puede usar la clave antigua, o hacer `down -v` y levantar todo de nuevo, lo que **borra los datos**.
 4. En **Ingesta**, ejecutar HISTORICO y luego PROXIMOS. Hace falta internet, porque los CSV se descargan de football-data.co.uk. Las 6 ejecuciones de HISTORICO deben quedar en OK. Para actualizar solo los próximos partidos, basta el botón **Sincronizar datos** de la pantalla Hoy.
@@ -28,8 +28,8 @@ Unos 12 minutos. Todos los comandos se corren desde la raíz del repositorio.
 | 6 | 1 min | **Mis apuestas** | Registrar una apuesta y mostrar el rendimiento: ganadas, perdidas y ROI. La liquidación corre sola a las 06:00 de Lima y también cada 10 minutos de forma automática. |
 | 7 | 1 min | Salir y entrar como `admin`. **Ingesta** | Solo el ADMIN la ve. Tabla de ejecuciones: archivo, filas y estado. |
 | 8 | 1 min | Terminal: seguridad | Ver los comandos de abajo: sin token responde 401, y una ruta interna responde 403 aunque se tenga token. |
-| 9 | 1 min | Terminal: resiliencia | Detener `ms-cuotas` y recargar: la web muestra un banner superior avisando que `ms-cuotas` está apagado, las probabilidades siguen calculándose y sale «Cuotas no disponibles por ahora» (CN-08). Volver a encenderlo. |
-| 10 | 30 s | Terminal: pruebas, y la sección 8 del documento | 96 pruebas en verde en los 10 módulos y las 9 de caja negra aprobadas. |
+| 9 | 1 min | Panel oculto o terminal: resiliencia | Apagar `ms-cuotas` (en el panel, o con el comando de abajo) y recargar: la web muestra un banner superior avisando que `ms-cuotas` está apagado, las probabilidades siguen calculándose y sale «Cuotas no disponibles por ahora» (CN-08). Volver a encenderlo. |
+| 10 | 30 s | Terminal: pruebas, y la sección 8 del documento | Las pruebas de los 10 módulos en verde (103 en el informe; hoy son 107 con las 4 del calendario) y las 9 de caja negra aprobadas. |
 | 11 | 30 s | Cierre | El modelo de Poisson es didáctico: no le gana a las casas de apuestas. El sistema solo recomienda: no apuesta ni maneja dinero (RN-08). |
 
 ### Comandos de los pasos 8 a 10
@@ -44,11 +44,13 @@ docker stop app-apuestas-ms-cuotas-1
 docker start app-apuestas-ms-cuotas-1      # tarda medio minuto en volver a Eureka
 
 # Paso 10: pruebas de un servicio (unos 7 s con las dependencias ya descargadas)
-cd servicios/joseph/ms-apuestas && ./mvnw test
+cd servicios/guillermo/ms-apuestas && ./mvnw test
 ```
 
 ## Si algo falla en vivo
 
 - **Un servicio no aparece en Eureka, o la web dice «No pudimos conectar con el servidor»:** esperar medio minuto. Si sigue así, revisar `docker logs app-apuestas-<servicio>-1` y reiniciarlo con `docker restart app-apuestas-<servicio>-1`.
 - **No hay internet:** no ejecutar la ingesta en vivo. Los datos de la noche anterior siguen en la base, y basta con mostrar la tabla de ejecuciones.
-- **La laptop se queda sin memoria:** cerrar el IDE y las pestañas que sobren. El sistema necesita unos 5 GB.
+- **La laptop se queda sin memoria:** cerrar el IDE y las pestañas que sobren. El sistema necesita unos 5 GB. Con dos máquinas, pasar un bloque a la otra desde el panel oculto (**Mover … aquí**).
+- **Se cae la otra máquina en plena demo:** en el panel oculto, **Mover Modelo y web aquí** (o **Datos**) en la que quedó. En 1 o 2 minutos está de vuelta.
+- **Una máquina no encuentra a la otra:** usar el hotspot de un celular y volver a ejecutar `iniciar` en las dos (Enter repite lo mismo).

@@ -18,3 +18,6 @@ eureka:
     enable-self-preservation: false
     # Revisa cada 5 segundos qué servicios dejaron de enviar su latido y los quita del registro.
     eviction-interval-timer-in-ms: 5000
+    # Responde el registro sin la copia de 30 s: el gateway, la web y el panel de máquinas ven al momento
+    # cuando un servicio se apaga o se enciende.
+    use-read-only-response-cache: false

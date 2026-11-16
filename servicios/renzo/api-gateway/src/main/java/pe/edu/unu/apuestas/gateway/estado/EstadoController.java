@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * GET /estado: cuántas instancias de cada servicio hay registradas en Eureka en este momento.
+ * GET /api/estado (o /estado): cuántas instancias de cada servicio hay registradas en Eureka en este momento.
  * La web lo lee para avisar en el pie de página qué servicio está apagado (0 instancias).
  * No necesita token y solo devuelve nombres y cantidades. Lo atiende el propio gateway, no una ruta.
  */
@@ -28,7 +28,8 @@ public class EstadoController {
         this.eureka = eureka;
     }
 
-    @GetMapping("/estado")
+    // /api/estado es la ruta del informe (sección 5.8); /estado se mantiene para quien ya la usaba.
+    @GetMapping({"/api/estado", "/estado"})
     public Mono<List<EstadoServicio>> estado() {
         return Flux.fromIterable(RutasConfig.servicios())
                 .concatMap(nombre -> eureka.getInstances(nombre).count()

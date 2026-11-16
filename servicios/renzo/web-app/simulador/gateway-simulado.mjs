@@ -49,6 +49,11 @@ const apuestaDTO = a => ({ id: a.id, partidoId: a.partidoId, partido: a.partido,
 
 // Cada ruta: [método, expresión regular, ¿pública?, función].
 const rutas = [
+  // ---------- el propio gateway: instancias en Eureka (ms-cuotas en 0 para ver el aviso del encabezado) ----------
+  ['GET', /^\/(api\/)?estado$/, true, (req, res) => responder(res, 200,
+    ['ms-usuarios', 'ms-catalogo', 'ms-ingesta', 'ms-estadisticas', 'ms-cuotas', 'ms-predicciones', 'ms-apuestas']
+      .map(servicio => ({ servicio, instancias: servicio === 'ms-cuotas' ? 0 : 1 })))],
+
   // ---------- ms-usuarios ----------
   ['POST', /^\/api\/usuarios\/auth\/login$/, true, async (req, res) => {
     const { nombreUsuario, clave } = await leerCuerpo(req);

@@ -1,4 +1,4 @@
-# ms-cuotas · Joseph (Integrante 2) · puerto 8085 · BD `cuotas_db`
+# ms-cuotas · Guillermo (Integrante 2) · puerto 8085 · BD `cuotas_db`
 
 **Responsabilidad:** guarda las cuotas de cada partido por casa, mercado y selección, y calcula el **margen** de la casa y las **probabilidades sin margen**. Las cuotas de bet365 y Pinnacle llegan desde `ms-ingesta`. Las de Betano las ingresa el usuario a mano, porque no hay una fuente gratuita.
 

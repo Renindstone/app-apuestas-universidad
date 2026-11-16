@@ -1,0 +1,3 @@
+# Los lanzadores tienen que llegar con su fin de línea correcto en cualquier sistema.
+*.sh text eol=lf
+*.cmd text eol=crlf

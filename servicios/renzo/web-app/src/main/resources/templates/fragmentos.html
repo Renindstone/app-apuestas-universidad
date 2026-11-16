@@ -31,7 +31,16 @@
       <button class="btn btn-sm btn-outline-secondary" type="submit">Salir</button>
     </form>
   </div>
+  <div th:replace="~{fragmentos :: alertasServicios}"></div>
 </header>
+
+<!-- Banner del encabezado (sección 5.8): un aviso si el gateway no responde y uno por cada servicio apagado. -->
+<div th:fragment="alertasServicios" class="container" th:with="est=${@estadoServicios}">
+  <p class="alert alert-danger py-2 my-2" role="alert" th:if="${est.gatewayCaido()}">
+    El gateway no responde, así que la web no puede hablar con ningún servicio. Se está esperando a que vuelva.</p>
+  <p class="alert alert-warning py-2 my-2" role="alert" th:each="s : ${est.apagados()}">
+    <strong th:text="${s.servicio()}">ms-cuotas</strong> está apagado. <span th:text="${s.consecuencia()}">No se ven las cuotas.</span></p>
+</div>
 
 <!-- Un enlace del menú. -->
 <a th:fragment="enlace(activo, clave, ruta, texto)" class="nav-link" th:classappend="${activo == clave} ? 'active'"
@@ -44,12 +53,8 @@
 
 <!-- Pie: juego responsable (RN-WEB-07) y honestidad sobre el modelo (RN-15). -->
 <footer th:fragment="pie" class="container small text-secondary border-top mt-4 py-3">
-  <!-- Estado de los servicios: cuántas instancias hay de cada uno y un aviso sencillo por cada servicio apagado. -->
+  <!-- Estado de los servicios: cuántas instancias hay de cada uno. Los avisos de servicio apagado van en el encabezado. -->
   <div class="mb-3" th:with="est=${@estadoServicios}">
-    <p class="alert alert-danger py-2 mb-2" role="alert" th:if="${est.gatewayCaido()}">
-      El gateway no responde, así que la web no puede hablar con ningún servicio. Se está esperando a que vuelva.</p>
-    <p class="alert alert-warning py-2 mb-2" role="alert" th:each="s : ${est.apagados()}">
-      <strong th:text="${s.servicio()}">ms-cuotas</strong> está apagado. <span th:text="${s.consecuencia()}">No se ven las cuotas.</span></p>
     <p class="mb-0" th:unless="${est.gatewayCaido()}">
       <span class="text-body">Servicios:</span>
       <span th:each="s : ${est.lineas()}" class="badge me-1" th:classappend="${s.encendido()} ? 'text-bg-success' : 'text-bg-danger'"
@@ -58,6 +63,9 @@
   </div>
   <p class="mb-1"><strong class="text-body">Solo para mayores de 18 años. Juega con responsabilidad.</strong></p>
   <p class="mb-0">Las probabilidades salen de un modelo de Poisson didáctico. Sirven para aprender y comparar, no garantizan ganancias.</p>
+  <!-- Esquina invisible (abajo a la derecha): abre el panel de máquinas del lanzador (infra/Lanzador.java).
+       Solo responde en una máquina del equipo que tenga el lanzador abierto, porque el panel vive en su localhost. -->
+  <a class="esquina-panel" href="http://localhost:8099/" target="_blank" rel="noopener" tabindex="-1" aria-label="Panel de máquinas"></a>
 </footer>
 
 <!-- Opciones de selección agrupadas por mercado. Recibe los nombres de los equipos para el 1X2. -->

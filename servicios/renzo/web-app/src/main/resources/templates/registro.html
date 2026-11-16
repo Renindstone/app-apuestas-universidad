@@ -3,6 +3,7 @@
 <!-- /registro: crear una cuenta. El rol lo asigna el servidor (siempre APOSTADOR). -->
 <head th:replace="~{fragmentos :: head('Crear cuenta')}"></head>
 <body>
+<div th:replace="~{fragmentos :: alertasServicios}"></div>
 <main class="container py-5" style="max-width: 440px">
   <div class="text-center mb-3">
     <img th:src="@{/img/logo.png}" alt="Logo Apuestas" class="img-fluid mb-2" style="max-width: 140px; height: auto;">

@@ -1,4 +1,4 @@
-# ms-apuestas · Joseph (Integrante 2) · puerto 8087 · BD `apuestas_db`
+# ms-apuestas · Guillermo (Integrante 2) · puerto 8087 · BD `apuestas_db`
 
 **Responsabilidad:** convierte probabilidades y cuotas en decisiones. Evalúa el valor esperado de una cuota y genera la **apuesta del día**. También guarda las apuestas de cada usuario, las liquida cuando termina el partido y calcula el rendimiento.
 

@@ -1,4 +1,4 @@
-# ms-estadisticas · Guillermo (Integrante 1) · puerto 8084 · BD `estadisticas_db`
+# ms-estadisticas · Joseph (Integrante 1) · puerto 8084 · BD `estadisticas_db`
 
 **Responsabilidad:** guarda las estadísticas de cada equipo en cada partido y calcula promedios: de un equipo (a favor y en contra, como local o visitante, en los últimos N partidos), de la liga y del árbitro. Es la materia prima de `ms-predicciones`.
 

@@ -1,4 +1,4 @@
-# ms-catalogo · Guillermo (Integrante 1) · puerto 8082 · BD `catalogo_db`
+# ms-catalogo · Joseph (Integrante 1) · puerto 8082 · BD `catalogo_db`
 
 **Responsabilidad:** ligas, equipos, árbitros y partidos. **Es el dueño de los IDs:** el resto de servicios guarda `partidoId`, `equipoId`, `ligaId` y `arbitroId` tal como los entrega este servicio. **Debe estar listo antes que los demás**, así que el día 1 tengan al menos el mock de `GET /partidos`.
 

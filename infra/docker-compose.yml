@@ -86,32 +86,32 @@ services:
 
   ms-catalogo:
     <<: *servicio
-    build: ../servicios/guillermo/ms-catalogo
+    build: ../servicios/joseph/ms-catalogo
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   ms-ingesta:
     <<: *servicio
-    build: ../servicios/guillermo/ms-ingesta
+    build: ../servicios/joseph/ms-ingesta
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   ms-estadisticas:
     <<: *servicio
-    build: ../servicios/guillermo/ms-estadisticas
+    build: ../servicios/joseph/ms-estadisticas
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   ms-cuotas:
     <<: *servicio
-    build: ../servicios/joseph/ms-cuotas
+    build: ../servicios/guillermo/ms-cuotas
     environment: *entorno-bd
     depends_on: *depende-de-bd
 
   # Sin base de datos: solo necesita Eureka para encontrar a ms-catalogo y ms-estadisticas.
   ms-predicciones:
     <<: *servicio
-    build: ../servicios/joseph/ms-predicciones
+    build: ../servicios/guillermo/ms-predicciones
     environment:
       EUREKA_URL: http://discovery-server:8761/eureka
       JAVA_TOOL_OPTIONS: ${JAVA_OPCIONES:--Xmx384m}
@@ -123,7 +123,7 @@ services:
 
   ms-apuestas:
     <<: *servicio
-    build: ../servicios/joseph/ms-apuestas
+    build: ../servicios/guillermo/ms-apuestas
     environment: *entorno-bd
     depends_on: *depende-de-bd
 

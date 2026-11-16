@@ -1,4 +1,4 @@
-# ms-predicciones · Joseph (Integrante 2) · puerto 8086 · sin BD
+# ms-predicciones · Guillermo (Integrante 2) · puerto 8086 · sin BD
 
 **Responsabilidad:** calcula la probabilidad de cada mercado de un partido con un **modelo de Poisson** a partir de los promedios de `ms-estadisticas`. No guarda nada: cada petición pide los datos y calcula. Es el corazón "matemático" del sistema.
 

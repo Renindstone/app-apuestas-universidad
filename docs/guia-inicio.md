@@ -124,19 +124,21 @@ En el `docker-compose.yml` completo, cada servicio recibe `EUREKA_URL=http://dis
 
 ### Levantar todo con Docker
 
-Desde la raíz o desde `infra/` (gracias al enlace simbólico `infra/.env`):
+Desde la raíz del repo, con el `.env` copiado de `.env.example`:
 
 ```bash
-cd infra && docker compose up -d --build
+docker compose -f infra/docker-compose.yml --env-file .env up -d --build
 ```
+
+O con el lanzador, que además sirve para repartir en varias máquinas: `iniciar.cmd` (Windows) o `./iniciar.sh` (Mac y Linux).
 
 - La primera vez tarda varios minutos, porque cada imagen descarga Maven y sus dependencias.
 - **Direcciones:** la web queda en http://localhost:8090, el gateway en http://localhost:8080 y el panel de Eureka en http://localhost:8761.
 - **Arranque:** los servicios tardan medio minuto en verse entre sí, que es lo que tarda Eureka en repartir el registro.
 - **Ingesta:** para cargar datos, entra a la web como `admin` (con la clave `ADMIN_PASSWORD` del `.env`). En **Ingesta**, ejecuta HISTORICO y luego PROXIMOS.
 - **Memoria:** cada JVM tiene un tope de 384 MB (ajustable en `.env`).
-- **Despliegue distribuido en 3 máquinas:** si una sola máquina no tiene suficiente memoria RAM (~5-8 GB), consulta [infra/DISTRIBUIDO.md](../infra/DISTRIBUIDO.md) para repartir los servicios entre los 3 integrantes.
-- **Apagar:** `cd infra && docker compose down` apaga todo; con `-v` también borra los volúmenes de PostgreSQL.
+- **Despliegue distribuido en 3 máquinas:** si una sola máquina no tiene suficiente memoria RAM (~5-8 GB), usa el lanzador `iniciar` y consulta [infra/DISTRIBUIDO.md](../infra/DISTRIBUIDO.md) para repartir los servicios entre 2 o 3 máquinas.
+- **Apagar:** `docker compose -f infra/docker-compose.yml --env-file .env down` apaga todo (o `iniciar apagar` si se levantó con el lanzador); con `-v` también borra los volúmenes de PostgreSQL.
 
 ## 8. Flujo de Git
 

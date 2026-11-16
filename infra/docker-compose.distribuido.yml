@@ -1,5 +1,6 @@
-# Los mismos servicios repartidos en varias computadoras (prueba de tolerancia a fallos). Guía: infra/DISTRIBUIDO.md.
-# En cada máquina se levantan solo los servicios que le tocan, por ejemplo:
+# Los mismos servicios repartidos en varias computadoras (sección 5.6 del informe). Guía: infra/DISTRIBUIDO.md.
+# Lo normal es no usarlo a mano: iniciar.cmd (Windows) o ./iniciar.sh (Mac y Linux) escriben las IP en el .env
+# y levantan aquí solo lo que le toca a cada máquina. A mano sería, por ejemplo:
 #   docker compose -f infra/docker-compose.distribuido.yml --env-file .env up -d --build ms-cuotas ms-predicciones
 # Diferencias con docker-compose.yml: Eureka, PostgreSQL y el gateway se buscan por la IP de su máquina (variables del .env),
 # cada servicio publica su puerto y se registra en Eureka con la IP de SU máquina, para que los de otras máquinas lo encuentren.
@@ -8,6 +9,9 @@ name: app-apuestas
 
 x-servicio: &servicio
   restart: unless-stopped
+  # Sin red, el lanzador usa host.docker.internal como IP de todo. Docker Desktop ya lo trae; en Linux lo agrega esta línea.
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
 
 x-entorno: &entorno
   EUREKA_URL: http://${IP_EUREKA:?Falta IP_EUREKA en el .env}:8761/eureka
@@ -71,42 +75,42 @@ services:
 
   ms-catalogo:
     <<: *servicio
-    build: ../servicios/guillermo/ms-catalogo
+    build: ../servicios/joseph/ms-catalogo
     environment: *entorno-bd
     ports:
       - "8082:8082"
 
   ms-ingesta:
     <<: *servicio
-    build: ../servicios/guillermo/ms-ingesta
+    build: ../servicios/joseph/ms-ingesta
     environment: *entorno-bd
     ports:
       - "8083:8083"
 
   ms-estadisticas:
     <<: *servicio
-    build: ../servicios/guillermo/ms-estadisticas
+    build: ../servicios/joseph/ms-estadisticas
     environment: *entorno-bd
     ports:
       - "8084:8084"
 
   ms-cuotas:
     <<: *servicio
-    build: ../servicios/joseph/ms-cuotas
+    build: ../servicios/guillermo/ms-cuotas
     environment: *entorno-bd
     ports:
       - "8085:8085"
 
   ms-predicciones:
     <<: *servicio
-    build: ../servicios/joseph/ms-predicciones
+    build: ../servicios/guillermo/ms-predicciones
     environment: *entorno
     ports:
       - "8086:8086"
 
   ms-apuestas:
     <<: *servicio
-    build: ../servicios/joseph/ms-apuestas
+    build: ../servicios/guillermo/ms-apuestas
     environment: *entorno-bd
     ports:
       - "8087:8087"

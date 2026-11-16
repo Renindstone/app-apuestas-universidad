@@ -137,8 +137,8 @@ public class IngestaService {
         programada(TipoIngesta.HISTORICO);
     }
 
-    // Cada 3 horas (desde las 08:00 de Lima): próximos partidos, para tener los de toda la semana que publique la fuente (RN-ING-02).
-    @Scheduled(cron = "0 0 2,5,8,11,14,17,20,23 * * *", zone = "America/Lima")
+    // 08:00 y 16:00 de Lima: próximos partidos (RN-ING-02 y sección 9.1 del informe).
+    @Scheduled(cron = "0 0 8,16 * * *", zone = "America/Lima")
     public void proximosProgramado() {
         programada(TipoIngesta.PROXIMOS);
     }

@@ -37,18 +37,18 @@ Cada servicio necesita que los que llama ya existan. Este orden respeta esas dep
 | 1 | discovery-server | Renzo | — | [GUIA](../servicios/renzo/discovery-server/GUIA.md) |
 | 2 | api-gateway | Renzo | discovery-server | [GUIA](../servicios/renzo/api-gateway/GUIA.md) |
 | 3 | ms-usuarios | Renzo | PostgreSQL | [GUIA](../servicios/renzo/ms-usuarios/GUIA.md) |
-| 4 | ms-catalogo | Guillermo | PostgreSQL | [GUIA](../servicios/guillermo/ms-catalogo/GUIA.md) |
-| 5 | ms-estadisticas | Guillermo | PostgreSQL | [GUIA](../servicios/guillermo/ms-estadisticas/GUIA.md) |
-| 6 | ms-cuotas | Joseph | ms-catalogo | [GUIA](../servicios/joseph/ms-cuotas/GUIA.md) |
-| 7 | ms-ingesta | Guillermo | ms-catalogo, ms-estadisticas y ms-cuotas | [GUIA](../servicios/guillermo/ms-ingesta/GUIA.md) |
-| 8 | ms-predicciones | Joseph | ms-catalogo y ms-estadisticas | [GUIA](../servicios/joseph/ms-predicciones/GUIA.md) |
-| 9 | ms-apuestas | Joseph | ms-catalogo, ms-predicciones, ms-cuotas y ms-estadisticas | [GUIA](../servicios/joseph/ms-apuestas/GUIA.md) |
+| 4 | ms-catalogo | Joseph | PostgreSQL | [GUIA](../servicios/joseph/ms-catalogo/GUIA.md) |
+| 5 | ms-estadisticas | Joseph | PostgreSQL | [GUIA](../servicios/joseph/ms-estadisticas/GUIA.md) |
+| 6 | ms-cuotas | Guillermo | ms-catalogo | [GUIA](../servicios/guillermo/ms-cuotas/GUIA.md) |
+| 7 | ms-ingesta | Joseph | ms-catalogo, ms-estadisticas y ms-cuotas | [GUIA](../servicios/joseph/ms-ingesta/GUIA.md) |
+| 8 | ms-predicciones | Guillermo | ms-catalogo y ms-estadisticas | [GUIA](../servicios/guillermo/ms-predicciones/GUIA.md) |
+| 9 | ms-apuestas | Guillermo | ms-catalogo, ms-predicciones, ms-cuotas y ms-estadisticas | [GUIA](../servicios/guillermo/ms-apuestas/GUIA.md) |
 
 Los tres pueden empezar el mismo día: cada guía arranca por lo que no depende de nadie.
 
 - **Renzo:** el gateway y `ms-usuarios` solo necesitan Eureka y PostgreSQL.
-- **Guillermo:** el catálogo y las estadísticas solo necesitan PostgreSQL; la lectura del CSV de la ingesta se prueba con archivos de prueba.
-- **Joseph:** las fórmulas de las cuotas, el modelo de Poisson y el valor esperado son funciones puras que se prueban sin ningún otro servicio.
+- **Joseph:** el catálogo y las estadísticas solo necesitan PostgreSQL; la lectura del CSV de la ingesta se prueba con archivos de prueba.
+- **Guillermo:** las fórmulas de las cuotas, el modelo de Poisson y el valor esperado son funciones puras que se prueban sin ningún otro servicio.
 
 **Para empezar,** lean la [guía de ms-usuarios](../servicios/renzo/ms-usuarios/GUIA.md) aunque no sea su servicio. Es la que explica con más detalle el recorrido que siguen todos: entidad → repositorio → DTO → excepciones → servicio → controlador → pruebas.
 

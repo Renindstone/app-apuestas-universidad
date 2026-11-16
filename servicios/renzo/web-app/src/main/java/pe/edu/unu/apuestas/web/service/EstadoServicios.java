@@ -11,7 +11,7 @@ import pe.edu.unu.apuestas.web.dto.EstadoServicioDTO;
 
 /**
  * Qué servicios están encendidos, para avisarlo en el pie de todas las páginas (${@estadoServicios}).
- * Le pregunta al gateway (GET /estado), que mira Eureka. La web nunca habla directo con Eureka ni con un servicio (RN-WEB-01).
+ * Le pregunta al gateway (GET /api/estado), que mira Eureka. La web nunca habla directo con Eureka ni con un servicio (RN-WEB-01).
  * La respuesta se guarda 3 segundos para no hacer una llamada extra por cada página.
  */
 @Component("estadoServicios")
@@ -71,7 +71,7 @@ public class EstadoServicios {
             return;
         }
         try {
-            List<EstadoServicioDTO> estado = gateway.get().uri("/estado").retrieve()
+            List<EstadoServicioDTO> estado = gateway.get().uri("/api/estado").retrieve()
                     .body(new ParameterizedTypeReference<List<EstadoServicioDTO>>() {
                     });
             ultimas = estado == null ? null : estado.stream()

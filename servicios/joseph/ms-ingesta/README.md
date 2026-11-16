@@ -1,4 +1,4 @@
-# ms-ingesta · Guillermo (Integrante 1) · puerto 8083 · BD `ingesta_db`
+# ms-ingesta · Joseph (Integrante 1) · puerto 8083 · BD `ingesta_db`
 
 **Responsabilidad:** descarga los CSV gratuitos de [football-data.co.uk](https://www.football-data.co.uk) y reparte sus datos entre `ms-catalogo`, `ms-estadisticas` y `ms-cuotas`. **Es el único servicio que conoce el formato de football-data** (capa anticorrupción): los demás reciben JSON limpio.
 
@@ -58,7 +58,7 @@ Cuidado con los nombres: los encabezados exactos varían un poco entre archivos.
 | Hora | Tarea |
 |---|---|
 | 05:00 todos los días | HISTORICO, solo de la temporada actual |
-| Cada 3 horas (02:00, 05:00, 08:00, ..., 23:00) | PROXIMOS, para tener los partidos de toda la semana que publique la fuente |
+| 08:00 y 16:00 todos los días | PROXIMOS, con los partidos de la semana que publique la fuente |
 | 2 minutos después de arrancar | HISTORICO (las 2 temporadas si la base está vacía) y luego PROXIMOS |
 
 `POST /interno/resultados` (solo dentro de la red Docker): vuelve a leer los resultados de la temporada actual. Lo llama `ms-apuestas` cuando hay apuestas de partidos que ya terminaron. `202` o `409` si ya hay una ingesta en curso.

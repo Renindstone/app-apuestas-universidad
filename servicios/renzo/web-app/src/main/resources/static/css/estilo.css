@@ -85,3 +85,6 @@ mark { padding: 0 .3em; background: #e6f2ea; color: inherit; }
 .g-area { fill: rgba(31, 41, 55, .06); }
 .g-gana { fill: var(--valor); }
 .g-pierde { fill: var(--perdida); }
+
+/* Esquina invisible del pie: abre el panel de máquinas del lanzador. Sin color ni cursor de enlace, a propósito. */
+.esquina-panel { position: fixed; right: 0; bottom: 0; width: 28px; height: 28px; z-index: 1080; cursor: default; }
