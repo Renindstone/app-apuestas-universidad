@@ -6,7 +6,7 @@ Esta guía explica cómo construir los 9 microservicios por cuenta propia, servi
 
 | Rama | Qué tiene | Para qué sirve |
 |---|---|---|
-| `universidad/microservicios` | Los servicios en **esqueleto** y las guías | Aprender construyendo cada servicio |
+| `universidad/microservicios` | Hoy, el código **completo** (la rama que nombra el informe), igual que `universidad/simplificacion`. El esqueleto quedó en su historial: `git switch -c practica 8b35149` | Presentar el proyecto. Para practicar, partir del commit del esqueleto |
 | `universidad/codigo-completo` | El código **completo y probado**: 96 pruebas en verde y las 9 de caja negra (sección 8 de la documentación) | Consultar la solución de un paso, recuperar un servicio si no alcanza el tiempo, y explicar el código ya hecho |
 
 La documentación, los contratos, la infraestructura y la `web-app` son iguales en las dos ramas.
@@ -117,7 +117,7 @@ git switch universidad/codigo-completo
 docker compose -f infra/docker-compose.yml --env-file .env up -d --build
 ```
 
-Ojo: si levantan el `docker-compose` completo con `--build` desde `universidad/microservicios`, las imágenes se construyen con los esqueletos. Los servicios arrancan, pero no responden nada útil, y la web muestra errores.
+Ojo: si levantan el `docker-compose` completo con `--build` desde el commit del esqueleto (`8b35149`), las imágenes se construyen con los esqueletos. Los servicios arrancan, pero no responden nada útil, y la web muestra errores.
 
 ## Explicar el código ya hecho
 

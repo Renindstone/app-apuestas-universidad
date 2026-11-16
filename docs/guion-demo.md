@@ -4,7 +4,7 @@ Unos 12 minutos. Todos los comandos se corren desde la raíz del repositorio.
 
 ## Antes de la demo (la noche anterior o una hora antes)
 
-0. Usar la rama con el código completo, `universidad/simplificacion`, la misma en todas las máquinas.
+0. Usar la rama del informe, `universidad/microservicios` (tiene lo mismo que `universidad/simplificacion`), la misma en todas las máquinas.
 1. Levantar todo con el lanzador: `iniciar.cmd` (Windows) o `./iniciar.sh` (Mac y Linux). En una sola máquina, Enter (**Todo**).
    Con dos (Joseph y Guillermo): en la primera **Núcleo + Datos**, y en la otra Enter (**Lo que falta en la red**). Ver
    [infra/DISTRIBUIDO.md](../infra/DISTRIBUIDO.md). Sin lanzador sigue valiendo `docker compose -f infra/docker-compose.yml --env-file .env up -d --build`.
